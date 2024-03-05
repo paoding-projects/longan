@@ -10,7 +10,7 @@
 
     <name>Longan</name>
     <description>A lightweight java framework.</description>
-    <url>https://github.com/paoding-team/longan</url>
+    <url>https://github.com/paoding-projects/longan</url>
 
     <licenses>
         <license>
@@ -21,8 +21,8 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/paoding-team/longan.git</url>
-        <connection>https://github.com/paoding-team/longan.git</connection>
+        <url>https://github.com/paoding-projects/longan.git</url>
+        <connection>https://github.com/paoding-projects/longan.git</connection>
     </scm>
 
     <developers>
