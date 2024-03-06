@@ -1,28 +1,18 @@
 package dev.paoding.longan.channel.http;
 
-public class ByteFile {
-    private byte[] content;
-    private String name;
-    private long length;
+import lombok.Getter;
+
+@Getter
+public class ByteFile implements VirtualFile {
+    private final byte[] bytes;
+    private final String name;
+
+    public ByteFile(byte[] bytes, String name) {
+        this.bytes = bytes;
+        this.name = name;
+    }
 
     public long length() {
-        return length;
-    }
-
-    public byte[] getContent() {
-        return content;
-    }
-
-    public void setContent(byte[] content) {
-        this.content = content;
-        length = content.length;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return bytes.length;
     }
 }

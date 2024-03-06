@@ -1,9 +1,17 @@
 package dev.paoding.longan.channel.http;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
+
 
 public interface HttpResponse {
-    String getHeader(String name);
 
-    ByteBuf getContent();
+    VirtualFile getFile();
+
+    DefaultHttpResponse getDefaultHttpResponse();
+
+    HttpHeaders headers();
+
+    String headers(String name);
+
 }

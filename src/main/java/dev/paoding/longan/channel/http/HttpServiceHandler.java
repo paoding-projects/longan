@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
+import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
@@ -45,7 +46,7 @@ public class HttpServiceHandler extends AbstractServiceHandler {
         }
     }
 
-    public FullHttpResponse channelRead(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {
+    public HttpResponse channelRead(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {
         HttpVersion httpVersion = fullHttpRequest.protocolVersion();
 
         try {
@@ -62,23 +63,24 @@ public class HttpServiceHandler extends AbstractServiceHandler {
 
             if (handlerInterceptor.preHandle(httpRequest)) {
                 Result result = httpServiceInvoker.invokeService(methodInvocation, path, query, fullHttpRequest);
-                AsciiString contentType = result.getType();
                 Object content = result.getValue();
                 if (content == null) {
                     return writeNoContent(httpVersion);
                 }
+
+                AsciiString contentType = result.getType();
                 if (contentType.equals(APPLICATION_JSON)) {
                     if (content instanceof String) {
                         return writeJson(httpVersion, HttpResponseStatus.OK, content.toString());
                     } else {
                         return writeJson(httpVersion, HttpResponseStatus.OK, GsonUtils.toJson(content));
                     }
-                } else if (contentType.startsWith("image")) {
-                    return write(httpVersion, HttpResponseStatus.OK, (byte[]) content, contentType);
-                } else if (contentType.equals(APPLICATION_OCTET_STREAM)) {
-                    return write(httpVersion, HttpResponseStatus.OK, (byte[]) content, APPLICATION_OCTET_STREAM);
                 } else {
-                    return write(httpVersion, HttpResponseStatus.OK, content.toString(), contentType);
+                    if (content instanceof VirtualFile virtualFile) {
+                        return write(httpVersion, virtualFile, contentType);
+                    } else {
+                        return write(httpVersion, HttpResponseStatus.OK, content.toString(), contentType);
+                    }
                 }
             } else {
                 return writeText(httpVersion, HttpResponseStatus.FORBIDDEN, "Forbidden " + fullHttpRequest.uri() + " is denied");
@@ -111,8 +113,8 @@ public class HttpServiceHandler extends AbstractServiceHandler {
         }
     }
 
-    private FullHttpResponse handelException(MethodInvocation methodInvocation, HttpVersion httpVersion, HttpResponseStatus httpResponseStatus,
-                                             ExceptionResult exceptionResult, String message) {
+    private HttpResponse handelException(MethodInvocation methodInvocation, HttpVersion httpVersion, HttpResponseStatus httpResponseStatus,
+                                         ExceptionResult exceptionResult, String message) {
         if (methodInvocation == null) {
             return writeText(httpVersion, httpResponseStatus, message);
         }

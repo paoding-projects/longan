@@ -1,22 +1,39 @@
 package dev.paoding.longan.channel.http;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
 
 public class HttpResponseImpl implements HttpResponse {
-    private FullHttpResponse response;
+    private DefaultHttpResponse response;
+    private VirtualFile file;
 
-    public HttpResponseImpl(FullHttpResponse response) {
+
+    public HttpResponseImpl(DefaultHttpResponse response) {
         this.response = response;
     }
 
-    @Override
-    public String getHeader(String name) {
-        return response.headers().get(name);
+    public HttpResponseImpl(DefaultHttpResponse response,VirtualFile file) {
+        this.response = response;
+        this.file = file;
     }
 
     @Override
-    public ByteBuf getContent() {
-        return response.content();
+    public VirtualFile getFile() {
+        return this.file;
     }
+
+    public DefaultHttpResponse getDefaultHttpResponse() {
+        return this.response;
+    }
+
+    @Override
+    public HttpHeaders headers() {
+        return response.headers();
+    }
+
+    @Override
+    public String headers(String name) {
+        return response.headers().get(name);
+    }
+
 }

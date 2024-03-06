@@ -3,7 +3,6 @@ package dev.paoding.longan.channel.http;
 import dev.paoding.longan.doc.DocumentService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.AsciiString;
@@ -17,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class DocServiceHandler extends AbstractServiceHandler {
 
-    public FullHttpResponse channelRead(ChannelHandlerContext ctx, FullHttpRequest request) {
+    public HttpResponse channelRead(ChannelHandlerContext ctx, FullHttpRequest request) {
         String uri = request.uri();
         if (uri.equals("/doc") || uri.equals("/doc/") || uri.equals("/doc/index.html")) {
             ClassPathResource classPathResource = new ClassPathResource("doc/index.html");
