@@ -92,9 +92,9 @@ public class HttpHandler {
                         channelFuture.addListener(ChannelFutureListener.CLOSE);
                     }
                 } else {
-                    if (file instanceof HttpFile httpFile) {
-                        DownloadListener downloadListener = httpFile.getDownloadListener();
-                        RandomAccessFile randomAccessFile = new RandomAccessFile(httpFile.getFile(), "r");
+                    if (file instanceof BinaryFile binaryFile) {
+                        DownloadListener downloadListener = binaryFile.getDownloadListener();
+                        RandomAccessFile randomAccessFile = new RandomAccessFile(binaryFile.getFile(), "r");
                         try {
                             ChannelFuture sendFileFuture;
                             if (zeroCopyEnabled) {

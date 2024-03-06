@@ -1,17 +1,13 @@
 package dev.paoding.longan.core;
 
 import com.google.common.base.Throwables;
-import dev.paoding.longan.channel.http.HttpFile;
 import dev.paoding.longan.channel.http.VirtualFile;
 import dev.paoding.longan.data.DataNotFoundException;
 import dev.paoding.longan.service.DuplicateException;
 import dev.paoding.longan.service.InternalServerException;
 import dev.paoding.longan.service.ServiceException;
-import dev.paoding.longan.channel.http.ByteFile;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLIntegrityConstraintViolationException;
