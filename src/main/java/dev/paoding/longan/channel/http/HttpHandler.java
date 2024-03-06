@@ -46,9 +46,7 @@ public class HttpHandler {
         }).factory();
         executorService = Executors.newThreadPerTaskExecutor(threadFactory);
 
-        String os = System.getProperty("os.name").toLowerCase();
-        System.out.println(os);
-        if (os.contains("win")) {
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
             zeroCopyEnabled = false;
         } else {
             zeroCopyEnabled = true;
@@ -95,6 +93,7 @@ public class HttpHandler {
                     }
                 } else {
                     if (file instanceof HttpFile httpFile) {
+                        DownloadListener downloadListener = httpFile.getDownloadListener();
                         RandomAccessFile randomAccessFile = new RandomAccessFile(httpFile.getFile(), "r");
                         try {
                             ChannelFuture sendFileFuture;
@@ -116,14 +115,16 @@ public class HttpHandler {
                                     } catch (IOException e) {
                                         log.info(e.getMessage());
                                     }
-                                    FileListener fileListener = httpFile.getFileListener();
-                                    if (fileListener != null) {
-                                        fileListener.complete();
+                                    if (downloadListener != null) {
+                                        downloadListener.onSuccess();
                                     }
                                 }
                             });
                         } catch (Exception e) {
                             randomAccessFile.close();
+                            if (downloadListener != null) {
+                                downloadListener.onFailure();
+                            }
                         }
                     } else {
                         ByteFile byteFile = (ByteFile) file;
