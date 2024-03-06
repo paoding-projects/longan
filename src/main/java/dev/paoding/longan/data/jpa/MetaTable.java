@@ -229,8 +229,8 @@ public class MetaTable<T> {
     }
 
     public void addColumn(MetaColumn metaColumn) {
+        metaColumn.setTableName(name);
         if (metaColumn.isPrimaryKey()) {
-            metaColumn.setTableName(name);
             primaryKey = metaColumn;
         } else {
             metaColumnList.add(metaColumn);
@@ -317,7 +317,7 @@ public class MetaTable<T> {
                 values.append(primaryKey.getAlias());
             }
             for (MetaColumn metaColumn : metaColumnList) {
-                if ( metaColumn.isInsertable()) {
+                if (metaColumn.isInsertable()) {
                     fields.append(", ");
                     fields.append(metaColumn.getName());
 
@@ -394,15 +394,22 @@ public class MetaTable<T> {
         StringBuilder sb = new StringBuilder();
         sb.append("\nCREATE TABLE ").append(this.name).append(" (\n\t");
         if (primaryKey != null) {
-            sb.append(primaryKey.generateText());
+            sb.append(primaryKey.generateColumnStatement());
         }
 
         for (MetaColumn metaColumn : metaColumnList) {
             sb.append(",\n\t");
-            sb.append(metaColumn.generateText());
+            sb.append(metaColumn.generateColumnStatement());
         }
         sb.append("\n)");
         sqlList.add(sb.toString());
+
+        for (MetaColumn metaColumn : metaColumnList) {
+            String statement = metaColumn.generateColumnCommentStatement();
+            if (statement != null) {
+                sqlList.add(statement);
+            }
+        }
 
 //        for (MetaColumn metaColumn : metaColumnList) {
 //            if (metaColumn.isUnique()) {

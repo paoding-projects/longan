@@ -100,7 +100,7 @@ public abstract class TableMetaDataManager {
                             }
                         }
                     } else {
-                        execute("ALTER TABLE " + tableName + " ADD " + metaColumn.generateText());
+                        execute("ALTER TABLE " + tableName + " ADD " + metaColumn.generateColumnStatement());
                         if (metaColumn.isUnique()) {
                             String indexName = decorateIndexName("uk", tableName, columnName);
                             createIndex(indexName, tableName, columnName, true);

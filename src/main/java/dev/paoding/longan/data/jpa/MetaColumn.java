@@ -156,13 +156,22 @@ public class MetaColumn {
     }
 
 
-    public String generateText() {
+    public String generateColumnStatement() {
         if (Database.isPostgresql()) {
             return generatePostgresqlText();
         } else if (Database.isMySQL()) {
             return generateMySqlText();
         }
         throw new RuntimeException("not support database " + Database.getType());
+    }
+
+    public String generateColumnCommentStatement() {
+        if (Database.isPostgresql()) {
+            if (comment != null && !comment.isBlank()) {
+                return "comment on column " + tableName + "." + name + " is '" + comment + "'";
+            }
+        }
+        return null;
     }
 
     private String generateMySqlText() {
@@ -300,10 +309,6 @@ public class MetaColumn {
             sb.append(" constraint pk_" + tableName + " primary key");
         } else if (!isNullable()) {
             sb.append(" not null");
-        }
-
-        if (comment != null && !comment.isBlank()) {
-            sb.append(" COMMENT '").append(comment).append("'");
         }
 
         return sb.toString();
