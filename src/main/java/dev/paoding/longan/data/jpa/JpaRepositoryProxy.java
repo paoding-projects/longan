@@ -504,6 +504,11 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
 
     @Override
     public int update(T entity) {
+        return update(entity, false);
+    }
+
+    @Override
+    public int update(T entity, boolean strict) {
         if (entity == null) {
             throw new RuntimeException("object must not be null");
         }
@@ -514,7 +519,9 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         paramMap.put("id", metaTable.getPrimaryKey().getValue(entity));
         metaTable.getMetaColumnList().forEach(metaColumn -> {
             Object value = metaColumn.getValue(entity);
-            if (value != null) {
+            if (strict) {
+                paramMap.put(metaColumn.getName(), convert(value));
+            } else if (value != null) {
                 paramMap.put(metaColumn.getName(), convert(value));
             }
         });

@@ -1,6 +1,7 @@
 package dev.paoding.longan.core;
 
 import com.google.common.base.Throwables;
+import dev.paoding.longan.channel.http.HttpRequestException;
 import dev.paoding.longan.channel.http.VirtualFile;
 import dev.paoding.longan.data.DataNotFoundException;
 import dev.paoding.longan.service.DuplicateException;
@@ -24,6 +25,9 @@ public abstract class ServiceInvoker extends ResponseFilter {
         } catch (ServiceException e) {
             e.setMethodInvocation(methodInvocation);
             throw e;
+        } catch (HttpRequestException e) {
+            e.setResponseType(methodInvocation.getResponseType());
+            throw e;
         } catch (InternalServerException e) {
             e.setMethodInvocation(methodInvocation);
             throw e;
@@ -39,6 +43,8 @@ public abstract class ServiceInvoker extends ResponseFilter {
             Class<?> clazz = throwable.getClass();
             if (ServiceException.class.isAssignableFrom(clazz)) {
                 throw (ServiceException) throwable;
+            } else if (HttpRequestException.class.isAssignableFrom(clazz)) {
+                throw (HttpRequestException) throwable;
             } else if (clazz == EmptyResultDataAccessException.class) {
                 throw new DataNotFoundException("data not found");
             } else if (clazz == SQLIntegrityConstraintViolationException.class) {

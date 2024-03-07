@@ -330,7 +330,7 @@ public class MetaTable<T> {
             sb.append("insert into ");
             sb.append(name);
             if (fields.length() > 0) {
-                sb.append("(");
+                sb.append(" (");
                 sb.append(fields.substring(2));
                 sb.append(") values (");
                 sb.append(values.substring(2));

@@ -76,6 +76,13 @@ public interface JpaRepository<T, ID> {
      */
     int update(T entity);
 
+    /**
+     * 只更新不为 null 的值
+     *
+     * @param entity
+     */
+    int update(T entity, boolean strict);
+
     int update(List<T> entityList);
 
     int update(List<ID> idList, T entity);

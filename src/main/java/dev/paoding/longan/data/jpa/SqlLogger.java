@@ -19,7 +19,8 @@ public class SqlLogger {
 
     public static void log(String sql) {
         if (showSql) {
-            logger.info("statement\n{}", SqlFormatter.format(sql));
+//            logger.info("statement\n{}", SqlFormatter.format(sql));
+            logger.info("statement\n{}", sql);
         }
     }
 
