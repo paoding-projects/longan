@@ -15,6 +15,7 @@ public class LonganApplication {
         logger.info("Starting Application using Java {}", System.getProperty("java.version"));
         LonganListableBeanFactory longanListableBeanFactory = new LonganListableBeanFactory(primarySource);
         AnnotationConfigApplicationContext annotationConfigApplicationContext = new AnnotationConfigApplicationContext(longanListableBeanFactory);
+        annotationConfigApplicationContext.registerShutdownHook();
         annotationConfigApplicationContext.register(primarySource);
         annotationConfigApplicationContext.refresh();
         stopWatch.stop();
