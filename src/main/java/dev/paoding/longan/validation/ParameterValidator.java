@@ -49,8 +49,7 @@ public class ParameterValidator {
 
         if (type.isAnnotationPresent(Entity.class)) {
             validateEntity(type, object, param.name(), param.validator(), validatorMap);
-        } else if (Collection.class.isAssignableFrom(type) && parameter.getParameterizedType() instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+        } else if (Collection.class.isAssignableFrom(type) && parameter.getParameterizedType() instanceof ParameterizedType parameterizedType) {
             validateCollection(parameterizedType, param.name(), object, param.validator(), validatorMap);
         }
     }
@@ -82,8 +81,7 @@ public class ParameterValidator {
 
         if (type.isAnnotationPresent(Entity.class)) {
             validateEntity(type, object, qualifiedName, validate.validator(), validatorMap);
-        } else if (Collection.class.isAssignableFrom(type) && field.getGenericType() instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+        } else if (Collection.class.isAssignableFrom(type) && field.getGenericType() instanceof ParameterizedType parameterizedType) {
             validateCollection(parameterizedType, qualifiedName, object, validate.validator(), validatorMap);
         }
     }
@@ -97,6 +95,9 @@ public class ParameterValidator {
      * @param validatorMap
      */
     private void validateCollection(ParameterizedType parameterizedType, String qualifiedName, Object object, int validatorId, Map<String, Validator> validatorMap) {
+        if (object == null) {
+            return;
+        }
         Class<?> type = (Class<?>) parameterizedType.getActualTypeArguments()[0];
         if (type.isAnnotationPresent(Entity.class)) {
             Collection<?> collection = (Collection<?>) object;
