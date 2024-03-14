@@ -1,11 +1,11 @@
 package dev.paoding.longan.util;
 
+import org.springframework.data.util.ReflectionUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.ParameterizedType;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TypeUtils {
@@ -29,8 +29,44 @@ public class TypeUtils {
         return fieldList;
     }
 
+    public static Collection<Field> getAllDeclaredFields(Class<?> type) {
+        Map<String, Field> fieldMap = new LinkedHashMap<>();
+        ReflectionUtils.findField(type, field -> {
+            String name = field.getName();
+            if (fieldMap.containsKey(name)) {
+                if (!equals(fieldMap.get(name), field)) {
+                    throw new RuntimeException(fieldMap.get(name) + " conflicts with " + field);
+                }
+            } else {
+                fieldMap.put(name, field);
+            }
+
+            return false;
+        });
+        return fieldMap.values();
+    }
+
+    private static boolean equals(Field left, Field right) {
+        if (left.getType().equals(right.getType())) {
+            if (Collection.class.isAssignableFrom(left.getType())) {
+                if ((left.getGenericType() instanceof ParameterizedType leftType) && (right.getGenericType() instanceof ParameterizedType rightType)) {
+                    return equals(leftType, rightType);
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean equals(ParameterizedType left, ParameterizedType right) {
+        return left.getActualTypeArguments()[0].equals(right.getActualTypeArguments()[0]);
+    }
+
+
     private static void loadFiled(List<Field> fieldList, Class<?> type) {
-        Field[] fields = type.getDeclaredFields();
+//        Field[] fields = type.getDeclaredFields();
+        Collection<Field> fields = getAllDeclaredFields(type);
         for (Field field : fields) {
             int modifier = field.getModifiers();
             if (modifier == Modifier.PRIVATE || modifier == Modifier.PUBLIC || modifier == Modifier.PROTECTED) {
@@ -38,9 +74,9 @@ public class TypeUtils {
                 fieldList.add(field);
             }
         }
-        if (type.getSuperclass() != null) {
-            loadFiled(fieldList, type.getSuperclass());
-        }
+//        if (type.getSuperclass() != null) {
+//            loadFiled(fieldList, type.getSuperclass());
+//        }
     }
 
     public static Field getField(Class<?> type, String filedName) {
@@ -54,16 +90,17 @@ public class TypeUtils {
     }
 
     private static void loadFiled(String typeName, Class<?> type) {
-        Field[] fields = type.getDeclaredFields();
+//        Field[] fields = type.getDeclaredFields();
+        Collection<Field> fields = getAllDeclaredFields(type);
         for (Field field : fields) {
             int modifier = field.getModifiers();
             if (modifier == Modifier.PRIVATE || modifier == Modifier.PUBLIC || modifier == Modifier.PROTECTED) {
                 nameFieldMapCache.put(typeName + "." + field.getName(), field);
             }
         }
-        if (type.getSuperclass() != null) {
-            loadFiled(typeName, type.getSuperclass());
-        }
+//        if (type.getSuperclass() != null) {
+//            loadFiled(typeName, type.getSuperclass());
+//        }
     }
 
     public static List<String> getEnumValues(Class<?> enumType) {

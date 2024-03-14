@@ -4,6 +4,7 @@ import dev.paoding.longan.annotation.*;
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.Transient;
 import dev.paoding.longan.util.StringUtils;
+import dev.paoding.longan.util.TypeUtils;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.lang.reflect.Field;
@@ -69,7 +70,8 @@ public class MetaTable<T> {
         }
         this.alias = SqlParser.toDatabaseName(clazz.getSimpleName());
 
-        Field[] fields = clazz.getDeclaredFields();
+//        Field[] fields = clazz.getDeclaredFields();
+        List<Field> fields = TypeUtils.getDeclaredFields(type);
         for (Field field : fields) {
             String fieldName = field.getName();
             if (field.getModifiers() != Modifier.PRIVATE && field.getModifiers() != Modifier.PUBLIC && field.getModifiers() != Modifier.PROTECTED) {
