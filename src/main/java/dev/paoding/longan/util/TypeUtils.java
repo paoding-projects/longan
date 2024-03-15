@@ -1,8 +1,13 @@
 package dev.paoding.longan.util;
 
+import dev.paoding.longan.data.jpa.Column;
 import org.springframework.data.util.ReflectionUtils;
+import org.springframework.util.ClassUtils;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
@@ -34,9 +39,7 @@ public class TypeUtils {
         ReflectionUtils.findField(type, field -> {
             String name = field.getName();
             if (fieldMap.containsKey(name)) {
-                if (!equals(fieldMap.get(name), field)) {
-                    throw new RuntimeException(fieldMap.get(name) + " conflicts with " + field);
-                }
+                throw new RuntimeException(" Class " + type.getTypeName() + " declares multiple JSON fields named '" + name + "';");
             } else {
                 fieldMap.put(name, field);
             }
@@ -45,24 +48,6 @@ public class TypeUtils {
         });
         return fieldMap.values();
     }
-
-    private static boolean equals(Field left, Field right) {
-        if (left.getType().equals(right.getType())) {
-            if (Collection.class.isAssignableFrom(left.getType())) {
-                if ((left.getGenericType() instanceof ParameterizedType leftType) && (right.getGenericType() instanceof ParameterizedType rightType)) {
-                    return equals(leftType, rightType);
-                }
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean equals(ParameterizedType left, ParameterizedType right) {
-        return left.getActualTypeArguments()[0].equals(right.getActualTypeArguments()[0]);
-    }
-
 
     private static void loadFiled(List<Field> fieldList, Class<?> type) {
 //        Field[] fields = type.getDeclaredFields();
