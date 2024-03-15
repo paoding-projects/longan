@@ -139,7 +139,11 @@ public class MetaTable<T> {
 
             if (field.isAnnotationPresent(Column.class)) {
                 Column annotation = field.getAnnotation(Column.class);
-                metaColumn.setName(fieldName);
+                if (annotation.name().isBlank()) {
+                    metaColumn.setName(fieldName);
+                } else {
+                    metaColumn.setName(annotation.name().trim());
+                }
                 metaColumn.setComment(annotation.alias());
                 metaColumn.setLength(annotation.length());
                 metaColumn.setNullable(annotation.nullable());
