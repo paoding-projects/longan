@@ -5,6 +5,22 @@ public class Between<T> {
     private T start;
     private T end;
 
+    public static Between<?> of(String field) {
+        Between<?> between = new Between<>();
+        between.field = field;
+        return between;
+    }
+
+    public Between<T> andStart(T start) {
+        this.start = start;
+        return this;
+    }
+
+    public Between<T> andEnd(T end) {
+        this.end = end;
+        return this;
+    }
+
     public String getField() {
         return field;
     }
