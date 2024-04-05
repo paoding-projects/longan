@@ -1,7 +1,5 @@
 package dev.paoding.longan.channel.http;
 
-import dev.paoding.longan.channel.http.WebSocketSession;
-
 public interface WebSocketListener {
 
     default boolean onOpen(WebSocketSession session) {

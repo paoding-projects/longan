@@ -8,27 +8,10 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
-/**
- * ChannelHandler 生命周期
- * handlerAdded: handler被添加到channel的pipeline
- * channelRegistered: channel注册到NioEventLoop
- * channelActive: channel准备就绪
- * channelRead: channel中有可读的数据
- * channelReadComplete: channel读数据完成
- * channelInactive: channel被关闭
- * channelUnregistered: channel取消和NioEventLoop的绑定
- * handlerRemoved: handler从channel的pipeline中移除
- */
-@Slf4j
 @Component
 @ChannelHandler.Sharable
 public class HttpServerHandler extends ChannelInboundHandlerAdapter {
@@ -63,19 +46,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-//        log.error("connection cause exception", cause);
         ctx.close();
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.handlerAdded(ctx);
-    }
-
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
-//        log.info("{} channelInactive", ctx.channel().id().asLongText());
-    }
 }

@@ -85,7 +85,7 @@ public class MetaTable<T> {
                     Type fieldType = field.getGenericType();
                     if (fieldType instanceof ParameterizedType) {
                         Class<?> slaver = (Class<?>) ((ParameterizedType) fieldType).getActualTypeArguments()[0];
-                        String role = field.getAnnotation(ManyToMany.class).role();
+                        String role = field.getAnnotation(ManyToMany.class).classifier();
                         String name = StringUtils.lowerFirst(slaver.getSimpleName());
                         if (!role.isEmpty()) {
                             name = role;

@@ -12,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface ManyToMany {
 
-    String role() default "";
+    String classifier() default "";
 
     String alias() default "";
 

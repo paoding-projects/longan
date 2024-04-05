@@ -11,7 +11,6 @@ import dev.paoding.longan.service.MethodNotAllowedException;
 import dev.paoding.longan.service.SystemException;
 import dev.paoding.longan.service.UnsupportedMediaTypeException;
 import dev.paoding.longan.util.GsonUtils;
-import dev.paoding.longan.validation.BeanCleaner;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -19,7 +18,6 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.CharsetUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 
@@ -30,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 
-@Slf4j
 @Component
 public class HttpServiceInvoker extends ServiceInvoker {
     private final AntPathMatcher matcher = new AntPathMatcher();

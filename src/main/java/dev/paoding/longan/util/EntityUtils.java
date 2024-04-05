@@ -87,8 +87,8 @@ public class EntityUtils {
             Type type = field.getGenericType();
             Role role = null;
             ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
-            if (!manyToMany.role().isEmpty()) {
-                role = Role.of(manyToMany.role());
+            if (!manyToMany.classifier().isEmpty()) {
+                role = Role.of(manyToMany.classifier());
             }
             Class<?> slaver = (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
             for (T bean : beanList) {
@@ -126,8 +126,8 @@ public class EntityUtils {
             Type type = field.getGenericType();
             Role role = null;
             ManyToMany manyToMany = field.getAnnotation(ManyToMany.class);
-            if (!manyToMany.role().isEmpty()) {
-                role = Role.of(manyToMany.role());
+            if (!manyToMany.classifier().isEmpty()) {
+                role = Role.of(manyToMany.classifier());
             }
             Class<?> slaver = (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
             try {

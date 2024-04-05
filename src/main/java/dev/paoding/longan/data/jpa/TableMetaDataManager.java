@@ -3,7 +3,8 @@ package dev.paoding.longan.data.jpa;
 import com.google.common.base.Joiner;
 import dev.paoding.longan.core.ClassPathBeanScanner;
 import dev.paoding.longan.data.Entity;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -14,8 +15,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-@Slf4j
 public abstract class TableMetaDataManager {
+    private final Logger logger = LoggerFactory.getLogger(TableMetaDataManager.class);
     private final JdbcSession jdbcSession;
     private Connection connection;
 
@@ -58,7 +59,7 @@ public abstract class TableMetaDataManager {
                         Class<?> type = (Class<?>) ((ParameterizedType) fieldType).getActualTypeArguments()[0];
                         String source = SqlParser.toDatabaseName(classType.getSimpleName());
                         String target = SqlParser.toDatabaseName(type.getSimpleName());
-                        createMappingTable(databaseMetaData, source, target, manyToMany.role());
+                        createMappingTable(databaseMetaData, source, target, manyToMany.classifier());
                     }
                 }
             }
@@ -192,7 +193,7 @@ public abstract class TableMetaDataManager {
         try {
             connection.createStatement().execute(sql);
         } catch (SQLException e) {
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 

@@ -9,7 +9,6 @@ import dev.paoding.longan.service.ServiceException;
 import dev.paoding.longan.util.GsonUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.AsciiString;
@@ -18,13 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-
-import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
-import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_OCTET_STREAM;
 
 @Component
 public class HttpServiceHandler extends AbstractServiceHandler {

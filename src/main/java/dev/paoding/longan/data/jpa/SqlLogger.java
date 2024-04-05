@@ -1,6 +1,5 @@
 package dev.paoding.longan.data.jpa;
 
-import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import dev.paoding.longan.util.GsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
