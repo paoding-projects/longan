@@ -13,8 +13,6 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -67,11 +65,10 @@ public class GsonUtils {
             }
         });
         gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>() {
-            private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
             @Override
             public JsonElement serialize(Date date, Type type, JsonSerializationContext jsonSerializationContext) {
-                String datetime = simpleDateFormat.format(date);
+                String datetime = formatterMap.get(TimeZoneThreadLocal.get()).format(date.toInstant());
                 return new JsonPrimitive(datetime);
             }
         });
@@ -118,16 +115,13 @@ public class GsonUtils {
             }
         });
         gsonBuilder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-            private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
             @Override
             public Date deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
                 String datetime = json.getAsJsonPrimitive().getAsString();
-                try {
-                    return simpleDateFormat.parse(datetime);
-                } catch (ParseException e) {
-                    throw new TypeFormatException(String.format(TYPE_FORMAT_EXCEPTION_MESSAGE, "'yyyy-MM-dd HH:mm:ss'", json.getAsString()));
-                }
+                String timeZone = TimeZoneThreadLocal.get();
+                Instant instant = LocalDateTime.parse(datetime, formatterMap.get(timeZone)).atZone(zoneIdMap.get(timeZone)).toInstant();
+                return Date.from(instant);
             }
         });
         gsonBuilder.registerTypeAdapter(Instant.class, (JsonDeserializer<Instant>) (json, type, jsonDeserializationContext) -> {
