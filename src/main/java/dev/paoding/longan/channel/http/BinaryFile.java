@@ -1,10 +1,8 @@
 package dev.paoding.longan.channel.http;
 
-import lombok.Getter;
 
 import java.io.File;
 
-@Getter
 public class BinaryFile implements VirtualFile {
     private final String name;
     private final File file;
@@ -21,8 +19,22 @@ public class BinaryFile implements VirtualFile {
         this.downloadListener = downloadListener;
     }
 
+    @Override
     public long length() {
         return this.file.length();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public DownloadListener getDownloadListener() {
+        return downloadListener;
+    }
+
+    public File getFile() {
+        return file;
     }
 
 }

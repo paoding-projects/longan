@@ -1,8 +1,6 @@
 package dev.paoding.longan.channel.http;
 
-import lombok.Getter;
 
-@Getter
 public class ByteFile implements VirtualFile {
     private final byte[] bytes;
     private final String name;
@@ -12,7 +10,17 @@ public class ByteFile implements VirtualFile {
         this.name = name;
     }
 
+    @Override
     public long length() {
         return bytes.length;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
     }
 }

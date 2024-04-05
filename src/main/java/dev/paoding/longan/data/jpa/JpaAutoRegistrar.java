@@ -1,7 +1,8 @@
 package dev.paoding.longan.data.jpa;
 
 import dev.paoding.longan.core.ClassPathBeanScanner;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -16,8 +17,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
-@Slf4j
 public class JpaAutoRegistrar implements ImportBeanDefinitionRegistrar {
+    private final Logger logger = LoggerFactory.getLogger(JpaAutoRegistrar.class);
 
     @Override
     public void registerBeanDefinitions(@NonNull AnnotationMetadata importingClassMetadata, @NonNull BeanDefinitionRegistry registry) {
@@ -25,7 +26,7 @@ public class JpaAutoRegistrar implements ImportBeanDefinitionRegistrar {
 //        classPathBeanDefinitionScanner.addIncludeFilter(new AssignableTypeFilter(Repository.class));
 //        for (BeanDefinition candidateComponent : classPathBeanDefinitionScanner.findCandidateComponents("dev")) {
 //        }
-        log.info("Register jpa repository");
+        logger.info("Register jpa repository");
         DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) registry;
         JdbcSession jdbcSession = defaultListableBeanFactory.getBean(JdbcSession.class);
 //        defaultListableBeanFactory.addBeanPostProcessor(new BeanPostProcessor() {

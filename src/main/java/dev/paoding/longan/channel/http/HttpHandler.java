@@ -8,7 +8,8 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.ReferenceCountUtil;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -23,9 +24,9 @@ import java.util.concurrent.ThreadFactory;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 
-@Slf4j
 @Component
 public class HttpHandler {
+    private final Logger logger = LoggerFactory.getLogger(HttpHandler.class);
     @Resource
     private HttpServiceHandler httpServiceHandler;
     @Resource
@@ -41,7 +42,7 @@ public class HttpHandler {
         ThreadFactory threadFactory = Thread.ofVirtual().name("http-thread-", 0).uncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable throwable) {
-                log.error(throwable.getMessage());
+                logger.error(throwable.getMessage());
             }
         }).factory();
         executorService = Executors.newThreadPerTaskExecutor(threadFactory);
@@ -113,7 +114,7 @@ public class HttpHandler {
                                     try {
                                         randomAccessFile.close();
                                     } catch (IOException e) {
-                                        log.info(e.getMessage());
+                                        logger.info(e.getMessage());
                                     }
                                     if (downloadListener != null) {
                                         downloadListener.onSuccess();
