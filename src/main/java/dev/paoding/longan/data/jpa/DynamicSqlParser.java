@@ -23,12 +23,14 @@ public class DynamicSqlParser {
         try {
             PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
             List<Join> joins = select.getJoins();
-            for (Join join : joins) {
-                List<Expression> onExpressions = new ArrayList<>();
-                for (Expression onExpression : join.getOnExpressions()) {
-                    onExpressions.add(visit(onExpression, params));
+            if (joins != null) {
+                for (Join join : joins) {
+                    List<Expression> onExpressions = new ArrayList<>();
+                    for (Expression onExpression : join.getOnExpressions()) {
+                        onExpressions.add(visit(onExpression, params));
+                    }
+                    join.setOnExpressions(onExpressions);
                 }
-                join.setOnExpressions(onExpressions);
             }
             Expression where = select.getWhere();
             if (where != null) {
