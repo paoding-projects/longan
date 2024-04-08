@@ -9,6 +9,7 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.ParenthesedSelect;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
@@ -21,6 +22,14 @@ public class DynamicSqlParser {
     public String parse(String sql, Map<String, Object> params) {
         try {
             PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+            List<Join> joins = select.getJoins();
+            for (Join join : joins) {
+                List<Expression> onExpressions = new ArrayList<>();
+                for (Expression onExpression : join.getOnExpressions()) {
+                    onExpressions.add(visit(onExpression, params));
+                }
+                join.setOnExpressions(onExpressions);
+            }
             Expression where = select.getWhere();
             if (where != null) {
                 select.setWhere(visit(where, params));
