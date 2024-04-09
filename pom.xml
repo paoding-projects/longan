@@ -41,8 +41,8 @@
         <netty.version>4.1.107.Final</netty.version>
         <dubbo.version>3.2.10</dubbo.version>
         <spring.version>6.1.5</spring.version>
-        <spring-boot.version>3.2.3</spring-boot.version>
-        <spring-data-redis.version>3.2.3</spring-data-redis.version>
+        <spring-boot.version>3.2.4</spring-boot.version>
+        <spring-data-redis.version>3.2.4</spring-data-redis.version>
         <slf4j.version>2.0.12</slf4j.version>
         <logback.version>1.5.0</logback.version>
     </properties>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>com.github.jsqlparser</groupId>
             <artifactId>jsqlparser</artifactId>
-            <version>4.8</version>
+            <version>4.9</version>
         </dependency>
         <dependency>
             <groupId>org.burningwave</groupId>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.0.0-jre</version>
+            <version>33.1.0-jre</version>
         </dependency>
 
         <dependency>
@@ -136,7 +136,7 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>6.3.1.RELEASE</version>
+            <version>6.3.2.RELEASE</version>
         </dependency>
 
         <dependency>

@@ -46,7 +46,8 @@ public class JdbcAutoConfiguration implements ImportBeanDefinitionRegistrar, Env
 
     private DataSource dataSource() {
         boolean showSql = environment.getProperty("longan.datasource.show-sql", Boolean.class, false);
-        SqlLogger.showSql(showSql);
+        boolean formatSql = environment.getProperty("longan.datasource.format-sql", Boolean.class, false);
+        SqlLogger.init(showSql, formatSql);
         Database.init(environment.getProperty("longan.datasource.url"), environment.getProperty("longan.datasource.username"), environment.getProperty("longan.datasource.password"));
         HikariDataSource hikariDataSource = new HikariDataSource();
         hikariDataSource.setThreadFactory(new ThreadFactoryBuilder().setNameFormat("hikari-thread-%d").build());
