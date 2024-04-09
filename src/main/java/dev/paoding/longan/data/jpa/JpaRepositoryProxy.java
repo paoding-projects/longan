@@ -1,6 +1,5 @@
 package dev.paoding.longan.data.jpa;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonSyntaxException;
 import dev.paoding.longan.annotation.I18n;
 import dev.paoding.longan.core.Internationalization;
@@ -230,7 +229,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     @Override
     public boolean exists(ID id) {
         String sql = "select count(*) from " + metaTable.getName() + " where " + metaTable.getPrimaryKey().getName() + " = :id";
-        Map<String, Object> paramMap = ImmutableMap.of("id", id);
+        Map<String, Object> paramMap = Map.of("id", id);
         return jdbcSession.queryForLong(sql, paramMap) > 0;
     }
 
@@ -276,7 +275,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
             return new ArrayList<>();
         }
         String sql = "select * from " + metaTable.getName() + " where " + metaTable.getPrimaryKey().getName() + " in (:idList)";
-        Map<String, Object> paramMap = ImmutableMap.of("idList", idList);
+        Map<String, Object> paramMap = Map.of("idList", idList);
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, paramMap, metaTable.getRowMapper()));
     }
 
@@ -660,7 +659,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         String endName = SqlParser.toDatabaseName(type.getSimpleName());
         Object startId = BeanMap.create(start).get("id");
 
-        Map<String, Object> paraMap = ImmutableMap.of(startName + "_id", startId);
+        Map<String, Object> paraMap = Map.of(startName + "_id", startId);
         String sql;
         sql = SqlParser.toSplitSqlAll(startName, endName, role);
         return jdbcSession.update(sql, paraMap);
@@ -671,7 +670,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         String endName = SqlParser.toDatabaseName(end.getClass().getSimpleName());
         Object startId = BeanMap.create(start).get("id");
         Object endId = BeanMap.create(end).get("id");
-        Map<String, Object> paraMap = ImmutableMap.of(startName + "_id", startId, endName + "_id", endId);
+        Map<String, Object> paraMap = Map.of(startName + "_id", startId, endName + "_id", endId);
         String sql;
         if (join) {
             sql = SqlParser.toCountSql(startName, endName, role);
@@ -697,7 +696,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         String endName = SqlParser.toDatabaseName(target.getClass().getSimpleName());
         Object startId = BeanMap.create(source).get("id");
         Object endId = BeanMap.create(target).get("id");
-        Map<String, Object> paraMap = ImmutableMap.of(startName + "_id", startId, endName + "_id", endId);
+        Map<String, Object> paraMap = Map.of(startName + "_id", startId, endName + "_id", endId);
         String sql = SqlParser.toCountSql(startName, endName, role);
         return jdbcSession.queryForLong(sql, paraMap) > 0;
     }
@@ -709,7 +708,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
 //
 //    @Override
 //    public int delete(String sql, String k1, Object v1) throws DataAccessException {
-//        Map<String, Object> paramMap = ImmutableMap.of(k1, v1);
+//        Map<String, Object> paramMap = Map.of(k1, v1);
 //        return jdbcTemplate.update(sql, new MapSqlParameterSource(paramMap));
 //    }
 
