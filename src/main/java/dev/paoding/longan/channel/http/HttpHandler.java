@@ -42,7 +42,7 @@ public class HttpHandler {
         ThreadFactory threadFactory = Thread.ofVirtual().name("http-thread-", 0).uncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable throwable) {
-                logger.error(throwable.getMessage());
+                logger.error(thread.getName(), throwable);
             }
         }).factory();
         executorService = Executors.newThreadPerTaskExecutor(threadFactory);

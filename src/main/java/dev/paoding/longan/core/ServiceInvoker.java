@@ -50,17 +50,13 @@ public abstract class ServiceInvoker extends ResponseFilter {
             } else if (clazz == SQLIntegrityConstraintViolationException.class) {
                 throw new DuplicateException("duplicate entry", throwable);
             } else {
-                InternalServerException internalServerException = new InternalServerException(throwable.getMessage());
-                internalServerException.setStackTrace(throwable.getStackTrace());
-                throw internalServerException;
+                throw new InternalServerException("The invocation of " + method.getDeclaringClass().getSimpleName() + "." + method.getName() + " failed.", e);
             }
         }
         if (value == null) {
             return null;
         } else if (VirtualFile.class.isAssignableFrom(value.getClass())) {
             return value;
-//        } else if (HttpFile.class.isAssignableFrom(value.getClass())) {
-//            return value;
         }
 
         return filter(method, value);

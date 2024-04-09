@@ -8,14 +8,19 @@ public class InternalServerException extends RuntimeException {
     private String code;
     protected MethodInvocation methodInvocation;
 
+    public InternalServerException(Throwable cause) {
+        super(cause);
+        this.code = "internal.server.error";
+    }
+
     public InternalServerException(String message) {
         super(message);
         this.code = "internal.server.error";
     }
 
-    public InternalServerException(String code, String message) {
-        super(message);
-        this.code = code;
+    public InternalServerException(String message, Throwable cause) {
+        super(message, cause);
+        this.code = "internal.server.error";
     }
 
     public String getCode() {
