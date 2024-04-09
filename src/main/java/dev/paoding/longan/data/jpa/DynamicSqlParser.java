@@ -9,9 +9,7 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.ParenthesedSelect;
-import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,24 +20,60 @@ public class DynamicSqlParser {
     public String parse(String sql, Map<String, Object> params) {
         try {
             PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
-            List<Join> joins = select.getJoins();
-            if (joins != null) {
-                for (Join join : joins) {
-                    List<Expression> onExpressions = new ArrayList<>();
-                    for (Expression onExpression : join.getOnExpressions()) {
-                        onExpressions.add(visit(onExpression, params));
-                    }
-                    join.setOnExpressions(onExpressions);
-                }
-            }
-            Expression where = select.getWhere();
-            if (where != null) {
-                select.setWhere(visit(where, params));
-            }
-            return select.toString();
+            return visit(select, params).toString();
         } catch (JSQLParserException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Select visit(Select select, Map<String, Object> params) {
+        return switch (select) {
+            case PlainSelect plainSelect -> visit(plainSelect, params);
+            case SetOperationList setOperationList -> visit(setOperationList, params);
+            case null, default -> select;
+        };
+    }
+
+    private PlainSelect visit(PlainSelect select, Map<String, Object> params) {
+        List<Join> joins = select.getJoins();
+        if (joins != null) {
+            for (Join join : joins) {
+                List<Expression> onExpressions = new ArrayList<>();
+                for (Expression onExpression : join.getOnExpressions()) {
+                    onExpressions.add(visit(onExpression, params));
+                }
+                join.setOnExpressions(onExpressions);
+            }
+        }
+        select.setFromItem(visit(select.getFromItem(), params));
+        Expression where = select.getWhere();
+        if (where != null) {
+            select.setWhere(visit(where, params));
+        }
+        return select;
+    }
+
+    private SetOperationList visit(SetOperationList setOperationList, Map<String, Object> params) {
+        List<Select> selects = setOperationList.getSelects();
+        List<Select> newSelects = new ArrayList<>();
+        for (Select select : selects) {
+            newSelects.add(visit(select, params));
+        }
+        setOperationList.setSelects(newSelects);
+        return setOperationList;
+    }
+
+    private FromItem visit(FromItem fromItem, Map<String, Object> params) {
+        return switch (fromItem) {
+            case ParenthesedSelect parenthesedSelect -> visit(parenthesedSelect, params);
+            case null, default -> fromItem;
+        };
+    }
+
+    private ParenthesedSelect visit(ParenthesedSelect parenthesedSelect, Map<String, Object> params) {
+        Select select = parenthesedSelect.getSelect();
+        parenthesedSelect.setSelect(visit(select, params));
+        return parenthesedSelect;
     }
 
     private Expression visit(Expression expression, Map<String, Object> params) {
