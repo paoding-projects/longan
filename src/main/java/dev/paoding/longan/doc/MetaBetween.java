@@ -4,6 +4,7 @@ import dev.paoding.longan.data.Between;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -43,7 +44,26 @@ public class MetaBetween extends MetaParam {
 //        this.setActualType(actualType);
         this.setTypeIsModel(true);
 
-        if (LocalDate.class.isAssignableFrom(actualType)) {
+        if (Instant.class.isAssignableFrom(actualType)) {
+            MetaAttribute startMetaAttribute = new MetaAttribute();
+            startMetaAttribute.setName("start");
+            startMetaAttribute.setType(LocalDateTime.class);
+            startMetaAttribute.setAlias("起始时间");
+            startMetaAttribute.setSample(LocalDateTime.now().plusWeeks(-1));
+            startMetaAttribute.setDescription("yyyy-MM-dd HH:mm:ss");
+            startMetaAttribute.setNotNull(true);
+
+            MetaAttribute endMetaAttribute = new MetaAttribute();
+            endMetaAttribute.setName("end");
+            endMetaAttribute.setType(LocalDateTime.class);
+            endMetaAttribute.setAlias("截止时间");
+            endMetaAttribute.setSample(LocalDateTime.now());
+            endMetaAttribute.setDescription("yyyy-MM-dd HH:mm:ss");
+            endMetaAttribute.setNotNull(true);
+
+            this.addChild(startMetaAttribute);
+            this.addChild(endMetaAttribute);
+        }else if (LocalDate.class.isAssignableFrom(actualType)) {
             MetaAttribute startMetaAttribute = new MetaAttribute();
             startMetaAttribute.setName("start");
             startMetaAttribute.setType(LocalDate.class);
