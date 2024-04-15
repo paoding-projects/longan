@@ -109,7 +109,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         }
 
         Parameter[] parameters = method.getParameters();
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new ParamMap();
         for (int i = 0; i < args.length; i++) {
             Object object = args[i];
             if (object != null) {
@@ -437,7 +437,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
 
     @Override
     public int update(ID id, SqlMap sqlMap) {
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new ParamMap();
         Map<String, Object> originalMap = sqlMap.build();
         for (String key : originalMap.keySet()) {
             String name = metaTable.getColumnName(key);
@@ -456,7 +456,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
 
     @Override
     public int update(List<ID> idList, SqlMap sqlMap) {
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new ParamMap();
         Map<String, Object> originalMap = sqlMap.build();
         for (String key : originalMap.keySet()) {
             String name = metaTable.getColumnName(key);
@@ -514,7 +514,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
             merge(entity);
         }
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new ParamMap();
         paramMap.put("id", metaTable.getPrimaryKey().getValue(entity));
         metaTable.getMetaColumnList().forEach(metaColumn -> {
             Object value = metaColumn.getValue(entity);

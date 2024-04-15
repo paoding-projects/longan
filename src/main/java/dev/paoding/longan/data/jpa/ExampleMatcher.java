@@ -21,7 +21,7 @@ public class ExampleMatcher {
     public MatchResult match(String tablePrefix, String columnPrefix, Object object) {
         MetaTable<?> metaTable = MetaTableFactory.get(object.getClass());
         List<String> conditionList = new ArrayList<>();
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new ParamMap();
         BeanMap beanMap = BeanMap.create(object);
         for (Matcher matcher : matcherList) {
             String comparer = matcher.getComparer();

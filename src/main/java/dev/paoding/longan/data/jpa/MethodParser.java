@@ -20,7 +20,7 @@ public class MethodParser {
     private MetaTable<?> metaTable;
     private Class<?> entity;
     private String model;
-    private Map<String, Object> paramMap = new HashMap<>();
+    private final Map<String, Object> paramMap = new ParamMap();
 
     public static MethodParser of(String action, Class<?> type, String statement, Map<String, Object> initialParamMap) {
         return of(action, type, statement, initialParamMap, false);

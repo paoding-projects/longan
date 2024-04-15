@@ -15,7 +15,7 @@ public class SqlParser {
 
     public static Map<String, Object> toMap(Method method, Object[] args) {
         Parameter[] parameters = method.getParameters();
-        Map<String, Object> paramMap = new HashMap<>();
+        Map<String, Object> paramMap = new ParamMap();
         try {
             for (int i = 0; i < args.length; i++) {
                 Object arg = args[i];
