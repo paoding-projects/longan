@@ -4,8 +4,12 @@ import dev.paoding.longan.data.jpa.Data;
 import dev.paoding.longan.data.jpa.Database;
 import dev.paoding.longan.data.jpa.SqlParser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data(alias = "分页对象")
 public class Pageable {
+    private static final Map<String, Object> params = new HashMap<>();
     /**
      * 第几页，从1开始，默认为第1页
      */
@@ -84,11 +88,13 @@ public class Pageable {
 
     public String toSql() {
         StringBuilder sb = new StringBuilder();
-        if (sort != null) {
-            if (sort.contains(" ")) {
-                throw new SecurityException("An error in SQL syntax " + sort);
-            }
-            sb.append(" order by ").append(SqlParser.toColumnName(sort));
+        if (sort != null && !sort.isBlank()) {
+//            if (sort.contains(" ")) {
+//                throw new SecurityException("An error in SQL syntax " + sort);
+//            }
+//            sb.append(" order by ").append(SqlParser.toColumnName(sort));
+//            sb.append(desc ? " desc" : " asc");
+            sb.append(" order by :pageable_sort");
             sb.append(desc ? " desc" : " asc");
         }
 
@@ -98,6 +104,14 @@ public class Pageable {
             sb.append(" limit ").append(offset()).append(", ").append(limit());
         }
         return sb.toString();
+    }
+
+    public Map<String, Object> getParamMap() {
+        if (sort == null || sort.isBlank()) {
+            return params;
+        }
+
+        return Map.of("pageable_sort", sort);
     }
 
 }

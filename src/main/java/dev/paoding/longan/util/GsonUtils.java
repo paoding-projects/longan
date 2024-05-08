@@ -233,7 +233,7 @@ public class GsonUtils {
         gsonBuilder.registerTypeAdapterFactory(new BeanProxyTypeAdapterFactory());
         gsonBuilder.setPrettyPrinting();
 
-        gson = gsonBuilder.create();
+        gson = gsonBuilder.disableHtmlEscaping().create();
     }
 
     public static Gson getGson() {

@@ -90,6 +90,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
                 Pageable pageable = (Pageable) paramMap.get("pageable");
                 if (pageable != null) {
                     sql += pageable.toSql();
+                    paramMap.putAll(pageable.getParamMap());
                 }
             }
             if (returnType.isAssignableFrom(List.class)) {
@@ -248,6 +249,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         String sql = "select * from " + metaTable.getName();
         if (pageable != null) {
             sql += pageable.toSql();
+            return EntityUtils.wrap(metaTable, jdbcSession.query(sql, pageable.getParamMap(), metaTable.getRowMapper()));
         }
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
     }
@@ -263,15 +265,17 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     public List<T> find(Example<T> example, Pageable pageable) {
         MatchResult matchResult = example.match();
         String sql = "select * from " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " where " + matchResult.getWhere());
+        Map<String,Object> params = matchResult.getParamMap();
         if (pageable != null) {
             sql += pageable.toSql();
+            params.putAll(pageable.getParamMap());
         }
-        return EntityUtils.wrap(metaTable, jdbcSession.query(sql, matchResult.getParamMap(), metaTable.getRowMapper()));
+        return EntityUtils.wrap(metaTable, jdbcSession.query(sql, params, metaTable.getRowMapper()));
     }
 
     @Override
     public List<T> find(List<ID> idList) {
-        if (idList == null || idList.size() == 0) {
+        if (idList == null || idList.isEmpty()) {
             return new ArrayList<>();
         }
         String sql = "select * from " + metaTable.getName() + " where " + metaTable.getPrimaryKey().getName() + " in (:idList)";
