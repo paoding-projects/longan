@@ -2,10 +2,12 @@ package dev.paoding.longan.data.jpa;
 
 import dev.paoding.longan.data.Between;
 import dev.paoding.longan.service.SystemException;
+import dev.paoding.longan.util.TypeUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,7 +64,8 @@ public class Example<T> {
 
     private static Set<String> toSet(Object bean) {
         Set<String> set = new HashSet<>();
-        Field[] declaredFields = bean.getClass().getDeclaredFields();
+//        Field[] declaredFields = bean.getClass().getDeclaredFields();
+        Collection<Field> declaredFields = TypeUtils.getAllDeclaredFields(bean.getClass());
         try {
             for (Field field : declaredFields) {
                 if (field.getModifiers() == Modifier.PRIVATE || field.getModifiers() == Modifier.PUBLIC || field.getModifiers() == Modifier.PROTECTED) {

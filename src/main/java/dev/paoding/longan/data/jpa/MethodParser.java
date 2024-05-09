@@ -41,7 +41,6 @@ public class MethodParser {
             if (initialParamMap.containsKey("pageable")) {
                 Pageable pageable = (Pageable) initialParamMap.get("pageable");
                 methodParser.sql += pageable.toSql();
-                initialParamMap.putAll(pageable.getParamMap());
             }
         } else if (action.equals("count")) {
             methodParser.parse(statement, initialParamMap);

@@ -3,13 +3,17 @@ package dev.paoding.longan.data;
 import dev.paoding.longan.data.jpa.Data;
 import dev.paoding.longan.data.jpa.Database;
 import dev.paoding.longan.data.jpa.SqlParser;
+import dev.paoding.longan.service.ConstraintViolationException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Data(alias = "分页对象")
 public class Pageable {
-    private static final Map<String, Object> params = new HashMap<>();
+    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.]+$");
+
     /**
      * 第几页，从1开始，默认为第1页
      */
@@ -89,12 +93,12 @@ public class Pageable {
     public String toSql() {
         StringBuilder sb = new StringBuilder();
         if (sort != null && !sort.isBlank()) {
-//            if (sort.contains(" ")) {
-//                throw new SecurityException("An error in SQL syntax " + sort);
-//            }
-//            sb.append(" order by ").append(SqlParser.toColumnName(sort));
-//            sb.append(desc ? " desc" : " asc");
-            sb.append(" order by :pageable_sort");
+            Matcher matcher = PATTERN.matcher(sort);
+            if (!matcher.find()) {
+                String message = "Unsupported sort field name";
+                throw new ConstraintViolationException("pageable.sort.unsupported", message);
+            }
+            sb.append(" order by ").append(SqlParser.toColumnName(sort));
             sb.append(desc ? " desc" : " asc");
         }
 
@@ -104,14 +108,6 @@ public class Pageable {
             sb.append(" limit ").append(offset()).append(", ").append(limit());
         }
         return sb.toString();
-    }
-
-    public Map<String, Object> getParamMap() {
-        if (sort == null || sort.isBlank()) {
-            return params;
-        }
-
-        return Map.of("pageable_sort", sort);
     }
 
 }

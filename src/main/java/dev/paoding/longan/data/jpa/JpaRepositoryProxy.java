@@ -90,7 +90,6 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
                 Pageable pageable = (Pageable) paramMap.get("pageable");
                 if (pageable != null) {
                     sql += pageable.toSql();
-                    paramMap.putAll(pageable.getParamMap());
                 }
             }
             if (returnType.isAssignableFrom(List.class)) {
@@ -249,7 +248,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         String sql = "select * from " + metaTable.getName();
         if (pageable != null) {
             sql += pageable.toSql();
-            return EntityUtils.wrap(metaTable, jdbcSession.query(sql, pageable.getParamMap(), metaTable.getRowMapper()));
+            return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
         }
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
     }
@@ -268,7 +267,6 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         Map<String,Object> params = matchResult.getParamMap();
         if (pageable != null) {
             sql += pageable.toSql();
-            params.putAll(pageable.getParamMap());
         }
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, params, metaTable.getRowMapper()));
     }

@@ -6,7 +6,7 @@
 
     <groupId>dev.paoding</groupId>
     <artifactId>longan</artifactId>
-    <version>5.0.0-SNAPSHOT</version>
+    <version>4.5.0-SNAPSHOT</version>
 
     <name>Longan</name>
     <description>A lightweight java framework.</description>
@@ -220,7 +220,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
+            <version>1.18.32</version>
             <scope>provided</scope>
         </dependency>
 
