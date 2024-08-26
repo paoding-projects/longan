@@ -67,7 +67,6 @@ public abstract class AbstractServiceHandler {
         defaultHttpResponse.headers().set(CONTENT_DISPOSITION, "attachment;filename*=UTF-8''" + filename);
         defaultHttpResponse.headers().set(CONTENT_TYPE, contentType);
         defaultHttpResponse.headers().set(CONTENT_LENGTH, virtualFile.length());
-        defaultHttpResponse.headers().set(TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
         HttpResponse httpResponse = new HttpResponseImpl(defaultHttpResponse, virtualFile);
         postHandle(httpResponse);
         return httpResponse;
