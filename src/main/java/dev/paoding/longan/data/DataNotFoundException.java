@@ -1,12 +1,13 @@
 package dev.paoding.longan.data;
 
+import dev.paoding.longan.channel.http.HttpRequestException;
 import dev.paoding.longan.service.ServiceException;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 /**
  * 如果查询的数据不存在会抛出此异常。
  */
-public class DataNotFoundException extends ServiceException {
+public class DataNotFoundException extends HttpRequestException {
 
     public DataNotFoundException(String message) {
         super(message);
@@ -15,6 +16,6 @@ public class DataNotFoundException extends ServiceException {
 
     @Override
     public HttpResponseStatus getHttpResponseStatus() {
-        return HttpResponseStatus.SERVICE_UNAVAILABLE;
+        return HttpResponseStatus.NOT_FOUND;
     }
 }

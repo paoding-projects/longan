@@ -75,16 +75,18 @@ public class GsonUtils {
         gsonBuilder.registerTypeAdapter(Instant.class, new JsonSerializer<Instant>() {
             @Override
             public JsonElement serialize(Instant instant, Type type, JsonSerializationContext jsonSerializationContext) {
-                String datetime = formatterMap.get(TimeZoneThreadLocal.get()).format(instant);
-                return new JsonPrimitive(datetime);
+//                String datetime = formatterMap.get(TimeZoneThreadLocal.get()).format(instant);
+//                return new JsonPrimitive(datetime);
+                return new JsonPrimitive(instant.toEpochMilli());
             }
         });
 
         gsonBuilder.registerTypeAdapter(Timestamp.class, new JsonSerializer<Timestamp>() {
             @Override
             public JsonElement serialize(Timestamp timestamp, Type type, JsonSerializationContext jsonSerializationContext) {
-                String datetime = formatterMap.get(TimeZoneThreadLocal.get()).format(timestamp.toInstant());
-                return new JsonPrimitive(datetime);
+//                String datetime = formatterMap.get(TimeZoneThreadLocal.get()).format(timestamp.toInstant());
+//                return new JsonPrimitive(datetime);
+                return new JsonPrimitive(timestamp.getTime());
             }
         });
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
@@ -125,15 +127,19 @@ public class GsonUtils {
             }
         });
         gsonBuilder.registerTypeAdapter(Instant.class, (JsonDeserializer<Instant>) (json, type, jsonDeserializationContext) -> {
-            String timeZone = TimeZoneThreadLocal.get();
-            String datetime = json.getAsJsonPrimitive().getAsString();
-            return LocalDateTime.parse(datetime, formatterMap.get(timeZone)).atZone(zoneIdMap.get(timeZone)).toInstant();
+//            String timeZone = TimeZoneThreadLocal.get();
+//            String datetime = json.getAsJsonPrimitive().getAsString();
+//            return LocalDateTime.parse(datetime, formatterMap.get(timeZone)).atZone(zoneIdMap.get(timeZone)).toInstant();
+            long datetime = json.getAsJsonPrimitive().getAsLong();
+            return Instant.ofEpochMilli(datetime);
         });
 
         gsonBuilder.registerTypeAdapter(Timestamp.class, (JsonDeserializer<Timestamp>) (json, type, jsonDeserializationContext) -> {
-            String timeZone = TimeZoneThreadLocal.get();
-            String datetime = json.getAsJsonPrimitive().getAsString();
-            return Timestamp.from(LocalDateTime.parse(datetime, formatterMap.get(timeZone)).atZone(zoneIdMap.get(timeZone)).toInstant());
+//            String timeZone = TimeZoneThreadLocal.get();
+//            String datetime = json.getAsJsonPrimitive().getAsString();
+//            return Timestamp.from(LocalDateTime.parse(datetime, formatterMap.get(timeZone)).atZone(zoneIdMap.get(timeZone)).toInstant());
+            long datetime = json.getAsJsonPrimitive().getAsLong();
+            return new Timestamp(datetime);
         });
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, type, jsonDeserializationContext) -> {
             String datetime = json.getAsJsonPrimitive().getAsString();

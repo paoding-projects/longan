@@ -11,10 +11,10 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Transactional(rollbackFor = Throwable.class)
+//@Transactional(rollbackFor = Throwable.class)
 public @interface Mapping {
 
-    @AliasFor(annotation = Transactional.class)
+//    @AliasFor(annotation = Transactional.class)
     boolean readOnly() default true;
 
     String path() default "";

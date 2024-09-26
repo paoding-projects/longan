@@ -2,10 +2,16 @@ package dev.paoding.longan.service;
 
 import dev.paoding.longan.core.MethodInvocation;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import lombok.Getter;
+import lombok.Setter;
 
 
+@Getter
 public class InternalServerException extends RuntimeException {
-    private String code;
+    private final String code;
+    @Setter
+    protected String responseType;
+    @Setter
     protected MethodInvocation methodInvocation;
 
     public InternalServerException(Throwable cause) {
@@ -21,18 +27,6 @@ public class InternalServerException extends RuntimeException {
     public InternalServerException(String message, Throwable cause) {
         super(message, cause);
         this.code = "internal.server.error";
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public MethodInvocation getMethodInvocation() {
-        return methodInvocation;
-    }
-
-    public void setMethodInvocation(MethodInvocation methodInvocation) {
-        this.methodInvocation = methodInvocation;
     }
 
     public HttpResponseStatus getHttpResponseStatus() {

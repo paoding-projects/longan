@@ -24,17 +24,19 @@ public abstract class ServiceInvoker extends ResponseFilter {
             return result;
         } catch (ServiceException e) {
             e.setMethodInvocation(methodInvocation);
+            e.setResponseType(methodInvocation.getResponseType());
             throw e;
         } catch (HttpRequestException e) {
             e.setResponseType(methodInvocation.getResponseType());
             throw e;
         } catch (InternalServerException e) {
             e.setMethodInvocation(methodInvocation);
+            e.setResponseType(methodInvocation.getResponseType());
             throw e;
         }
     }
 
-    protected Object invoke(Method method, Object object, Object[] arguments) {
+    private Object invoke(Method method, Object object, Object[] arguments) {
         Object value;
         try {
             value = method.invoke(object, arguments);

@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Service
-@Transactional(readOnly = true)
+//@Transactional(readOnly = true)
 public @interface RpcService {
     String path() default "";
 }
