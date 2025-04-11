@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 public @interface Mapping {
 
 //    @AliasFor(annotation = Transactional.class)
-    boolean readOnly() default true;
+//    boolean readOnly() default true;
 
     String path() default "";
 

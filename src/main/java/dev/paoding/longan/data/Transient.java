@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface Transient {
     String alias() default "";
 
-    String sample() default "";
+    String example() default "";
 
     String description() default "";
 }

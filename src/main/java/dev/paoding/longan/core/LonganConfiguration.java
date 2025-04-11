@@ -13,19 +13,19 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableScheduling
 @EnableTransactionManagement
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@Import({RpcServiceAutoRegistrar.class, JdbcAutoConfiguration.class, JpaAutoRegistrar.class, RedisAutoConfiguration.class})
+@Import({RpcServiceAutoRegistrar.class, JdbcAutoConfiguration.class, JpaAutoRegistrar.class})
 public class LonganConfiguration {
 
     static {
         StaticComponentContainer.Modules.exportPackageToAllUnnamed("java.base", "java.lang", "java.time");
     }
 
-    @Bean
-    public TaskScheduler scheduledExecutorService() {
-        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(8);
-        scheduler.setThreadNamePrefix("scheduled-thread-");
-        return scheduler;
-    }
+//    @Bean
+//    public TaskScheduler scheduledExecutorService() {
+//        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+//        scheduler.setPoolSize(8);
+//        scheduler.setThreadNamePrefix("scheduled-thread-");
+//        return scheduler;
+//    }
 
 }

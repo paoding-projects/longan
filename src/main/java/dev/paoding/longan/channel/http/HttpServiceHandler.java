@@ -83,7 +83,6 @@ public class HttpServiceHandler extends AbstractServiceHandler {
             }
         } catch (HttpRequestException e) {
             logger.info("A HttpRequestException occurred in the request", e);
-            logger.info(e.getResponseType());
             if (APPLICATION_JSON.toString().equals(e.getResponseType())) {
                 return writeJson(httpVersion, e.getHttpResponseStatus(), ExceptionResult.of(e));
             } else {
