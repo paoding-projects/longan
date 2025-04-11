@@ -40,6 +40,7 @@ public class HttpServer {
         String name = SystemPropertyUtil.get("os.name").trim();
         String version = SystemPropertyUtil.get("os.version");
         if (IoUring.isAvailable()) {
+            logger.info("io_uring supported on {} {} system.", name, version);
             this.bossGroup = new MultiThreadIoEventLoopGroup(IoUringIoHandler.newFactory());
             this.workGroup = new MultiThreadIoEventLoopGroup(IoUringIoHandler.newFactory());
             start(bossGroup, workGroup, IoUringServerSocketChannel.class);
