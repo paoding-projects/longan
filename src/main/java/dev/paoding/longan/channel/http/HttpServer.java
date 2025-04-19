@@ -13,7 +13,6 @@ import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.uring.IoUring;
-import io.netty.channel.uring.IoUringChannelOption;
 import io.netty.channel.uring.IoUringIoHandler;
 import io.netty.channel.uring.IoUringServerSocketChannel;
 import io.netty.util.internal.SystemPropertyUtil;
@@ -39,30 +38,31 @@ public class HttpServer {
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
         String name = SystemPropertyUtil.get("os.name").trim();
         String version = SystemPropertyUtil.get("os.version");
+        int bossGroupThreads = Runtime.getRuntime().availableProcessors();
         if (IoUring.isAvailable()) {
             logger.info("io_uring supported on {} {} system.", name, version);
-            this.bossGroup = new MultiThreadIoEventLoopGroup(IoUringIoHandler.newFactory());
+            this.bossGroup = new MultiThreadIoEventLoopGroup(bossGroupThreads, IoUringIoHandler.newFactory());
             this.workGroup = new MultiThreadIoEventLoopGroup(IoUringIoHandler.newFactory());
-            start(bossGroup, workGroup, IoUringServerSocketChannel.class);
+            start(IoUringServerSocketChannel.class);
         } else if (Epoll.isAvailable()) {
             logger.info("EPoll supported on {} {} system.", name, version);
-            this.bossGroup = new MultiThreadIoEventLoopGroup(EpollIoHandler.newFactory());
+            this.bossGroup = new MultiThreadIoEventLoopGroup(bossGroupThreads, EpollIoHandler.newFactory());
             this.workGroup = new MultiThreadIoEventLoopGroup(EpollIoHandler.newFactory());
-            start(bossGroup, workGroup, EpollServerSocketChannel.class);
+            start(EpollServerSocketChannel.class);
         } else if (KQueue.isAvailable()) {
             logger.info("KQueue supported on {} {} system.", name, version);
-            this.bossGroup = new MultiThreadIoEventLoopGroup(KQueueIoHandler.newFactory());
+            this.bossGroup = new MultiThreadIoEventLoopGroup(bossGroupThreads, KQueueIoHandler.newFactory());
             this.workGroup = new MultiThreadIoEventLoopGroup(KQueueIoHandler.newFactory());
-            start(bossGroup, workGroup, KQueueServerSocketChannel.class);
+            start(KQueueServerSocketChannel.class);
         } else {
             logger.info("NIO supported on {} {} system.", name, version);
+            this.bossGroup = new MultiThreadIoEventLoopGroup(bossGroupThreads, NioIoHandler.newFactory());
+            this.workGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
             startNio();
         }
     }
 
     private void startNio() throws Exception {
-        this.bossGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
-        this.workGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workGroup).channel(NioServerSocketChannel.class)
                 .childHandler(serverChannelInitializer)
@@ -73,12 +73,12 @@ public class HttpServer {
         if (!future.isSuccess()) {
             throw new Exception(String.format("Fail to bind on port = %d.", port), future.cause());
         }
-        logger.info("Starting server at port {}.", port);
+        logger.info("Starting http server at port {}.", port);
     }
 
-    private void start(EventLoopGroup bossGroup, EventLoopGroup workerGroup, Class<? extends ServerSocketChannel> channelClass) throws Exception {
+    private void start(Class<? extends ServerSocketChannel> channelClass) throws Exception {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workerGroup).channel(channelClass)
+        bootstrap.group(bossGroup, workGroup).channel(channelClass)
                 .childHandler(serverChannelInitializer)
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .option(ChannelOption.SO_REUSEADDR, true)
@@ -90,11 +90,7 @@ public class HttpServer {
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.ALLOW_HALF_CLOSURE, false);
 
-        if (IoUring.isAvailable()) {
-            bootstrap.option(IoUringChannelOption.SO_REUSEADDR, true)
-                    .childOption(IoUringChannelOption.TCP_NODELAY, true)
-                    .childOption(IoUringChannelOption.SO_KEEPALIVE, true);
-        } else if (Epoll.isAvailable()) {
+        if (Epoll.isAvailable()) {
             bootstrap.option(EpollChannelOption.IP_FREEBIND, false)
                     .option(EpollChannelOption.IP_TRANSPARENT, false)
                     .childOption(EpollChannelOption.TCP_CORK, false)
