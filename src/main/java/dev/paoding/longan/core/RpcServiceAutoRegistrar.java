@@ -28,6 +28,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import static dev.paoding.longan.util.TypeUtils.getModelClass;
+
 public class RpcServiceAutoRegistrar implements ImportBeanDefinitionRegistrar {
     private final AntPathMatcher matcher = new AntPathMatcher();
     private final Map<RequestMethod, List<String>> httpStaticMappings = new HashMap<>();
@@ -188,18 +190,5 @@ public class RpcServiceAutoRegistrar implements ImportBeanDefinitionRegistrar {
             }
         }
         return null;
-    }
-
-    private Class<?> getModelClass(Class<?> serviceClass) {
-        Type genericSuperclass = serviceClass.getGenericSuperclass();
-        if (genericSuperclass instanceof ParameterizedType parameterizedType) {
-            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-            for (Type actualTypeArgument : actualTypeArguments) {
-                if (((Class<?>) actualTypeArgument).isAnnotationPresent(Entity.class)) {
-                    return (Class<?>) actualTypeArgument;
-                }
-            }
-        }
-        throw new RuntimeException("The " + serviceClass.getName() + " was not RpcService");
     }
 }

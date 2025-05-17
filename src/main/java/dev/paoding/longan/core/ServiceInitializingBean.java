@@ -2,7 +2,10 @@ package dev.paoding.longan.core;
 
 import dev.paoding.longan.channel.dubbo.DubboFilter;
 import dev.paoding.longan.channel.http.*;
+import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.doc.DocumentService;
+import dev.paoding.longan.util.StringUtils;
+import dev.paoding.longan.util.TypeUtils;
 import org.apache.dubbo.config.ServiceConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
@@ -12,7 +15,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
+
+import static dev.paoding.longan.util.TypeUtils.getModelClass;
 
 @Component
 public class ServiceInitializingBean implements BeanFactoryAware, InitializingBean, SmartInitializingSingleton {
@@ -59,10 +66,10 @@ public class ServiceInitializingBean implements BeanFactoryAware, InitializingBe
     private void registerWebSocketListener() {
         String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors((ListableBeanFactory) beanFactory, WebSocketListener.class);
         for (String candidateName : candidateNames) {
-            webSocketListenerHandler.addWebSocketListener((WebSocketListener) beanFactory.getBean(candidateName));
+            Class<?> modelClass = getModelClass(beanFactory.getBean(candidateName).getClass());
+            webSocketListenerHandler.addWebSocketListener(StringUtils.lowerFirst(modelClass.getSimpleName()),(WebSocketListener) beanFactory.getBean(candidateName));
         }
     }
-
 
     private void exportDubboService() {
         if (context.containsBean("dubboInterceptor")) {

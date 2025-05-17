@@ -12,10 +12,21 @@ public class WebSocketSession {
     private final Map<CharSequence, Object> map = new ConcurrentHashMap<>();
     private final Channel channel;
     private final String requestUri;
+    private String anchor;
 
     public WebSocketSession(Channel channel, String requestUri) {
         this.channel = channel;
         this.requestUri = requestUri;
+        String[] array = requestUri.split("/");
+        if (array.length > 3) {
+            anchor = array[2];
+        }else {
+            channel.close();
+        }
+    }
+
+    protected String getAnchor() {
+        return this.anchor;
     }
 
     public String getId() {

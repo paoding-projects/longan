@@ -1,15 +1,13 @@
 package dev.paoding.longan.util;
 
+import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.jpa.Column;
 import org.springframework.data.util.ReflectionUtils;
 import org.springframework.util.ClassUtils;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,6 +30,19 @@ public class TypeUtils {
         List<Field> fieldList = new ArrayList<>();
         loadFiled(fieldList, type);
         return fieldList;
+    }
+
+    public static Class<?> getModelClass(Class<?> serviceClass) {
+        Type genericSuperclass = serviceClass.getGenericSuperclass();
+        if (genericSuperclass instanceof ParameterizedType parameterizedType) {
+            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+            for (Type actualTypeArgument : actualTypeArguments) {
+                if (((Class<?>) actualTypeArgument).isAnnotationPresent(Entity.class)) {
+                    return (Class<?>) actualTypeArgument;
+                }
+            }
+        }
+        throw new RuntimeException("The generic type " + serviceClass.getName() + " is not annotated with @Entity");
     }
 
     public static Collection<Field> getAllDeclaredFields(Class<?> type) {
