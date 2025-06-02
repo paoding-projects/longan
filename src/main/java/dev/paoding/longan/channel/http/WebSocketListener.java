@@ -2,19 +2,15 @@ package dev.paoding.longan.channel.http;
 
 public interface WebSocketListener {
 
-    default boolean onOpen(WebSocketSession session) {
-        return true;
+    default void onOpen(WebSocketSession session) {
     }
 
-    default boolean onMessage(WebSocketSession session, String message) {
-        return true;
+    default void onMessage(WebSocketSession session, String message) {
     }
 
-    default boolean onMessage(WebSocketSession session, byte[] bytes) {
-        return true;
+    default void onMessage(WebSocketSession session, byte[] bytes) {
     }
 
-    default boolean onClose(WebSocketSession session) {
-        return true;
+    default void onClose(WebSocketSession session) {
     }
 }

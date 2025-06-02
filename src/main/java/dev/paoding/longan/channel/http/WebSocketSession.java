@@ -7,8 +7,11 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class WebSocketSession {
+    private static final Pattern pattern = Pattern.compile("^/ws/([^/?]+)");
     private final Map<CharSequence, Object> map = new ConcurrentHashMap<>();
     private final Channel channel;
     private final String requestUri;
@@ -17,10 +20,10 @@ public class WebSocketSession {
     public WebSocketSession(Channel channel, String requestUri) {
         this.channel = channel;
         this.requestUri = requestUri;
-        String[] array = requestUri.split("/");
-        if (array.length > 3) {
-            anchor = array[2];
-        }else {
+        Matcher matcher = pattern.matcher(requestUri);
+        if (matcher.find()) {
+            anchor = matcher.group(1);
+        } else {
             channel.close();
         }
     }
@@ -41,16 +44,16 @@ public class WebSocketSession {
         return this.requestUri;
     }
 
-    public void put(CharSequence key, Object value) {
-        map.put(key, value);
+    public Object put(CharSequence key, Object value) {
+        return map.put(key, value);
     }
 
     public Object get(CharSequence key) {
         return map.get(key);
     }
 
-    public void remove(CharSequence key) {
-        map.remove(key);
+    public Object remove(CharSequence key) {
+        return map.remove(key);
     }
 
     public void write(String message) {
