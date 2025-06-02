@@ -7,6 +7,7 @@ import dev.paoding.longan.doc.DocumentService;
 import dev.paoding.longan.util.StringUtils;
 import dev.paoding.longan.util.TypeUtils;
 import org.apache.dubbo.config.ServiceConfig;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +67,7 @@ public class ServiceInitializingBean implements BeanFactoryAware, InitializingBe
     private void registerWebSocketListener() {
         String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors((ListableBeanFactory) beanFactory, WebSocketListener.class);
         for (String candidateName : candidateNames) {
-            Class<?> modelClass = getModelClass(beanFactory.getBean(candidateName).getClass());
+            Class<?> modelClass = getModelClass(AopUtils.getTargetClass(beanFactory.getBean(candidateName)));
             webSocketListenerHandler.addWebSocketListener(StringUtils.lowerFirst(modelClass.getSimpleName()),(WebSocketListener) beanFactory.getBean(candidateName));
         }
     }
