@@ -28,6 +28,10 @@ public class WebSocketSession {
         }
     }
 
+    public void close(){
+        channel.close();
+    }
+
     protected String getAnchor() {
         return this.anchor;
     }
