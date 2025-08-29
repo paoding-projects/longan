@@ -38,21 +38,22 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
-        <netty.version>4.2.1.Final</netty.version>
-        <dubbo.version>3.2.17</dubbo.version>
-        <spring.version>6.2.7</spring.version>
-        <spring-boot.version>3.5.0</spring-boot.version>
-        <spring-data-commons.version>3.5.0</spring-data-commons.version>
-        <slf4j.version>2.0.16</slf4j.version>
-        <log4j.version>2.23.1</log4j.version>
+        <netty.version>4.2.4.Final</netty.version>
+        <dubbo.version>3.3.5</dubbo.version>
+        <spring.version>6.2.10</spring.version>
+        <spring-boot.version>3.5.5</spring-boot.version>
+        <spring-data-commons.version>3.5.3</spring-data-commons.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <log4j.version>2.25.1</log4j.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.jsqlparser</groupId>
             <artifactId>jsqlparser</artifactId>
-            <version>5.2</version>
+            <version>5.3</version>
         </dependency>
+
         <dependency>
             <groupId>org.burningwave</groupId>
             <artifactId>core</artifactId>
@@ -137,19 +138,19 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>6.3.0</version>
+            <version>7.0.2</version>
         </dependency>
 
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>6.6.0.RELEASE</version>
+            <version>6.8.0.RELEASE</version>
         </dependency>
 
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-            <version>1.18.0</version>
+            <version>1.19.0</version>
         </dependency>
 
         <dependency>
@@ -192,6 +193,7 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-io_uring</artifactId>
             <version>${netty.version}</version>
+            <classifier>linux-x86_64</classifier>
         </dependency>
 
         <dependency>
@@ -231,7 +233,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.5</version>
+            <version>42.7.7</version>
             <scope>test</scope>
         </dependency>
 
@@ -252,42 +254,28 @@
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-dependencies-zookeeper</artifactId>
-            <version>${dubbo.version}</version>
+            <version>3.2.18</version>
             <scope>provided</scope>
             <type>pom</type>
         </dependency>
 
     </dependencies>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
-
-
     <build>
         <plugins>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.13</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.8.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <publishingServerId>central</publishingServerId>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
+                <version>3.14.0</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-parameters</arg>
@@ -297,7 +285,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.8</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
@@ -311,7 +299,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -327,7 +315,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.3</version>
+                <version>3.11.2</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
