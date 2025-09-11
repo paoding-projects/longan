@@ -3,6 +3,7 @@ package dev.paoding.longan.data.jpa;
 import dev.paoding.longan.service.SystemException;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -195,6 +196,12 @@ public class MetaColumn {
             } else {
                 sb.append(" SMALLINT");
             }
+        } else if (Byte.class.isAssignableFrom(type) || byte.class.isAssignableFrom(type)) {
+            if (primaryKey && generator.equals(Generator.AUTO)) {
+                sb.append(" TINYINT AUTO_INCREMENT");
+            } else {
+                sb.append(" TINYINT");
+            }
         } else if (Float.class.isAssignableFrom(type) || float.class.isAssignableFrom(type)) {
             if (getPrecision() > 0 || getScale() > 0) {
                 sb.append(" NUMERIC(" + getPrecision() + ", " + getScale() + ")");
@@ -202,14 +209,16 @@ public class MetaColumn {
                 sb.append(" REAL");
             }
         } else if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {
-            if (field.isAnnotationPresent(Money.class)) {
-                sb.append(" NUMERIC(10, 2)");
+            if (getPrecision() > 0 || getScale() > 0) {
+                sb.append(" NUMERIC(" + getPrecision() + ", " + getScale() + ")");
             } else {
-                if (getPrecision() > 0 || getScale() > 0) {
-                    sb.append(" NUMERIC(" + getPrecision() + ", " + getScale() + ")");
-                } else {
-                    sb.append(" DOUBLE PRECISION");
-                }
+                sb.append(" DOUBLE PRECISION");
+            }
+        } else if (BigDecimal.class.isAssignableFrom(type)) {
+            if (getPrecision() > 0 || getScale() > 0) {
+                sb.append(" DECIMAL(" + getPrecision() + ", " + getScale() + ")");
+            } else {
+                sb.append(" DECIMAL PRECISION");
             }
         } else if (String.class.isAssignableFrom(type)) {
             if (length > 0) {
@@ -270,14 +279,16 @@ public class MetaColumn {
                 sb.append(" real");
             }
         } else if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {
-            if (field.isAnnotationPresent(Money.class)) {
-                sb.append(" numeric");
+            if (getPrecision() > 0 || getScale() > 0) {
+                sb.append(" numeric(" + getPrecision() + "," + getScale() + ")");
             } else {
-                if (getPrecision() > 0 || getScale() > 0) {
-                    sb.append(" numeric(" + getPrecision() + "," + getScale() + ")");
-                } else {
-                    sb.append(" double precision");
-                }
+                sb.append(" double precision");
+            }
+        } else if (BigDecimal.class.isAssignableFrom(type)) {
+            if (getPrecision() > 0 || getScale() > 0) {
+                sb.append(" DECIMAL(" + getPrecision() + ", " + getScale() + ")");
+            } else {
+                sb.append(" DECIMAL PRECISION");
             }
         } else if (Short.class.isAssignableFrom(type) || short.class.isAssignableFrom(type)) {
             sb.append(" smallint");

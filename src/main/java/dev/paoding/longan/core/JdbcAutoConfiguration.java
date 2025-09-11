@@ -51,8 +51,8 @@ public class JdbcAutoConfiguration implements ImportBeanDefinitionRegistrar, Env
         Database.init(environment.getProperty("longan.datasource.url"), environment.getProperty("longan.datasource.username"), environment.getProperty("longan.datasource.password"));
         HikariDataSource hikariDataSource = new HikariDataSource();
         hikariDataSource.setThreadFactory(new ThreadFactoryBuilder().setNameFormat("hikari-thread-%d").build());
-        hikariDataSource.setMinimumIdle(Integer.parseInt(environment.getProperty("longan.datasource.idle.min", "10")));
-        hikariDataSource.setMaximumPoolSize(Integer.parseInt(environment.getProperty("longan.datasource.pool.max", "100")));
+        hikariDataSource.setMinimumIdle(Integer.parseInt(environment.getProperty("longan.datasource.idle-min", "10")));
+        hikariDataSource.setMaximumPoolSize(Integer.parseInt(environment.getProperty("longan.datasource.pool-max", "100")));
         hikariDataSource.setJdbcUrl(environment.getProperty("longan.datasource.url"));
         hikariDataSource.setUsername(environment.getProperty("longan.datasource.username"));
         hikariDataSource.setPassword(environment.getProperty("longan.datasource.password"));

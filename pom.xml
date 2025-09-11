@@ -38,7 +38,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
-        <netty.version>4.2.4.Final</netty.version>
+        <netty.version>4.2.6.Final</netty.version>
         <dubbo.version>3.3.5</dubbo.version>
         <spring.version>6.2.10</spring.version>
         <spring-boot.version>3.5.5</spring-boot.version>
@@ -315,7 +315,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.11.2</version>
+                <version>3.11.3</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
