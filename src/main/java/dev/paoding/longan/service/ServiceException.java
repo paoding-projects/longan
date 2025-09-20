@@ -5,12 +5,9 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 public class ServiceException extends RuntimeException {
     protected String code;
-    @Setter
     protected String responseType;
-    @Setter
     protected MethodInvocation methodInvocation;
 
 
@@ -40,4 +37,27 @@ public class ServiceException extends RuntimeException {
         return HttpResponseStatus.INTERNAL_SERVER_ERROR;
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public String getResponseType() {
+        return responseType;
+    }
+
+    public MethodInvocation getMethodInvocation() {
+        return methodInvocation;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setResponseType(String responseType) {
+        this.responseType = responseType;
+    }
+
+    public void setMethodInvocation(MethodInvocation methodInvocation) {
+        this.methodInvocation = methodInvocation;
+    }
 }

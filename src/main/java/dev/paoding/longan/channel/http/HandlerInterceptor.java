@@ -2,9 +2,7 @@ package dev.paoding.longan.channel.http;
 
 public interface HandlerInterceptor {
 
-    default boolean preHandle(HttpRequest request) {
-        return true;
-    }
+    ScopedResult preHandle(HttpRequest request);
 
     default void postHandle(HttpResponse response) {
 

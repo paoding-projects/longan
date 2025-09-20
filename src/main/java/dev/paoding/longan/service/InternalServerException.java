@@ -6,12 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-@Getter
 public class InternalServerException extends RuntimeException {
     private final String code;
-    @Setter
     protected String responseType;
-    @Setter
     protected MethodInvocation methodInvocation;
 
     public InternalServerException(Throwable cause) {
@@ -31,5 +28,25 @@ public class InternalServerException extends RuntimeException {
 
     public HttpResponseStatus getHttpResponseStatus() {
         return HttpResponseStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getResponseType() {
+        return responseType;
+    }
+
+    public void setResponseType(String responseType) {
+        this.responseType = responseType;
+    }
+
+    public MethodInvocation getMethodInvocation() {
+        return methodInvocation;
+    }
+
+    public void setMethodInvocation(MethodInvocation methodInvocation) {
+        this.methodInvocation = methodInvocation;
     }
 }

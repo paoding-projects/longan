@@ -1,42 +1,32 @@
 package dev.paoding.longan.channel.http;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
-import io.netty.handler.codec.http.*;
-import io.netty.handler.stream.ChunkedFile;
-import io.netty.handler.stream.ChunkedStream;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 
 @Component
 public class HttpHandler {
     private final Logger logger = LoggerFactory.getLogger(HttpHandler.class);
     @Resource
-    private HttpServiceHandler httpServiceHandler;
+    private ApiServiceHandler apiServiceHandler;
     @Resource
     private DocServiceHandler docServiceHandler;
-    @Value("${longan.http.cross-origin:false}")
-    private Boolean enableCrossOrigin;
+    @Resource
+    private OptionsServiceHandler optionsServiceHandler;
+    @Resource
+    private NotFoundServiceHandler notFoundServiceHandler;
     private static final String API_PREFIX = "/api/";
     private static final String DOC_PREFIX = "/doc/";
     private final ExecutorService executorService;
-    private final boolean zeroCopyEnabled;
 
     {
         ThreadFactory threadFactory = Thread.ofVirtual().name("http-thread-", 0).uncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -46,103 +36,23 @@ public class HttpHandler {
             }
         }).factory();
         executorService = Executors.newThreadPerTaskExecutor(threadFactory);
-
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            zeroCopyEnabled = false;
-        } else {
-            zeroCopyEnabled = true;
-        }
     }
 
     public void channelRead(ChannelHandlerContext ctx, FullHttpRequest request) {
         executorService.execute(() -> {
             try {
-                HttpResponse httpResponse;
                 if (request.method() == HttpMethod.OPTIONS) {
-                    DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NO_CONTENT);
-                    if (enableCrossOrigin) {
-                        HttpHeaders httpHeaders = fullHttpResponse.headers();
-                        httpHeaders.set("Access-Control-Allow-Origin", "*");
-                        httpHeaders.set("Access-Control-Allow-Methods", "*");
-                        httpHeaders.set("Access-Control-Allow-Headers", "*");
-                        httpHeaders.set("Access-Control-Allow-Credentials", "true");
-                    }
-                    httpResponse = new HttpResponseImpl(fullHttpResponse);
+                    optionsServiceHandler.channelRead(ctx, request);
                 } else {
                     String uri = request.uri();
                     if (uri.startsWith(API_PREFIX)) {
-                        httpResponse = httpServiceHandler.channelRead(ctx, request);
+                        apiServiceHandler.channelRead(ctx, request);
                     } else if (uri.startsWith(DOC_PREFIX)) {
-                        httpResponse = docServiceHandler.channelRead(ctx, request);
+                        docServiceHandler.channelRead(ctx, request);
                     } else {
-                        String message = "Not found " + uri;
-                        byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
-                        DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NOT_FOUND, Unpooled.wrappedBuffer(bytes));
-                        fullHttpResponse.headers().set(CONTENT_TYPE, TEXT_PLAIN);
-                        HttpUtil.setContentLength(fullHttpResponse, bytes.length);
-                        httpResponse = new HttpResponseImpl(fullHttpResponse);
+                        notFoundServiceHandler.channelRead(ctx, request);
                     }
                 }
-                boolean keepAlive = HttpUtil.isKeepAlive(request);
-                HttpUtil.setKeepAlive(httpResponse.getDefaultHttpResponse(), keepAlive);
-                ChannelFuture channelFuture = ctx.writeAndFlush(httpResponse.getDefaultHttpResponse());
-
-                VirtualFile file = httpResponse.getFile();
-                if (file == null) {
-                    if (!keepAlive) {
-                        channelFuture.addListener(ChannelFutureListener.CLOSE);
-                    }
-                } else {
-                    if (file instanceof BinaryFile binaryFile) {
-                        DownloadListener downloadListener = binaryFile.getDownloadListener();
-                        RandomAccessFile randomAccessFile = new RandomAccessFile(binaryFile.getFile(), "r");
-                        try {
-                            ChannelFuture sendFileFuture;
-                            if (zeroCopyEnabled) {
-                                sendFileFuture = ctx.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, file.length()), ctx.newProgressivePromise());
-                            } else {
-                                sendFileFuture = ctx.write(new HttpChunkedInput(new ChunkedFile(randomAccessFile, 0, file.length(), 8192)), ctx.newProgressivePromise());
-                            }
-                            sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
-                                @Override
-                                public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
-
-                                }
-
-                                @Override
-                                public void operationComplete(ChannelProgressiveFuture future) {
-                                    try {
-                                        randomAccessFile.close();
-                                    } catch (IOException e) {
-                                        logger.info(e.getMessage());
-                                    }
-                                    if (downloadListener != null) {
-                                        downloadListener.onSuccess();
-                                    }
-                                }
-                            });
-                        } catch (Exception e) {
-                            randomAccessFile.close();
-                            if (downloadListener != null) {
-                                downloadListener.onFailure();
-                            }
-                        }
-                    } else {
-                        ByteFile byteFile = (ByteFile) file;
-                        ByteBuf byteBuf = Unpooled.wrappedBuffer(byteFile.getBytes());
-                        ByteBufInputStream contentStream = new ByteBufInputStream(byteBuf);
-                        ctx.writeAndFlush(new HttpChunkedInput(new ChunkedStream(contentStream)));
-                    }
-
-                    ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-                    if (!keepAlive) {
-                        lastContentFuture.addListener(ChannelFutureListener.CLOSE);
-                    }
-                }
-
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 ReferenceCountUtil.release(request);
             }
