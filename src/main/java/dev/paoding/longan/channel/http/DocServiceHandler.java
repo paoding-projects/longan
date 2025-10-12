@@ -17,38 +17,35 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class DocServiceHandler extends AbstractServiceHandler {
 
-    public void channelRead(ChannelHandlerContext ctx, FullHttpRequest request) {
-        boolean keepAlive = HttpUtil.isKeepAlive(request);
-        HttpVersion httpVersion = request.protocolVersion();
-        String uri = request.uri();
+    public void channelRead(ChannelHandlerContext ctx, FullHttpRequest request, String uri) {
         if (uri.equals("/doc") || uri.equals("/doc/") || uri.equals("/doc/index.html")) {
             ClassPathResource classPathResource = new ClassPathResource("doc/index.html");
             String text = new String(copyToByteArray(classPathResource), StandardCharsets.UTF_8);
-             writeHtml(ctx,keepAlive,httpVersion, HttpResponseStatus.OK, text);
+            writeHtml(ctx, request, HttpResponseStatus.OK, text);
         } else if (uri.equals("/doc/doc.json")) {
             String json = DocumentService.load();
-             writeJson(ctx,keepAlive,httpVersion, HttpResponseStatus.OK, json);
+            writeJson(ctx, request, HttpResponseStatus.OK, json);
         } else if (uri.equals("/doc/models.json")) {
             String json = DocumentService.getModels();
-             writeJson(ctx,keepAlive,httpVersion, HttpResponseStatus.OK, json);
+            writeJson(ctx, request, HttpResponseStatus.OK, json);
         } else if (uri.equals("/doc/methods.json")) {
             String json = DocumentService.getMethods();
-             writeJson(ctx,keepAlive,httpVersion, HttpResponseStatus.OK, json);
+            writeJson(ctx, request, HttpResponseStatus.OK, json);
         } else if (uri.startsWith("/doc/method/")) {
             String methodName = uri.substring(11);
             String json = DocumentService.getMethod(methodName);
-             writeJson(ctx,keepAlive,httpVersion, HttpResponseStatus.OK, json);
+            writeJson(ctx, request, HttpResponseStatus.OK, json);
         }
 
         ClassPathResource classPathResource = new ClassPathResource(uri.substring(1));
         if (!classPathResource.exists()) {
             classPathResource = new ClassPathResource("doc/404.html");
             String text = new String(copyToByteArray(classPathResource), StandardCharsets.UTF_8);
-             writeHtml(ctx,keepAlive,httpVersion, HttpResponseStatus.NOT_FOUND, text);
+            writeHtml(ctx, request, HttpResponseStatus.NOT_FOUND, text);
         } else {
             byte[] bytes = copyToByteArray(classPathResource);
             AsciiString contentType = getContentType(uri);
-             write(ctx,keepAlive,httpVersion, HttpResponseStatus.OK, bytes, AsciiString.of(contentType));
+            write(ctx, request, HttpResponseStatus.OK, bytes, AsciiString.of(contentType));
         }
     }
 

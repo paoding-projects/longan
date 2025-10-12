@@ -15,7 +15,7 @@ import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
 
 @Component
 public class NotFoundServiceHandler extends AbstractServiceHandler {
-    @Override
+
     public void channelRead(ChannelHandlerContext ctx, FullHttpRequest request) {
         boolean keepAlive = HttpUtil.isKeepAlive(request);
         String message = "Not found " + request.uri();

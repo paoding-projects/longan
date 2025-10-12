@@ -3,7 +3,7 @@ package dev.paoding.longan.service;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
 
-public class MethodNotFoundException extends RuntimeException  {
+public class MethodNotFoundException extends Exception  {
     private static final long serialVersionUID = 0L;
 
     public MethodNotFoundException(String message) {

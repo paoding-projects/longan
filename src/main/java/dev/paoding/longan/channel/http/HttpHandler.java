@@ -46,9 +46,9 @@ public class HttpHandler {
                 } else {
                     String uri = request.uri();
                     if (uri.startsWith(API_PREFIX)) {
-                        apiServiceHandler.channelRead(ctx, request);
+                        apiServiceHandler.channelRead(ctx, request, uri.substring(4));
                     } else if (uri.startsWith(DOC_PREFIX)) {
-                        docServiceHandler.channelRead(ctx, request);
+                        docServiceHandler.channelRead(ctx, request, uri);
                     } else {
                         notFoundServiceHandler.channelRead(ctx, request);
                     }

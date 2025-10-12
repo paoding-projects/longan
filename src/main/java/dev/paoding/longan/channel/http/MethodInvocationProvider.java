@@ -2,7 +2,6 @@ package dev.paoding.longan.channel.http;
 
 import dev.paoding.longan.core.MethodDescriptor;
 import dev.paoding.longan.core.MethodInvocation;
-import dev.paoding.longan.service.MethodNotFoundException;
 import io.netty.handler.codec.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -67,6 +66,6 @@ public class MethodInvocationProvider {
                 return methodInvocation;
             }
         }
-        throw new MethodNotFoundException(path + " not found");
+        return null;
     }
 }

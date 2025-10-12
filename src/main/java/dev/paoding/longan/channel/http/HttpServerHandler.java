@@ -22,14 +22,11 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object message) {
-        if (message instanceof FullHttpRequest request) {
-            httpHandler.channelRead(ctx, request);
-        } else if (message instanceof TextWebSocketFrame frame) {
-            webSocketHandler.channelRead(ctx, frame);
-        } else if (message instanceof BinaryWebSocketFrame frame) {
-            webSocketHandler.channelRead(ctx, frame);
-        } else {
-            ctx.fireChannelRead(message);
+        switch (message) {
+            case FullHttpRequest request -> httpHandler.channelRead(ctx, request);
+            case TextWebSocketFrame frame -> webSocketHandler.channelRead(ctx, frame);
+            case BinaryWebSocketFrame frame -> webSocketHandler.channelRead(ctx, frame);
+            case null, default -> ctx.fireChannelRead(message);
         }
     }
 

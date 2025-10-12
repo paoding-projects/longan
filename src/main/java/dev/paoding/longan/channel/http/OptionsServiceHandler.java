@@ -10,7 +10,6 @@ public class OptionsServiceHandler extends AbstractServiceHandler {
     @Value("${longan.http.cross-origin:false}")
     private Boolean enableCrossOrigin;
 
-    @Override
     public void channelRead(ChannelHandlerContext ctx, FullHttpRequest request) {
         boolean keepAlive = HttpUtil.isKeepAlive(request);
         DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NO_CONTENT);
