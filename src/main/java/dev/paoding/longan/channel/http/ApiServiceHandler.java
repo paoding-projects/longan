@@ -4,6 +4,7 @@ import dev.paoding.longan.core.MethodInvocation;
 import dev.paoding.longan.core.Result;
 import dev.paoding.longan.service.InternalServerException;
 import dev.paoding.longan.service.MethodNotAllowedException;
+import dev.paoding.longan.service.MethodNotFoundException;
 import dev.paoding.longan.service.ServiceException;
 import dev.paoding.longan.util.GsonUtils;
 import io.netty.channel.ChannelHandlerContext;
@@ -92,24 +93,43 @@ public class ApiServiceHandler extends AbstractServiceHandler {
             case HttpRequestException ex -> handleHttpRequestException(ctx, request, ex);
             case ServiceException ex -> handelServiceException(ctx, request, ex);
             case InternalServerException ex -> handleInternalServerException(ctx, request, ex);
-            case MethodNotAllowedException ex -> writeMethodNotAllowed(ctx, request, ex);
+            case MethodNotAllowedException ex ->
+                    handleMethodNotAllowed(ctx, request, methodInvocation.getResponseType(), ex);
+            case MethodNotFoundException ex ->
+                    handleMethodNotFoundException(ctx, request, methodInvocation.getResponseType(), ex);
             case null, default -> handleException(ctx, request, methodInvocation.getResponseType(), e);
         }
     }
 
     private void writeNotFound(ChannelHandlerContext ctx, FullHttpRequest request) {
-        writeText(ctx, request, HttpResponseStatus.NOT_FOUND, request.method() + " " + request.uri() + " not found");
+        String message = request.method() + " " + request.uri() + " not found";
+        writeText(ctx, request, HttpResponseStatus.NOT_FOUND, message);
     }
 
-    private void writeMethodNotAllowed(ChannelHandlerContext ctx, FullHttpRequest request, MethodNotAllowedException ex) {
-        String msg = request.method() + " " + request.uri() + " " + ex.getMessage();
-        writeText(ctx, request, ex.getHttpResponseStatus(), msg);
+    private void handleMethodNotFoundException(ChannelHandlerContext ctx, FullHttpRequest request, String responseType, MethodNotFoundException ex) {
+        String message = request.method() + " " + request.uri() + " " + ex.getMessage();
+        if (APPLICATION_JSON.toString().equals(responseType)) {
+            ExceptionResult exceptionResult = ExceptionResult.of(ex);
+            writeJson(ctx, request, ex.getHttpResponseStatus(), exceptionResult);
+        } else {
+            writeText(ctx, request, ex.getHttpResponseStatus(), message);
+        }
+    }
+
+    private void handleMethodNotAllowed(ChannelHandlerContext ctx, FullHttpRequest request, String responseType, MethodNotAllowedException ex) {
+        String message = request.method() + " " + request.uri() + " " + ex.getMessage();
+        if (APPLICATION_JSON.toString().equals(responseType)) {
+            ExceptionResult exceptionResult = ExceptionResult.of(ex);
+            writeJson(ctx, request, ex.getHttpResponseStatus(), exceptionResult);
+        } else {
+            writeText(ctx, request, ex.getHttpResponseStatus(), message);
+        }
     }
 
     private void handleException(ChannelHandlerContext ctx, FullHttpRequest request, String responseType, Exception e) {
         logger.error("Failed to handle {} request for {}", request.method(), request.uri(), e);
-        ExceptionResult exceptionResult = ExceptionResult.of("500", "Internal Server Error");
         if (APPLICATION_JSON.toString().equals(responseType)) {
+            ExceptionResult exceptionResult = ExceptionResult.of("internal.server.error", "Internal Server Error");
             writeJson(ctx, request, HttpResponseStatus.INTERNAL_SERVER_ERROR, exceptionResult);
         } else {
             writeText(ctx, request, HttpResponseStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");

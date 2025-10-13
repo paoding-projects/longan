@@ -2,6 +2,8 @@ package dev.paoding.longan.channel.http;
 
 
 import dev.paoding.longan.service.InternalServerException;
+import dev.paoding.longan.service.MethodNotAllowedException;
+import dev.paoding.longan.service.MethodNotFoundException;
 import dev.paoding.longan.service.ServiceException;
 
 public class ExceptionResult {
@@ -18,6 +20,14 @@ public class ExceptionResult {
 
     public static ExceptionResult of(HttpRequestException httpRequestException) {
         return of(httpRequestException.getCode(), httpRequestException.getMessage());
+    }
+
+    public static ExceptionResult of(MethodNotAllowedException methodNotAllowedException) {
+        return of(methodNotAllowedException.getCode(), methodNotAllowedException.getMessage());
+    }
+
+    public static ExceptionResult of(MethodNotFoundException methodNotFoundException) {
+        return of(methodNotFoundException.getCode(), methodNotFoundException.getMessage());
     }
 
     public static ExceptionResult of(String code) {

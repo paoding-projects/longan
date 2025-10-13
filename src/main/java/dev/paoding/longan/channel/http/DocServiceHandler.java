@@ -4,8 +4,6 @@ import dev.paoding.longan.doc.DocumentService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.AsciiString;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
