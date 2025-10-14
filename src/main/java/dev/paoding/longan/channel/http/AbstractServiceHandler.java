@@ -6,6 +6,9 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.cookie.CookieHeaderNames;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.AsciiString;
@@ -34,7 +37,9 @@ public abstract class AbstractServiceHandler {
         }
     }
 
-//    public abstract void channelRead(ChannelHandlerContext ctx, FullHttpRequest request);
+    protected void writeCookie() {
+
+    }
 
     protected void writeJson(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus httpResponseStatus, ExceptionResult exceptionResult) {
         String content = GsonUtils.toJson(exceptionResult);
@@ -53,12 +58,39 @@ public abstract class AbstractServiceHandler {
         write(ctx, fullHttpRequest, httpResponseStatus, text.getBytes(StandardCharsets.UTF_8), TEXT_PLAIN);
     }
 
-    protected void writeXml(ChannelHandlerContext ctx,FullHttpRequest fullHttpRequest, HttpResponseStatus status, String text) {
+    protected void writeXml(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus status, String text) {
         write(ctx, fullHttpRequest, status, text.getBytes(StandardCharsets.UTF_8), APPLICATION_XML);
     }
 
     protected void writeHtml(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus status, String text) {
         write(ctx, fullHttpRequest, status, text.getBytes(StandardCharsets.UTF_8), TEXT_HTML);
+    }
+
+    protected void writeCookie(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpCookie httpCookie) {
+        DefaultCookie cookie = new DefaultCookie(httpCookie.name(), httpCookie.value());
+        cookie.setPath(httpCookie.path());
+        cookie.setMaxAge(httpCookie.maxAge());
+        cookie.setDomain(httpCookie.domain());
+        cookie.setHttpOnly(httpCookie.isHttpOnly());
+        cookie.setSecure(httpCookie.isSecure());
+        cookie.setWrap(httpCookie.wrap());
+        if(httpCookie.sameSite() != null) {
+            cookie.setSameSite(CookieHeaderNames.SameSite.valueOf(httpCookie.sameSite().name()));
+        }
+        cookie.setPartitioned(httpCookie.isPartitioned());
+        ServerCookieEncoder encoder = ServerCookieEncoder.STRICT;
+
+
+        boolean keepAlive = HttpUtil.isKeepAlive(fullHttpRequest);
+        HttpVersion httpVersion = fullHttpRequest.protocolVersion();
+
+        DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(httpVersion, HttpResponseStatus.NO_CONTENT, Unpooled.wrappedBuffer(new byte[]{}));
+        HttpUtil.setContentLength(fullHttpResponse, 0);
+        fullHttpResponse.headers().add(HttpHeaderNames.SET_COOKIE, encoder.encode(cookie));
+
+        HttpResponse httpResponse = new HttpResponseImpl(fullHttpResponse);
+        postHandle(httpResponse);
+        writeAndFlush(ctx, keepAlive, httpResponse);
     }
 
     protected void writeNoContent(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {

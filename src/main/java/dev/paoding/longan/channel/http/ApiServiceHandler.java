@@ -61,6 +61,8 @@ public class ApiServiceHandler extends AbstractServiceHandler {
                     Object content = result.getValue();
                     if (content == null) {
                         writeNoContent(ctx, fullHttpRequest);
+                    } else if (content instanceof HttpCookie httpCookie) {
+                        writeCookie(ctx, fullHttpRequest, httpCookie);
                     } else {
                         AsciiString contentType = result.getType();
                         if (contentType.equals(APPLICATION_JSON)) {
