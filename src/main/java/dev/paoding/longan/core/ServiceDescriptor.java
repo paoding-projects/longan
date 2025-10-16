@@ -1,10 +1,5 @@
 package dev.paoding.longan.core;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -21,18 +16,18 @@ public class ServiceDescriptor {
             methodDescriptorList.add(new MethodDescriptor(method));
         }
 
-        ClassPool classPool = ClassPool.getDefault();
-        CtClass ctClass;
-        try {
-            ctClass = classPool.get(serviceClass.getName());
-        } catch (NotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        CtMethod[] ctMethods = ctClass.getDeclaredMethods();
-        for (int i = 0; i < ctMethods.length; i++) {
-            int lineNumber = ctMethods[i].getMethodInfo().getLineNumber(0);
-            methodDescriptorList.get(i).setLineNumber(lineNumber);
-        }
+//        ClassPool classPool = ClassPool.getDefault();
+//        CtClass ctClass;
+//        try {
+//            ctClass = classPool.get(serviceClass.getName());
+//        } catch (NotFoundException e) {
+//            throw new RuntimeException(e);
+//        }
+//        CtMethod[] ctMethods = ctClass.getDeclaredMethods();
+//        for (int i = 0; i < ctMethods.length; i++) {
+//            int lineNumber = ctMethods[i].getMethodInfo().getLineNumber(0);
+//            methodDescriptorList.get(i).setLineNumber(lineNumber);
+//        }
     }
 
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {

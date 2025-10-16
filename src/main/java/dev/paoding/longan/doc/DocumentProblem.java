@@ -1,11 +1,19 @@
 package dev.paoding.longan.doc;
 
 import dev.paoding.longan.annotation.Param;
-import javassist.*;
-import javassist.NotFoundException;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.classfile.Attributes;
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.ClassModel;
+import java.lang.classfile.MethodModel;
+import java.lang.classfile.attribute.CodeAttribute;
+import java.lang.classfile.attribute.LineNumberTableAttribute;
+import java.lang.constant.ClassDesc;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 public class DocumentProblem {
     private String cause;
@@ -20,7 +28,7 @@ public class DocumentProblem {
         this.type = "Request";
     }
 
-    public DocumentProblem(String cause,String type, Method method) {
+    public DocumentProblem(String cause, String type, Method method) {
         this.cause = cause;
         this.method = method;
         this.type = type;
@@ -41,7 +49,7 @@ public class DocumentProblem {
 
     @Override
     public String toString() {
-        if(type.endsWith("Column")){
+        if (type.endsWith("Column")) {
             StringBuilder sb = new StringBuilder();
             sb.append("\n\t--------------------------------------------------------------------");
             sb.append("\n\ttype: " + type);
@@ -52,7 +60,7 @@ public class DocumentProblem {
             sb.append("\n\tfield: " + field.getDeclaringClass().getName() + "." + field.getName() + "(" + field.getDeclaringClass().getSimpleName() + ".java:" + 1 + ")");
             sb.append("\n\t--------------------------------------------------------------------");
             return sb.toString();
-        }else {
+        } else {
             int lineNumber = getLineNumber(method);
             StringBuilder sb = new StringBuilder();
             sb.append("\n\t--------------------------------------------------------------------");
@@ -68,16 +76,49 @@ public class DocumentProblem {
     }
 
     private int getLineNumber(Method method) {
-        ClassPool pool = ClassPool.getDefault();
-        try {
-            CtClass cc = pool.get(method.getDeclaringClass().getName());
-            CtMethod methodX = cc.getDeclaredMethod(method.getName());
-            return methodX.getMethodInfo().getLineNumber(0) - 1;
-        } catch (NotFoundException e) {
-            e.printStackTrace();
+        Class<?> clazz = method.getDeclaringClass();
+        String path = clazz.getName().replace('.', '/') + ".class";
+        byte[] bytes;
+        try (InputStream is = clazz.getClassLoader().getResourceAsStream(path)) {
+            assert is != null;
+            bytes = is.readAllBytes();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        ClassModel classModel = ClassFile.of().parse(bytes);
+        for (MethodModel methodModel : classModel.methods()) {
+            if (matchesMethod(method, methodModel)) {
+                return getLineNumber(methodModel);
+            }
         }
         return 0;
     }
 
+    private boolean matchesMethod(Method method, MethodModel methodModel) {
+        if (methodModel.methodName().stringValue().equals(method.getName()) && methodModel.methodTypeSymbol().parameterCount() == method.getParameterCount()) {
+            Class<?>[] parameterTypes = method.getParameterTypes();
+            ClassDesc[] parameterArray = methodModel.methodTypeSymbol().parameterArray();
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (!parameterTypes[i].getSimpleName().equals(parameterArray[i].displayName())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
+    private int getLineNumber(MethodModel method) {
+        Optional<CodeAttribute> CodeAttributeOptional = method.findAttribute(Attributes.code());
+        if (CodeAttributeOptional.isPresent()) {
+            CodeAttribute codeAttribute = CodeAttributeOptional.get();
+            Optional<LineNumberTableAttribute> LineNumberTableAttributeOptional = codeAttribute.findAttribute(Attributes.lineNumberTable());
+            if (LineNumberTableAttributeOptional.isPresent()) {
+                LineNumberTableAttribute lineNumberTableAttribute = LineNumberTableAttributeOptional.get();
+                return lineNumberTableAttribute.lineNumbers().getFirst().lineNumber();
+            }
+        }
+        return 0;
+    }
 }

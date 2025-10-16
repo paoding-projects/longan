@@ -26,7 +26,7 @@ public class MethodInvocation extends ParameterValidator {
     private Object service;
     private Method method;
     private String path;
-    private int lineNumber;
+//    private int lineNumber;
     private String responseType;
     private boolean hasRequestBody;
     private Parameter[] parameters;
@@ -35,7 +35,7 @@ public class MethodInvocation extends ParameterValidator {
         this.path = path;
         this.serviceClass = serviceClass;
         this.method = methodDescriptor.getMethod();
-        this.lineNumber = methodDescriptor.getLineNumber();
+//        this.lineNumber = methodDescriptor.getLineNumber();
         setMethod(methodDescriptor.getMethod());
     }
 
@@ -43,7 +43,7 @@ public class MethodInvocation extends ParameterValidator {
         this.serviceInterface = serviceInterface;
         this.serviceClass = serviceClass;
         this.method = methodDescriptor.getMethod();
-        this.lineNumber = methodDescriptor.getLineNumber();
+//        this.lineNumber = methodDescriptor.getLineNumber();
         setMethod(methodDescriptor.getMethod());
     }
 
@@ -124,13 +124,13 @@ public class MethodInvocation extends ParameterValidator {
         return paramMap;
     }
 
-    public int getLineNumber() {
-        return lineNumber;
-    }
-
-    public void setLineNumber(int lineNumber) {
-        this.lineNumber = lineNumber;
-    }
+//    public int getLineNumber() {
+//        return lineNumber;
+//    }
+//
+//    public void setLineNumber(int lineNumber) {
+//        this.lineNumber = lineNumber;
+//    }
 
     public Parameter[] getParameters() {
         return parameters;
