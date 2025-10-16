@@ -10,11 +10,11 @@ import dev.paoding.longan.util.GsonUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 

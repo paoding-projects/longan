@@ -1,11 +1,13 @@
 package dev.paoding.longan.core;
 
 import dev.paoding.longan.channel.dubbo.DubboFilter;
-import dev.paoding.longan.channel.http.*;
-import dev.paoding.longan.data.Entity;
+import dev.paoding.longan.channel.http.HttpServer;
+import dev.paoding.longan.channel.http.MethodInvocationProvider;
+import dev.paoding.longan.channel.http.WebSocketListener;
+import dev.paoding.longan.channel.http.WebSocketListenerHandler;
 import dev.paoding.longan.doc.DocumentService;
 import dev.paoding.longan.util.StringUtils;
-import dev.paoding.longan.util.TypeUtils;
+import jakarta.annotation.Resource;
 import org.apache.dubbo.config.ServiceConfig;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
@@ -15,9 +17,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import static dev.paoding.longan.util.TypeUtils.getModelClass;

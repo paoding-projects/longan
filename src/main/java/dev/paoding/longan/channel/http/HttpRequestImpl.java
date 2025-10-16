@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.util.AsciiString;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class HttpRequestImpl implements HttpRequest {
+    public static final AsciiString COOKIE_NAME = AsciiString.cached("Cookie");
     private final FullHttpRequest request;
     private String path;
     private Map<String, String> cookieMap;
@@ -27,7 +29,7 @@ public class HttpRequestImpl implements HttpRequest {
         }
 
         cookieMap = new HashMap<>();
-        String cookieString = request.headers().get("Cookie");
+        String cookieString = request.headers().get(COOKIE_NAME);
         if (cookieString != null) {
             Set<Cookie> cookieSet = ServerCookieDecoder.STRICT.decode(cookieString);
             for (Cookie cookie : cookieSet) {

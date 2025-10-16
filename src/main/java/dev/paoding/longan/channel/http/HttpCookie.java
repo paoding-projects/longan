@@ -92,7 +92,7 @@ public class HttpCookie {
         this.partitioned = partitioned;
     }
 
-    public static enum SameSite {
+    public enum SameSite {
         Lax,
         Strict,
         None;
