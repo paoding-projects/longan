@@ -38,10 +38,10 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
-        <netty.version>4.2.6.Final</netty.version>
-        <spring.version>6.2.11</spring.version>
-        <spring-boot.version>3.5.5</spring-boot.version>
-        <spring-data-commons.version>3.5.4</spring-data-commons.version>
+        <netty.version>4.2.7.Final</netty.version>
+        <spring.version>6.2.12</spring.version>
+        <spring-boot.version>3.5.6</spring-boot.version>
+        <spring-data-commons.version>3.5.5</spring-data-commons.version>
         <slf4j.version>2.0.17</slf4j.version>
         <log4j.version>2.25.2</log4j.version>
         <snakeyaml.version>2.5</snakeyaml.version>

@@ -1,5 +1,5 @@
 ## What is Longan?
-Longan is a Java framework designed to simplify web service development while providing a robust set of features. It integrates with Spring while offering its own lightweight alternatives to many Spring components. Longan operates on Java 21 and focuses on providing a streamlined developer experience.
+Longan is a Java framework designed to simplify web service development while providing a robust set of features. It integrates with Spring while offering its own lightweight alternatives to many Spring components. Longan operates on Java 25 and focuses on providing a streamlined developer experience.
 
 ## Key Features
 
