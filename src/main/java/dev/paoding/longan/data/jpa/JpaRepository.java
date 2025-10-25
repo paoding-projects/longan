@@ -59,6 +59,8 @@ public interface JpaRepository<T, ID> {
 
     List<T> save(List<T> entityList);
 
+    int saveOrUpdate(T entity);
+
     int deleteById(ID id);
 
     int deleteAll();
@@ -93,11 +95,15 @@ public interface JpaRepository<T, ID> {
 
     int split(T source, Class<?> type);
 
+    int split(Class<?> source, Class<?> target);
+
     int join(T source, Object target, String role);
 
     int split(T source, Object target, String role);
 
     int split(T source, Class<?> type, String role);
+
+    int split(Class<?> source, Class<?> target,String role);
 
     @Deprecated
     List<T> findAll(Pageable pageable);

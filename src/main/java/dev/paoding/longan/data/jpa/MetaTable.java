@@ -1,5 +1,6 @@
 package dev.paoding.longan.data.jpa;
 
+import com.google.common.base.Joiner;
 import dev.paoding.longan.annotation.*;
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.Transient;
@@ -33,7 +34,7 @@ public class MetaTable<T> {
     private final List<Field> accessFieldList = new ArrayList<>();
     private final Map<String, OneToManyPoint> oneToManyPointMap = new HashMap<>();
     private final Map<String, ManyToManyPoint> manyToManyPointMap = new HashMap<>();
-    private String select, insert, update, delete;
+    private String select, insert, saveOrUpdate, update, delete;
     private String selectByPrimaryKey, updateByPrimaryKey, deleteByPrimaryKey;
     private RowMapper<T> rowMapper;
     private Class<T> type;
@@ -335,7 +336,7 @@ public class MetaTable<T> {
             StringBuilder sb = new StringBuilder();
             sb.append("insert into ");
             sb.append(name);
-            if (fields.length() > 0) {
+            if (!fields.isEmpty()) {
                 sb.append(" (");
                 sb.append(fields.substring(2));
                 sb.append(") values (");
@@ -354,6 +355,63 @@ public class MetaTable<T> {
             insert = sb.toString();
         }
         return insert;
+    }
+
+    public String saveOrUpdate(String database) {
+        if (saveOrUpdate == null) {
+            StringBuilder fields = new StringBuilder();
+            StringBuilder values = new StringBuilder();
+            fields.append(", ");
+            fields.append(primaryKey.getName());
+            values.append(", :");
+            values.append(primaryKey.getName());
+            for (MetaColumn metaColumn : metaColumnList) {
+                if (metaColumn.isInsertable()) {
+                    fields.append(", ");
+                    fields.append(metaColumn.getName());
+
+                    values.append(", :");
+                    values.append(metaColumn.getAlias());
+                }
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("insert into ");
+            sb.append(name);
+            if (!fields.isEmpty()) {
+                sb.append(" (");
+                sb.append(fields.substring(2));
+                sb.append(") values (");
+                sb.append(values.substring(2));
+                sb.append(")");
+            } else {
+                sb.append(" default values");
+            }
+
+            if (database.equals(Database.POSTGRESQL)) {
+                sb.append(" ON CONFLICT ("+primaryKey.getName()+") DO UPDATE ");
+                sb.append(" SET ");
+
+                List<String> parts = new ArrayList<>();
+                for (MetaColumn metaColumn : metaColumnList) {
+                    parts.add(metaColumn.getName() + " = EXCLUDED." + metaColumn.getName());
+                }
+                String result = Joiner.on(", ").join(parts);
+                sb.append(result);
+                sb.append(";");
+            }else if(database.equals(Database.MYSQL)){
+                sb.append(" ON DUPLICATE KEY UPDATE ");
+                List<String> parts = new ArrayList<>();
+                for (MetaColumn metaColumn : metaColumnList) {
+                    parts.add(metaColumn.getName() + " = VALUES(" + metaColumn.getName() +")");
+                }
+                String result = Joiner.on(", ").join(parts);
+                sb.append(result);
+                sb.append(";");
+            }
+            saveOrUpdate = sb.toString();
+        }
+        return saveOrUpdate;
     }
 
 

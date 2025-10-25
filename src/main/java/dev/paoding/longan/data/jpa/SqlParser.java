@@ -3,6 +3,7 @@ package dev.paoding.longan.data.jpa;
 
 import dev.paoding.longan.data.Between;
 import dev.paoding.longan.data.Entity;
+import dev.paoding.longan.service.ServiceException;
 import dev.paoding.longan.util.EntityUtils;
 import dev.paoding.longan.util.StringUtils;
 
@@ -91,17 +92,26 @@ public class SqlParser {
         }
     }
 
-    public static String toJoinSql(String source, String target, String role) {
+    public static String toJoinSql(String database, String source, String target, String role) {
         if (!role.isEmpty()) {
             role = "_" + role;
         }
         if (source.compareTo(target) < 0) {
             String tableName = source + "_" + target + role;
-            return "insert into " + tableName + " (" + source + "_id, " + target + "_id) values (:" + source + "_id, :" + target + "_id)";
+            if (database.equals(Database.POSTGRESQL)) {
+                return "INSERT INTO " + tableName + " (" + source + "_id, " + target + "_id) VALUES (:" + source + "_id, :" + target + "_id) ON CONFLICT (" + source + "_id, " + target + "_id) DO NOTHING";
+            } else if (database.equals(Database.MYSQL)) {
+                return "INSERT IGNORE INTO " + tableName + " (" + source + "_id, " + target + "_id) VALUES (:" + source + "_id, :" + target + "_id)";
+            }
         } else {
             String tableName = target + "_" + source + role;
-            return "insert into " + tableName + " (" + target + "_id, " + source + "_id) values (:" + target + "_id, :" + source + "_id)";
+            if (database.equals(Database.POSTGRESQL)) {
+                return "INSERT INTO " + tableName + " (" + target + "_id, " + source + "_id) VALUES (:" + target + "_id, :" + source + "_id) ON CONFLICT (" + target + "_id, " + source + "_id) DO NOTHING";
+            } else if (database.equals(Database.MYSQL)) {
+                return "INSERT IGNORE INTO " + tableName + " (" + target + "_id, " + source + "_id) VALUES (:" + target + "_id, :" + source + "_id)";
+            }
         }
+        throw new ServiceException("Unsupported database type");
     }
 
     public static String toSplitSql(String source, String target, String role) {
@@ -128,6 +138,19 @@ public class SqlParser {
             tableName = target + "_" + source + role;
         }
         return "delete from " + tableName + " where " + source + "_id = :" + source + "_id";
+    }
+
+    public static String toSplitSqlAllWithoutParameter(String source, String target, String role) {
+        if (!role.isEmpty()) {
+            role = "_" + role;
+        }
+        String tableName;
+        if (source.compareTo(target) < 0) {
+            tableName = source + "_" + target + role;
+        } else {
+            tableName = target + "_" + source + role;
+        }
+        return "delete from " + tableName;
     }
 
     public static String toColumnName(String name) {

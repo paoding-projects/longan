@@ -264,7 +264,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     public List<T> find(Example<T> example, Pageable pageable) {
         MatchResult matchResult = example.match();
         String sql = "select * from " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " where " + matchResult.getWhere());
-        Map<String,Object> params = matchResult.getParamMap();
+        Map<String, Object> params = matchResult.getParamMap();
         if (pageable != null) {
             sql += pageable.toSql();
         }
@@ -354,6 +354,19 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         }
 
         return entity;
+    }
+
+    @Override
+    public int saveOrUpdate(T entity) {
+        if (entity == null) {
+            throw new RuntimeException("object must not be null");
+        }
+        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
+            serialize(entity);
+        }
+        String sql = metaTable.saveOrUpdate(database);
+        jdbcSession.update(sql, new BeanPropertySqlParameterSource(entity));
+        return 0;
     }
 
     private <T> void serialize(T entity) {
@@ -646,6 +659,20 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     }
 
     @Override
+    public int split(Class<?> source, Class<?> target) {
+        return split(source, target, "");
+    }
+
+    @Override
+    public int split(Class<?> source, Class<?> target, String role) {
+        String startName = SqlParser.toDatabaseName(source.getSimpleName());
+        String endName = SqlParser.toDatabaseName(target.getSimpleName());
+
+        String sql = SqlParser.toSplitSqlAllWithoutParameter(startName, endName, role);
+        return jdbcSession.update(sql);
+    }
+
+    @Override
     public int join(T start, Object end, String role) {
         return joinOrSplit(start, end, role, true);
     }
@@ -675,16 +702,11 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         Map<String, Object> paraMap = Map.of(startName + "_id", startId, endName + "_id", endId);
         String sql;
         if (join) {
-            sql = SqlParser.toCountSql(startName, endName, role);
-            if (jdbcSession.queryForLong(sql, paraMap) == 0) {
-                sql = SqlParser.toJoinSql(startName, endName, role);
-                return jdbcSession.update(sql, paraMap);
-            }
+            sql = SqlParser.toJoinSql(database, startName, endName, role);
         } else {
             sql = SqlParser.toSplitSql(startName, endName, role);
-            return jdbcSession.update(sql, paraMap);
         }
-        return 0;
+        return jdbcSession.update(sql, paraMap);
     }
 
     @Override
