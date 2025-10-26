@@ -444,6 +444,34 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         return jdbcSession.update(sql, paramMap);
     }
 
+    @Override
+    public int update(ID id, Object... objects) {
+        if (objects.length == 0) return 0;
+        if (objects.length % 2 != 0) {
+            throw new SystemException("The length of objects must be even");
+        }
+
+        SqlMap sqlMap = SqlMap.of();
+        for (int i = 0; i < objects.length; i = i + 2) {
+            sqlMap.put(objects[i].toString(), objects[i + 1]);
+        }
+        return update(id, sqlMap);
+    }
+
+    @Override
+    public int update(List<ID> idList, Object... objects) {
+        if (objects.length == 0) return 0;
+        if (objects.length % 2 != 0) {
+            throw new SystemException("The length of objects must be even");
+        }
+
+        SqlMap sqlMap = SqlMap.of();
+        for (int i = 0; i < objects.length; i = i + 2) {
+            sqlMap.put(objects[i].toString(), objects[i + 1]);
+        }
+        return update(idList, sqlMap);
+    }
+
     private void merge(T entity) {
         T old = BeanFactory.attach(entity);
         Field[] fieldArray = entity.getClass().getDeclaredFields();

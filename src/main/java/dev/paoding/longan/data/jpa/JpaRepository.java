@@ -61,6 +61,10 @@ public interface JpaRepository<T, ID> {
 
     int update(List<ID> idList, T entity);
 
+    int update(ID id, Object... objects);
+
+    int update(List<ID> idList, Object... objects);
+
     int join(T source, Object target);
 
     int split(T source, Object target);
