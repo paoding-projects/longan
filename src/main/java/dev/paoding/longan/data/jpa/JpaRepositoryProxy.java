@@ -217,25 +217,10 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     }
 
     @Override
-    public Optional<T> findById(ID id) {
-        return getOptional(id);
-    }
-
-    @Override
-    public Optional<T> findOne(Example<T> example) {
-        return getOptional(example);
-    }
-
-    @Override
     public boolean exists(ID id) {
         String sql = "select count(*) from " + metaTable.getName() + " where " + metaTable.getPrimaryKey().getName() + " = :id";
         Map<String, Object> paramMap = Map.of("id", id);
         return jdbcSession.queryForLong(sql, paramMap) > 0;
-    }
-
-    @Override
-    public boolean existsById(ID id) {
-        return exists(id);
     }
 
     @Override
@@ -282,30 +267,9 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     }
 
     @Override
-    public List<T> findAll(Example<T> example) {
-        return find(example);
-    }
-
-    @Override
-    public List<T> findAll(Example<T> example, Pageable pageable) {
-        return find(example, pageable);
-    }
-
-    @Override
-    public List<T> findAllById(List<ID> idList) {
-        return find(idList);
-    }
-
-
-    @Override
     public List<T> findAll() {
         String sql = "select * from " + metaTable.getName() + " order by " + metaTable.getPrimaryKey().getName() + " desc";
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
-    }
-
-    @Override
-    public List<T> findAll(Pageable pageable) {
-        return find(pageable);
     }
 
     @Override
@@ -396,11 +360,6 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     }
 
     @Override
-    public List<T> saveAll(List<T> entityList) {
-        return save(entityList);
-    }
-
-    @Override
     public int increase(ID id, Object... objects) {
         if (objects.length == 0) return 0;
         if (objects.length % 2 != 0) {
@@ -448,72 +407,6 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
             }
         }
         return value;
-    }
-
-    @Override
-    public int update(ID id, SqlMap sqlMap) {
-        Map<String, Object> paramMap = new ParamMap();
-        Map<String, Object> originalMap = sqlMap.build();
-        for (String key : originalMap.keySet()) {
-            String name = metaTable.getColumnName(key);
-            paramMap.put(name, convert(originalMap.get(key)));
-        }
-        originalMap.clear();
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String key : paramMap.keySet()) {
-            stringBuilder.append(key).append(" = :").append(key).append(", ");
-        }
-        String sql = "update " + metaTable.getName() + " set " + stringBuilder.substring(0, stringBuilder.length() - 2) + " where " + metaTable.getPrimaryKey().getName() + " = :id";
-        paramMap.put("id", id);
-        return jdbcSession.update(sql, paramMap);
-    }
-
-    @Override
-    public int update(List<ID> idList, SqlMap sqlMap) {
-        Map<String, Object> paramMap = new ParamMap();
-        Map<String, Object> originalMap = sqlMap.build();
-        for (String key : originalMap.keySet()) {
-            String name = metaTable.getColumnName(key);
-            paramMap.put(name, convert(originalMap.get(key)));
-        }
-        originalMap.clear();
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String key : paramMap.keySet()) {
-            stringBuilder.append(key).append(" = :").append(key).append(", ");
-        }
-        String sql = "update " + metaTable.getName() + " set " + stringBuilder.substring(0, stringBuilder.length() - 2) + " where " + metaTable.getPrimaryKey().getName() + " in (:idList)";
-        paramMap.put("idList", idList);
-        return jdbcSession.update(sql, paramMap);
-    }
-
-    @Override
-    public int update(ID id, Object... objects) {
-        if (objects.length == 0) return 0;
-        if (objects.length % 2 != 0) {
-            throw new SystemException("The length of objects must be even");
-        }
-
-        SqlMap sqlMap = SqlMap.of();
-        for (int i = 0; i < objects.length; i = i + 2) {
-            sqlMap.put(objects[i].toString(), objects[i + 1]);
-        }
-        return update(id, sqlMap);
-    }
-
-    @Override
-    public int update(List<ID> idList, Object... objects) {
-        if (objects.length == 0) return 0;
-        if (objects.length % 2 != 0) {
-            throw new SystemException("The length of objects must be even");
-        }
-
-        SqlMap sqlMap = SqlMap.of();
-        for (int i = 0; i < objects.length; i = i + 2) {
-            sqlMap.put(objects[i].toString(), objects[i + 1]);
-        }
-        return update(idList, sqlMap);
     }
 
     @Override
@@ -588,17 +481,6 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     }
 
     @Override
-    public int updateAll(List<T> entityList) {
-        return update(entityList);
-    }
-
-    @Override
-    public int delete(T entity) {
-        ID id = (ID) BeanMap.create(entity).get("id");
-        return deleteById(id);
-    }
-
-    @Override
     public int delete(List<T> entityList) {
         if (entityList == null || entityList.size() == 0) {
             return 0;
@@ -631,16 +513,6 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     public int deleteAll() {
         SqlSession sqlSession = new SqlSession(jdbcSession);
         return sqlSession.deleteAll(clazz);
-    }
-
-    @Override
-    public int deleteAll(List<T> entityList) {
-        return delete(entityList);
-    }
-
-    @Override
-    public int deleteAllById(List<ID> idList) {
-        return deleteById(idList);
     }
 
     @Override

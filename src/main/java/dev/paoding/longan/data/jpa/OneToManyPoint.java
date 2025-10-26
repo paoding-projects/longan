@@ -4,7 +4,6 @@ public class OneToManyPoint {
     private Class<?> master;
     private Class<?> slaver;
     private String joinField;
-    private boolean orphanRemoval;
     private int slaverQuantity = 1;
 
     public OneToManyPoint(Class<?> master, Class<?> slaver) {
@@ -32,13 +31,6 @@ public class OneToManyPoint {
         this.joinField = joinField;
     }
 
-    public boolean isOrphanRemoval() {
-        return orphanRemoval;
-    }
-
-    public void setOrphanRemoval(boolean orphanRemoval) {
-        this.orphanRemoval = orphanRemoval;
-    }
 
     @Override
     public String toString() {
@@ -46,7 +38,6 @@ public class OneToManyPoint {
                 "master=" + master +
                 ", slaver=" + slaver +
                 ", joinField='" + joinField + '\'' +
-                ", orphanRemoval=" + orphanRemoval +
                 '}';
     }
 }

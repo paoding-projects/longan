@@ -10,8 +10,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface OneToMany {
 
-    boolean orphanRemoval() default false;
-
     String joinField() default "";
 
     String alias() default "";

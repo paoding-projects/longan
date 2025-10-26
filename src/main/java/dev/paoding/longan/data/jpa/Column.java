@@ -28,17 +28,7 @@ public @interface Column {
 
     boolean unique() default false;
 
-    /**
-     * 精度
-     *
-     * @return 精度
-     */
     int scale() default 0;
 
-    /**
-     * 长度
-     *
-     * @return 长度
-     */
     int precision() default 0;
 }

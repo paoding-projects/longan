@@ -10,8 +10,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface OneToOne {
 
-    boolean orphanRemoval() default false;
-
     String alias() default "";
 
     String description() default "";

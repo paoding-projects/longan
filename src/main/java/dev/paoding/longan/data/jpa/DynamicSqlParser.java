@@ -4,7 +4,6 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
-import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.*;
@@ -89,21 +88,25 @@ public class DynamicSqlParser {
             case NotEqualsTo notEqualsTo -> visit(notEqualsTo, params);
             case InExpression inExpression -> visit(inExpression, params);
             case Between between -> visit(between, params);
-            case Parenthesis parenthesis -> visit(parenthesis, params);
+            case ParenthesedExpressionList<?> pel -> visit(pel, params);
             case null, default -> expression;
         };
     }
 
-    private Expression visit(Parenthesis parenthesis, Map<String, Object> params) {
-        Expression expression = visit(parenthesis.getExpression(), params);
-        if (expression == null) {
-            return null;
+    private Expression visit(ParenthesedExpressionList<?> parenthesedExpressionList, Map<String, Object> params) {
+        if (parenthesedExpressionList.size() == 1) {
+            Expression inner = parenthesedExpressionList.getFirst();
+            Expression visited = visit(inner, params);
+            if (visited == null) {
+                return null;
+            }
+            if (visited instanceof OrExpression || visited instanceof AndExpression) {
+                return new ParenthesedExpressionList<>(visited);
+            }
+            return visited;
         }
-        if (OrExpression.class.isAssignableFrom(expression.getClass()) || AndExpression.class.isAssignableFrom(expression.getClass())) {
-            parenthesis.setExpression(expression);
-            return parenthesis;
-        }
-        return expression;
+
+        return parenthesedExpressionList;
     }
 
     private Expression visit(AndExpression andExpression, Map<String, Object> params) {

@@ -120,7 +120,6 @@ public class MetaTable<T> {
                             } else {
                                 OneToManyPoint oneToManyPoint = new OneToManyPoint(clazz, slaver);
                                 oneToManyPoint.setJoinField(joinField);
-                                oneToManyPoint.setOrphanRemoval(oneToMany.orphanRemoval());
                                 oneToManyPointMap.put(StringUtils.lowerFirst(slaver.getSimpleName()), oneToManyPoint);
                             }
                         }
