@@ -472,6 +472,42 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         return update(idList, sqlMap);
     }
 
+    private int update(ID id, SqlMap sqlMap) {
+        Map<String, Object> paramMap = new ParamMap();
+        Map<String, Object> originalMap = sqlMap.build();
+        for (String key : originalMap.keySet()) {
+            String name = metaTable.getColumnName(key);
+            paramMap.put(name, convert(originalMap.get(key)));
+        }
+        originalMap.clear();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String key : paramMap.keySet()) {
+            stringBuilder.append(key).append(" = :").append(key).append(", ");
+        }
+        String sql = "UPDATE " + metaTable.getName() + " SET " + stringBuilder.substring(0, stringBuilder.length() - 2) + " WHERE " + metaTable.getPrimaryKey().getName() + " = :id";
+        paramMap.put("id", id);
+        return jdbcSession.update(sql, paramMap);
+    }
+
+    private int update(List<ID> idList, SqlMap sqlMap) {
+        Map<String, Object> paramMap = new ParamMap();
+        Map<String, Object> originalMap = sqlMap.build();
+        for (String key : originalMap.keySet()) {
+            String name = metaTable.getColumnName(key);
+            paramMap.put(name, convert(originalMap.get(key)));
+        }
+        originalMap.clear();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String key : paramMap.keySet()) {
+            stringBuilder.append(key).append(" = :").append(key).append(", ");
+        }
+        String sql = "UPDATE " + metaTable.getName() + " SET " + stringBuilder.substring(0, stringBuilder.length() - 2) + " WHERE " + metaTable.getPrimaryKey().getName() + " IN (:idList)";
+        paramMap.put("idList", idList);
+        return jdbcSession.update(sql, paramMap);
+    }
+
     private void merge(T entity) {
         T old = BeanFactory.attach(entity);
         Field[] fieldArray = entity.getClass().getDeclaredFields();
