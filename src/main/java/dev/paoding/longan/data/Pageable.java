@@ -93,8 +93,7 @@ public class Pageable {
     public String toSql() {
         StringBuilder sb = new StringBuilder();
         if (sort != null && !sort.isBlank()) {
-            Matcher matcher = PATTERN.matcher(sort);
-            if (!matcher.find()) {
+            if (!PATTERN.matcher(sort).matches()) {
                 String message = "Unsupported sort field name";
                 throw new ConstraintViolationException("pageable.sort.unsupported", message);
             }
