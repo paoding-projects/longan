@@ -82,10 +82,10 @@ public class SqlParser {
         }
         if (source.compareTo(target) < 0) {
             String tableName = source + "_" + target + role;
-            return "select count(1) from " + tableName + " where " + source + "_id = :" + source + "_id and " + target + "_id = :" + target + "_id";
+            return "SELECT COUNT(*) FROM " + tableName + " WHERE " + source + "_id = :" + source + "_id AND " + target + "_id = :" + target + "_id";
         } else {
             String tableName = target + "_" + source + role;
-            return "select count(1) from " + tableName + " where " + target + "_id = :" + target + "_id and " + source + "_id = :" + source + "_id";
+            return "SELECT COUNT(*) FROM " + tableName + " WHERE " + target + "_id = :" + target + "_id AND " + source + "_id = :" + source + "_id";
         }
     }
 
@@ -117,10 +117,10 @@ public class SqlParser {
         }
         if (source.compareTo(target) < 0) {
             String tableName = source + "_" + target + role;
-            return "delete from " + tableName + " where " + source + "_id = :" + source + "_id and " + target + "_id = :" + target + "_id";
+            return "DELETE FROM " + tableName + " WHERE " + source + "_id = :" + source + "_id AND " + target + "_id = :" + target + "_id";
         } else {
             String tableName = target + "_" + source + role;
-            return "delete from " + tableName + " where " + target + "_id = :" + target + "_id and " + source + "_id = :" + source + "_id";
+            return "DELETE FROM " + tableName + " WHERE " + target + "_id = :" + target + "_id AND " + source + "_id = :" + source + "_id";
         }
     }
 
@@ -134,7 +134,7 @@ public class SqlParser {
         } else {
             tableName = target + "_" + source + role;
         }
-        return "delete from " + tableName + " where " + source + "_id = :" + source + "_id";
+        return "DELETE FROM " + tableName + " WHERE " + source + "_id = :" + source + "_id";
     }
 
     public static String toSplitSqlAllWithoutParameter(String source, String target, String role) {
@@ -147,7 +147,7 @@ public class SqlParser {
         } else {
             tableName = target + "_" + source + role;
         }
-        return "delete from " + tableName;
+        return "DELETE FROM " + tableName;
     }
 
     public static String toColumnName(String name) {

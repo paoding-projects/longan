@@ -283,22 +283,22 @@ public class MetaTable<T> {
                 setter.append(", ");
                 setter.append(metaColumn.getName());
                 if (!metaColumn.getName().equals(metaColumn.getAlias())) {
-                    setter.append(" as ");
+                    setter.append(" AS ");
                     setter.append(metaColumn.getAlias());
                 }
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append("select ");
+            sb.append("SELECT ");
             sb.append(primaryKey.getName());
             if (!primaryKey.getName().equals(primaryKey.getAlias())) {
-                sb.append(" as ");
+                sb.append(" AS ");
                 sb.append(primaryKey.getAlias());
             }
 
             sb.append(setter);
 
-            sb.append(" from ");
+            sb.append(" FROM ");
             sb.append(name);
             select = sb.toString();
         }
@@ -307,7 +307,7 @@ public class MetaTable<T> {
 
     public String selectByPrimaryKey() {
         if (selectByPrimaryKey == null) {
-            selectByPrimaryKey = select() + " where " + primaryKey.getName() + " = :id";
+            selectByPrimaryKey = select() + " WHERE " + primaryKey.getName() + " = :id";
         }
         return selectByPrimaryKey;
     }
@@ -333,21 +333,21 @@ public class MetaTable<T> {
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append("insert into ");
+            sb.append("INSERT INTO ");
             sb.append(name);
             if (!fields.isEmpty()) {
                 sb.append(" (");
                 sb.append(fields.substring(2));
-                sb.append(") values (");
+                sb.append(") VALUES (");
                 sb.append(values.substring(2));
                 sb.append(")");
             } else {
-                sb.append(" default values");
+                sb.append(" DEFAULT VALUES");
             }
 
             if (primaryKey != null && primaryKey.getGenerator().equals(Generator.AUTO)) {
                 if (database.equals(Database.POSTGRESQL)) {
-                    sb.append(" returning ");
+                    sb.append(" RETURNING ");
                     sb.append(primaryKey.getName());
                 }
             }
@@ -375,16 +375,16 @@ public class MetaTable<T> {
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append("insert into ");
+            sb.append("INSERT INTO ");
             sb.append(name);
             if (!fields.isEmpty()) {
                 sb.append(" (");
                 sb.append(fields.substring(2));
-                sb.append(") values (");
+                sb.append(") VALUES (");
                 sb.append(values.substring(2));
                 sb.append(")");
             } else {
-                sb.append(" default values");
+                sb.append(" DEFAULT VALUES");
             }
 
             if (database.equals(Database.POSTGRESQL)) {
@@ -426,28 +426,28 @@ public class MetaTable<T> {
                 }
             }
 
-            update = "update " + name + " set " + setter.substring(2);
+            update = "UPDATE " + name + " SET " + setter.substring(2);
         }
         return update;
     }
 
     public String updateByPrimaryKey() {
         if (updateByPrimaryKey == null) {
-            updateByPrimaryKey = update() + " where " + primaryKey.getName() + " = :" + primaryKey.getAlias();
+            updateByPrimaryKey = update() + " WHERE " + primaryKey.getName() + " = :" + primaryKey.getAlias();
         }
         return updateByPrimaryKey;
     }
 
     public String delete() {
         if (delete == null) {
-            delete = "delete from " + name;
+            delete = "DELETE FROM " + name;
         }
         return delete;
     }
 
     public String deleteByPrimaryKey() {
         if (deleteByPrimaryKey == null) {
-            deleteByPrimaryKey = delete() + " where " + primaryKey.getName() + " = ?";
+            deleteByPrimaryKey = delete() + " WHERE " + primaryKey.getName() + " = ?";
         }
         return deleteByPrimaryKey;
     }

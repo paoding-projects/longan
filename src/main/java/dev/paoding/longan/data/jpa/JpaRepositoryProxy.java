@@ -168,7 +168,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         MethodParser methodParser = MethodParser.of("select", clazz, methodName, paramMap, distinct);
         String sql = methodParser.getSql();
         if (limit > 0) {
-            sql += " limit " + limit;
+            sql += " LIMIT " + limit;
         }
         if (returnType.isAssignableFrom(List.class)) {
             return EntityUtils.wrap(metaTable, jdbcSession.query(sql, methodParser.getParamMap(), metaTable.getRowMapper()));
@@ -207,7 +207,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     @Override
     public Optional<T> getOptional(Example<T> example) {
         MatchResult matchResult = example.match();
-        String sql = "select * from " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " where " + matchResult.getWhere());
+        String sql = "SELECT * FROM " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " WHERE " + matchResult.getWhere());
         try {
             T entity = jdbcSession.queryForObject(sql, matchResult.getParamMap(), metaTable.getRowMapper());
             return Optional.ofNullable(EntityUtils.wrap(metaTable, entity));
@@ -218,7 +218,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
 
     @Override
     public boolean exists(ID id) {
-        String sql = "select count(*) from " + metaTable.getName() + " where " + metaTable.getPrimaryKey().getName() + " = :id";
+        String sql = "SELECT COUNT(*) FROM " + metaTable.getName() + " WHERE " + metaTable.getPrimaryKey().getName() + " = :id";
         Map<String, Object> paramMap = Map.of("id", id);
         return jdbcSession.queryForLong(sql, paramMap) > 0;
     }
@@ -230,7 +230,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
 
     @Override
     public List<T> find(Pageable pageable) {
-        String sql = "select * from " + metaTable.getName();
+        String sql = "SELECT * FROM " + metaTable.getName();
         if (pageable != null) {
             sql += pageable.toSql();
             return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
@@ -241,14 +241,14 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     @Override
     public List<T> find(Example<T> example) {
         MatchResult matchResult = example.match();
-        String sql = "select * from " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " where " + matchResult.getWhere());
+        String sql = "SELECT * FROM " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " WHERE " + matchResult.getWhere());
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, matchResult.getParamMap(), metaTable.getRowMapper()));
     }
 
     @Override
     public List<T> find(Example<T> example, Pageable pageable) {
         MatchResult matchResult = example.match();
-        String sql = "select * from " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " where " + matchResult.getWhere());
+        String sql = "SELECT * FROM " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " WHERE " + matchResult.getWhere());
         Map<String, Object> params = matchResult.getParamMap();
         if (pageable != null) {
             sql += pageable.toSql();
@@ -261,27 +261,27 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         if (idList == null || idList.isEmpty()) {
             return new ArrayList<>();
         }
-        String sql = "select * from " + metaTable.getName() + " where " + metaTable.getPrimaryKey().getName() + " in (:idList)";
+        String sql = "SELECT * FROM " + metaTable.getName() + " WHERE " + metaTable.getPrimaryKey().getName() + " IN (:idList)";
         Map<String, Object> paramMap = Map.of("idList", idList);
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, paramMap, metaTable.getRowMapper()));
     }
 
     @Override
     public List<T> findAll() {
-        String sql = "select * from " + metaTable.getName() + " order by " + metaTable.getPrimaryKey().getName() + " desc";
+        String sql = "SELECT * FROM " + metaTable.getName() + " ORDER BY " + metaTable.getPrimaryKey().getName() + " DESC";
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
     }
 
     @Override
     public long count() throws DataAccessException {
-        String sql = "select count(1) from " + metaTable.getName();
+        String sql = "SELECT COUNT(*) FROM " + metaTable.getName();
         return jdbcSession.queryForLong(sql);
     }
 
     @Override
     public long count(Example<T> example) {
         MatchResult matchResult = example.match();
-        String sql = "select count(1) from " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " where " + matchResult.getWhere());
+        String sql = "SELECT COUNT(*) FROM " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " WHERE " + matchResult.getWhere());
         return jdbcSession.queryForLong(sql, matchResult.getParamMap());
     }
 
@@ -374,7 +374,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
             stringBuilder.append(columnName).append(" = ").append(columnName).append(" + :").append(columnName).append(", ");
             paramMap.put(columnName, objects[i + 1]);
         }
-        String sql = "update " + metaTable.getName() + " set " + stringBuilder.substring(0, stringBuilder.length() - 2) + " where " + metaTable.getPrimaryKey().getName() + " = :id";
+        String sql = "UPDATE " + metaTable.getName() + " SET " + stringBuilder.substring(0, stringBuilder.length() - 2) + " WHERE " + metaTable.getPrimaryKey().getName() + " = :id";
         return jdbcSession.update(sql, paramMap);
     }
 //
@@ -440,7 +440,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         StringBuilder stringBuilder = new StringBuilder();
         paramMap.keySet().stream().filter(key -> !key.equals("id")).forEach(key -> stringBuilder.append(key).append(" = :")
                 .append(key).append(", "));
-        String sql = "update " + metaTable.getName() + " set " + stringBuilder.substring(0, stringBuilder.length() - 2) + " where " + metaTable.getPrimaryKey().getName() + " = :id";
+        String sql = "UPDATE " + metaTable.getName() + " SET " + stringBuilder.substring(0, stringBuilder.length() - 2) + " WHERE " + metaTable.getPrimaryKey().getName() + " = :id";
         return jdbcSession.update(sql, paramMap);
     }
 

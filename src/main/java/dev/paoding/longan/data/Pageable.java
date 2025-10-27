@@ -97,14 +97,14 @@ public class Pageable {
                 String message = "Unsupported sort field name";
                 throw new ConstraintViolationException("pageable.sort.unsupported", message);
             }
-            sb.append(" order by ").append(SqlParser.toColumnName(sort));
-            sb.append(desc ? " desc" : " asc");
+            sb.append(" ORDER BY ").append(SqlParser.toColumnName(sort));
+            sb.append(desc ? " DESC" : " ASC");
         }
 
         if (Database.isPostgresql()) {
-            sb.append(" offset ").append(offset()).append(" limit ").append(limit());
+            sb.append(" OFFSET ").append(offset()).append(" LIMIT ").append(limit());
         } else if (Database.isMySQL()) {
-            sb.append(" limit ").append(offset()).append(", ").append(limit());
+            sb.append(" LIMIT ").append(offset()).append(", ").append(limit());
         }
         return sb.toString();
     }

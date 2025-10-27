@@ -169,7 +169,7 @@ public class MetaColumn {
     public String generateColumnCommentStatement() {
         if (Database.isPostgresql()) {
             if (comment != null && !comment.isBlank()) {
-                return "comment on column " + tableName + "." + name + " is '" + comment + "'";
+                return "COMMENT ON COLUMN " + tableName + "." + name + " IS '" + comment + "'";
             }
         }
         return null;
@@ -262,27 +262,27 @@ public class MetaColumn {
         sb.append(name);
         if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type)) {
             if (primaryKey && generator.equals(Generator.AUTO)) {
-                sb.append(" serial");
+                sb.append(" SERIAL");
             } else {
-                sb.append(" int");
+                sb.append(" INT");
             }
         } else if (Long.class.isAssignableFrom(type) || long.class.isAssignableFrom(type)) {
             if (primaryKey && generator.equals(Generator.AUTO)) {
-                sb.append(" bigserial");
+                sb.append(" BIGSERIAL");
             } else {
-                sb.append(" bigint");
+                sb.append(" BIGINT");
             }
         } else if (Float.class.isAssignableFrom(type) || float.class.isAssignableFrom(type)) {
             if (getPrecision() > 0 || getScale() > 0) {
-                sb.append(" numeric(" + getPrecision() + "," + getScale() + ")");
+                sb.append(" NUMERIC(" + getPrecision() + "," + getScale() + ")");
             } else {
-                sb.append(" real");
+                sb.append(" REAL");
             }
         } else if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {
             if (getPrecision() > 0 || getScale() > 0) {
-                sb.append(" numeric(" + getPrecision() + "," + getScale() + ")");
+                sb.append(" NUMERIC(" + getPrecision() + "," + getScale() + ")");
             } else {
-                sb.append(" double precision");
+                sb.append(" DOUBLE PRECISION");
             }
         } else if (BigDecimal.class.isAssignableFrom(type)) {
             if (getPrecision() > 0 || getScale() > 0) {
@@ -291,35 +291,35 @@ public class MetaColumn {
                 sb.append(" DECIMAL PRECISION");
             }
         } else if (Short.class.isAssignableFrom(type) || short.class.isAssignableFrom(type)) {
-            sb.append(" smallint");
+            sb.append(" SMALLINT");
         } else if (String.class.isAssignableFrom(type)) {
-            sb.append(" text");
+            sb.append(" TEXT");
         } else if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
-            sb.append(" boolean");
+            sb.append(" BOOLEAN");
         } else if (LocalDateTime.class.isAssignableFrom(getType())) {
-            sb.append(" timestamp with time zone");
+            sb.append(" TIMESTAMP WITH TIME ZONE");
         } else if (LocalDate.class.isAssignableFrom(getType())) {
-            sb.append(" date");
+            sb.append(" DATE");
         } else if (LocalTime.class.isAssignableFrom(getType())) {
-            sb.append(" time with time zone");
+            sb.append(" TIME WITH TIME ZONE");
         } else if (Instant.class.isAssignableFrom(getType())) {
-            sb.append(" timestamp");
+            sb.append(" TIMESTAMP");
         } else if (Timestamp.class.isAssignableFrom(getType())) {
-            sb.append(" timestamp");
+            sb.append(" TIMESTAMP");
         } else if (Enum.class.isAssignableFrom(getType())) {
-            sb.append(" text");
+            sb.append(" TEXT");
         } else if (type.isArray()) {
             if (String.class.isAssignableFrom(type.getComponentType())) {
-                sb.append(" text[]");
+                sb.append(" TEXT[]");
             }
         } else {
             throw new RuntimeException("not support" + getType());
         }
 
         if (isPrimaryKey()) {
-            sb.append(" constraint pk_" + tableName + " primary key");
+            sb.append(" CONSTRAINT pk_" + tableName + " PRIMARY KEY");
         } else if (!isNullable()) {
-            sb.append(" not null");
+            sb.append(" NOT NULL");
         }
 
         return sb.toString();
