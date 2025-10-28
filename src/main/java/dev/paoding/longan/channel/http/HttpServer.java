@@ -83,18 +83,13 @@ public class HttpServer {
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(512 * 1024, 1024 * 1024))
-                .childOption(ChannelOption.SO_REUSEADDR, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.ALLOW_HALF_CLOSURE, false);
+                .childOption(ChannelOption.ALLOW_HALF_CLOSURE, false)
+                .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 64 * 1024));
+//                .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(512 * 1024, 1024 * 1024));
 
         if (Epoll.isAvailable()) {
-            bootstrap.option(EpollChannelOption.IP_FREEBIND, false)
-                    .option(EpollChannelOption.IP_TRANSPARENT, false)
-                    .childOption(EpollChannelOption.TCP_CORK, false)
-                    .childOption(EpollChannelOption.TCP_QUICKACK, true)
-                    .childOption(EpollChannelOption.IP_TRANSPARENT, false);
+            bootstrap.childOption(EpollChannelOption.TCP_CORK, false)
+                    .childOption(EpollChannelOption.TCP_QUICKACK, true);
         }
 
         ChannelFuture future = bootstrap.bind(port).sync();

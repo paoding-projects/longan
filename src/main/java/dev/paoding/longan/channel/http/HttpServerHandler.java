@@ -3,9 +3,9 @@ package dev.paoding.longan.channel.http;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import jakarta.annotation.Resource;
@@ -33,9 +33,8 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object event) {
         if (event instanceof WebSocketServerProtocolHandler.HandshakeComplete handshake) {
-            webSocketHandler.open(ctx, handshake.requestUri());
-        } else if (event instanceof CloseWebSocketFrame) {
-            webSocketHandler.close(ctx);
+            ctx.channel().config().setWriteBufferWaterMark(new WriteBufferWaterMark(128 * 1024, 256 * 1024));
+            webSocketHandler.open(ctx, handshake.requestUri(), handshake.requestHeaders());
         } else {
             ctx.fireUserEventTriggered(event);
         }
@@ -44,6 +43,12 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         ctx.close();
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        webSocketHandler.close(ctx);
+        ctx.fireChannelInactive();
     }
 
 }

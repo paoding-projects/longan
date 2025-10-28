@@ -2,10 +2,7 @@ package dev.paoding.longan.channel.http;
 
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -22,24 +19,24 @@ public class WebSocketListenerHandler {
         webSocketListenerMap.put(anchor, webSocketListener);
     }
 
-    public void onOpen(WebSocketSession session) {
-        getOrDefault(session).onOpen(session);
+    public void onOpen(WebSocketContext context, HttpRequest httpRequest) {
+        getOrDefault(context).onOpen(context, httpRequest);
     }
 
-    public void onMessage(WebSocketSession session, String message) {
-        getOrDefault(session).onMessage(session, message);
+    public void onMessage(WebSocketContext context, String message) {
+        getOrDefault(context).onMessage(context, message);
     }
 
-    public void onMessage(WebSocketSession session, byte[] bytes) {
-        getOrDefault(session).onMessage(session, bytes);
+    public void onMessage(WebSocketContext context, byte[] bytes) {
+        getOrDefault(context).onMessage(context, bytes);
     }
 
-    public void onClose(WebSocketSession session) {
-        getOrDefault(session).onClose(session);
+    public void onClose(WebSocketContext context) {
+        getOrDefault(context).onClose(context);
     }
 
-    private WebSocketListener getOrDefault(WebSocketSession session) {
-        String anchor = session.getAnchor();
+    private WebSocketListener getOrDefault(WebSocketContext context) {
+        String anchor = context.getAnchor();
         return webSocketListenerMap.getOrDefault(anchor, webSocketListener);
     }
 }

@@ -1,10 +1,10 @@
 package dev.paoding.longan.channel.http;
 
 public class DefaultHandlerInterceptor implements HandlerInterceptor {
-    private final ScopedResult scopedResult = ScopedResult.of(true);
+    private final ScopedContext scopedResult = new ScopedContext();
 
     @Override
-    public ScopedResult preHandle(HttpRequest request) {
+    public ScopedContext preHandle(HttpRequest request) {
         return scopedResult;
     }
 }

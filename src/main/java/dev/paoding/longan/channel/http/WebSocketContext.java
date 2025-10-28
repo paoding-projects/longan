@@ -10,16 +10,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WebSocketSession {
+public class WebSocketContext {
     private static final Pattern pattern = Pattern.compile("^/ws/([^/?]+)");
     private final Map<CharSequence, Object> map = new ConcurrentHashMap<>();
     private final Channel channel;
-    private final String requestUri;
     private String anchor;
 
-    public WebSocketSession(Channel channel, String requestUri) {
+    public WebSocketContext(Channel channel, String requestUri) {
         this.channel = channel;
-        this.requestUri = requestUri;
         Matcher matcher = pattern.matcher(requestUri);
         if (matcher.find()) {
             anchor = matcher.group(1);
@@ -28,7 +26,7 @@ public class WebSocketSession {
         }
     }
 
-    public void close(){
+    public void close() {
         channel.close();
     }
 
@@ -42,10 +40,6 @@ public class WebSocketSession {
         }
 
         return null;
-    }
-
-    public String getRequestUri() {
-        return this.requestUri;
     }
 
     public Object put(CharSequence key, Object value) {

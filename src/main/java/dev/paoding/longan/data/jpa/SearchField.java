@@ -27,13 +27,13 @@ public class SearchField {
     public String getCondition() {
         if (operator != null) {
             if (operator.equals("IsNull") || operator.equals("Null")) {
-                return " is null";
+                return " IS NULL";
             } else if (operator.equals("IsNotNull") || operator.equals("NotNull")) {
-                return " is not null";
+                return " IS NOT NULL";
             } else if (operator.equals("IsTrue") || operator.equals("True")) {
-                return " is true";
+                return " IS TRUE";
             } else if (operator.equals("IsFalse") || operator.equals("False")) {
-                return " is false";
+                return " IS FALSE";
             }
         }
         return "";
@@ -147,19 +147,19 @@ public class SearchField {
                 return sql + " = :" + columnPrefix + columnName;
             }
             case "IsNull": {
-                return sql + " is null";
+                return sql + " IS NULL";
             }
             case "IsNotNull": {
-                return sql + " is not null";
+                return sql + " IS NOT NULL";
             }
             case "IsTrue": {
-                return sql + " is true";
+                return sql + " IS TRUE";
             }
             case "IsFalse": {
-                return sql + " is false";
+                return sql + " IS FALSE";
             }
             case "Containing": {
-                return sql + " like :" + columnPrefix + columnName;
+                return sql + " LIKE :" + columnPrefix + columnName;
             }
             case "LessThan": {
                 return sql + " < :" + columnPrefix + columnName;
@@ -180,22 +180,22 @@ public class SearchField {
                 return sql + " < :" + columnPrefix + columnName;
             }
             case "StartingWith": {
-                return sql + " like :" + columnPrefix + columnName;
+                return sql + " LIKE :" + columnPrefix + columnName;
             }
             case "EndingWith": {
-                return sql + " like :" + columnPrefix + columnName;
+                return sql + " LIKE :" + columnPrefix + columnName;
             }
             case "Not": {
                 return sql + " <> :" + columnPrefix + columnName;
             }
             case "In": {
-                return sql + " in (:" + columnPrefix + columnName + "_list)";
+                return sql + " IN (:" + columnPrefix + columnName + "_list)";
             }
             case "NotIn": {
-                return sql + " not in (:" + columnPrefix + columnName + "_list)";
+                return sql + " NOT IN (:" + columnPrefix + columnName + "_list)";
             }
             case "Between": {
-                return sql + " between :" + columnPrefix + columnName + "_start and :" + columnPrefix + columnName + "_end";
+                return sql + " BETWEEN :" + columnPrefix + columnName + "_start AND :" + columnPrefix + columnName + "_end";
             }
         }
         return "";

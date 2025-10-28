@@ -5,6 +5,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -46,7 +47,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
 //        pipeline.addLast(new HttpContentCompressor());
         pipeline.addLast(new ChunkedWriteHandler());
 //        pipeline.addLast(new WebSocketServerProtocolHandler("/ws",true));
-        pipeline.addLast(new LonganWebSocketServerProtocolHandler("/ws",true));
+        pipeline.addLast(new WebSocketServerProtocolHandler("/ws",true));
         pipeline.addLast(httpServerHandler);
 //        pipeline.addLast(new WebSocketServerHandler());
 //        pipeline.addLast(new HttpServerHandler(httpFilter));

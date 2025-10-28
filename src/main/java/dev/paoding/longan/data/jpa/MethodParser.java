@@ -34,9 +34,9 @@ public class MethodParser {
         if (action.equals("select")) {
             methodParser.parse(statement, initialParamMap);
             if (distinct) {
-                methodParser.sql = "select distinct t0.* " + methodParser.sql;
+                methodParser.sql = "SELECT DISTINCT t0.* " + methodParser.sql;
             } else {
-                methodParser.sql = "select t0.* " + methodParser.sql;
+                methodParser.sql = "SELECT t0.* " + methodParser.sql;
             }
             if (initialParamMap.containsKey("pageable")) {
                 Pageable pageable = (Pageable) initialParamMap.get("pageable");
@@ -44,10 +44,10 @@ public class MethodParser {
             }
         } else if (action.equals("count")) {
             methodParser.parse(statement, initialParamMap);
-            methodParser.sql = "select count(1) " + methodParser.sql;
+            methodParser.sql = "SELECT COUNT(*) " + methodParser.sql;
         } else if (action.equals("delete")) {
             methodParser.delete(statement, initialParamMap);
-            methodParser.sql = "delete " + methodParser.sql;
+            methodParser.sql = "DELETE " + methodParser.sql;
         }
         return methodParser;
     }
@@ -57,7 +57,7 @@ public class MethodParser {
 
         boolean isJoin = false;
         boolean enableConnector = false;
-        sql = "from " + metaTable.getName();
+        sql = "FROM " + metaTable.getName();
         String condition = "";
         for (SearchField searchField : searchFieldList) {
             if (!searchField.isManyToMany()) {
@@ -100,15 +100,15 @@ public class MethodParser {
             orderBuilder = new StringBuilder();
             int i = statement.indexOf("OrderBy");
             String order = statement.substring(i);
-            orderBuilder.append(" order by ");
+            orderBuilder.append(" ORDER BY ");
             if (order.endsWith("Desc")) {
                 String field = StringUtils.lowerFirst(order.substring(7, order.length() - 4));
                 orderBuilder.append(metaTable.getColumnName(field));
-                orderBuilder.append(" desc");
+                orderBuilder.append(" DESC");
             } else if (order.endsWith("Asc")) {
                 String field = StringUtils.lowerFirst(order.substring(7, order.length() - 3));
                 orderBuilder.append(metaTable.getColumnName(field));
-                orderBuilder.append(" asc");
+                orderBuilder.append(" ASC");
             } else {
                 String field = StringUtils.lowerFirst(order.substring(7));
                 orderBuilder.append(metaTable.getColumnName(field));
@@ -120,7 +120,7 @@ public class MethodParser {
         List<SearchField> searchFieldList = getSearchFieldList(statement, initialParamMap);
 
         boolean enableConnector = false;
-        sql = "from " + metaTable.getName() + " t0";
+        sql = "FROM " + metaTable.getName() + " t0";
         String condition = "";
         int i = 0;
         for (SearchField searchField : searchFieldList) {
@@ -130,13 +130,13 @@ public class MethodParser {
             if (searchField.isManyToMany()) {
                 i++;
                 if (searchField.getType().isAnnotationPresent(Entity.class)) {
-                    sql += " left join " + SqlParser.getLinkTable(metaTable.getAlias(), columnName, searchField.getRole()) + " t" + i;
-                    sql += " on t0.id = t" + i + "." + metaTable.getAlias() + "_id";
+                    sql += " LEFT JOIN " + SqlParser.getLinkTable(metaTable.getAlias(), columnName, searchField.getRole()) + " t" + i;
+                    sql += " ON t0.id = t" + i + "." + metaTable.getAlias() + "_id";
                     if (searchField.getOperator().equals("In")) {
-                        condition += searchField.getConnector(enableConnector) + " t" + i + "." + columnName + "_id in (:" + columnName + "_id_list)";
+                        condition += searchField.getConnector(enableConnector) + " t" + i + "." + columnName + "_id IN (:" + columnName + "_id_list)";
                         paramMap.put(columnName + "_id_list", initialParamMap.get(fieldName + "List"));
                     } else if (searchField.getOperator().equals("NotIn")) {
-                        condition += searchField.getConnector(enableConnector) + " t" + i + "." + columnName + "_id not in (:" + columnName + "_id_list)";
+                        condition += searchField.getConnector(enableConnector) + " t" + i + "." + columnName + "_id NOT IN (:" + columnName + "_id_list)";
                         paramMap.put(columnName + "_id_list", initialParamMap.get(fieldName + "List"));
                     } else {
                         condition += searchField.getConnector(enableConnector) + " t" + i + "." + columnName + "_id = :" + columnName + "_id";
@@ -146,12 +146,12 @@ public class MethodParser {
                 } else if (Example.class.isAssignableFrom(searchField.getType())) {
                     Example<?> example = (Example<?>) initialParamMap.get(fieldName);
                     if (!example.isEmpty()) {
-                        sql += " left join " + SqlParser.getLinkTable(metaTable.getAlias(), columnName, searchField.getRole()) + " t" + i;
-                        sql += " on t0.id = t" + i + "." + metaTable.getAlias() + "_id";
+                        sql += " LEFT JOIN " + SqlParser.getLinkTable(metaTable.getAlias(), columnName, searchField.getRole()) + " t" + i;
+                        sql += " ON t0.id = t" + i + "." + metaTable.getAlias() + "_id";
                         i++;
                         MatchResult matchResult = example.match("t" + i, fieldName);
-                        sql += " left join " + MetaTableFactory.get(example.getEntity().getClass()).getName() + " t" + i;
-                        sql += " on t" + i + ".id = t" + (i - 1) + "." + columnName + "_id";
+                        sql += " LEFT JOIN " + MetaTableFactory.get(example.getEntity().getClass()).getName() + " t" + i;
+                        sql += " ON t" + i + ".id = t" + (i - 1) + "." + columnName + "_id";
                         condition += searchField.getConnector(enableConnector) + " " + matchResult.getWhere();
 
                         paramMap.putAll(matchResult.getParamMap());
@@ -163,13 +163,13 @@ public class MethodParser {
             } else if (searchField.isOneToMany()) {
                 i++;
                 if (searchField.getType().isAnnotationPresent(Entity.class)) {
-                    sql += " left join " + MetaTableFactory.get(searchField.getType()).getName() + " t" + i;
-                    sql += " on t0.id = t" + i + "." + columnName + "_id";
+                    sql += " LEFT JOIN " + MetaTableFactory.get(searchField.getType()).getName() + " t" + i;
+                    sql += " ON t0.id = t" + i + "." + columnName + "_id";
                     if (searchField.getOperator().equals("In")) {
-                        condition += searchField.getConnector(enableConnector) + " t" + i + ".id in (:" + fileDbName + "_id_list)";
+                        condition += searchField.getConnector(enableConnector) + " t" + i + ".id IN (:" + fileDbName + "_id_list)";
                         paramMap.put(fieldName + "_id_list", initialParamMap.get(fieldName + "List"));
                     } else if (searchField.getOperator().equals("NotIn")) {
-                        condition += searchField.getConnector(enableConnector) + " t" + i + ".id not in (:" + fileDbName + "_id_list)";
+                        condition += searchField.getConnector(enableConnector) + " t" + i + ".id NOT IN (:" + fileDbName + "_id_list)";
                         paramMap.put(fieldName + "_id_list", initialParamMap.get(fieldName + "List"));
                     } else {
                         condition += searchField.getConnector(enableConnector) + " t" + i + ".id = :" + fileDbName + "_id";
@@ -187,8 +187,8 @@ public class MethodParser {
                         }
                         MatchResult matchResult = example.match("t" + i, SqlParser.toDatabaseName(fieldName));
                         String where = matchResult.getWhere();
-                        sql += " left join " + MetaTableFactory.get(example.getEntity().getClass()).getName() + " t" + i;
-                        sql += " on t0.id = t1." + joinField + "_id";
+                        sql += " LEFT JOIN " + MetaTableFactory.get(example.getEntity().getClass()).getName() + " t" + i;
+                        sql += " ON t0.id = t1." + joinField + "_id";
                         if (where.isEmpty()) {
                             enableConnector = false;
                         } else {
@@ -207,10 +207,10 @@ public class MethodParser {
                     enableConnector = true;
                 } else if (searchField.getType().isAnnotationPresent(Entity.class)) {
                     if (searchField.getOperator().equals("In")) {
-                        condition += searchField.getConnector(enableConnector) + " t0." + columnName + "_id in (:" + columnName + "_id_list)";
+                        condition += searchField.getConnector(enableConnector) + " t0." + columnName + "_id IN (:" + columnName + "_id_list)";
                         paramMap.put(columnName + "_id_list", initialParamMap.get(fieldName + "List"));
                     } else if (searchField.getOperator().equals("NotIn")) {
-                        condition += searchField.getConnector(enableConnector) + " t0." + columnName + "_id not in (:" + columnName + "_id_list)";
+                        condition += searchField.getConnector(enableConnector) + " t0." + columnName + "_id NOT IN (:" + columnName + "_id_list)";
                         paramMap.put(columnName + "_id_list", initialParamMap.get(fieldName + "List"));
                     } else {
                         condition += searchField.getConnector(enableConnector) + " t0." + columnName + "_id = :" + columnName + "_id";
@@ -222,8 +222,8 @@ public class MethodParser {
                     if (!example.isEmpty()) {
                         MatchResult matchResult = example.match("t" + i, SqlParser.toDatabaseName(fieldName));
                         String where = matchResult.getWhere();
-                        sql += " left join " + MetaTableFactory.get(example.getEntity().getClass()).getName() + " t" + i;
-                        sql += " on t" + i + ".id = t0." + columnName + "_id";
+                        sql += " LEFT JOIN " + MetaTableFactory.get(example.getEntity().getClass()).getName() + " t" + i;
+                        sql += " ON t" + i + ".id = t0." + columnName + "_id";
                         if (where.isEmpty()) {
                             enableConnector = false;
                         } else {
@@ -280,7 +280,7 @@ public class MethodParser {
             }
         }
         if (!condition.isEmpty()) {
-            sql += " where" + condition;
+            sql += " WHERE" + condition;
         }
         if (orderBuilder != null) {
             sql += orderBuilder.toString();
@@ -294,12 +294,12 @@ public class MethodParser {
         List<String> segmentList = new ArrayList<>();
         for (int i = 0; i < chars.length; i++) {
             if (chars[i] == 'A' && chars[i + 1] == 'n' && chars[i + 2] == 'd' && Character.isUpperCase(chars[i + 3])) {
-                connectorList.add("and");
+                connectorList.add("AND");
                 segmentList.add(sb.toString());
                 sb = new StringBuilder();
                 i = i + 2;
             } else if (chars[i] == 'O' && chars[i + 1] == 'r' && Character.isUpperCase(chars[i + 2])) {
-                connectorList.add("or");
+                connectorList.add("OR");
                 segmentList.add(sb.toString());
                 sb = new StringBuilder();
                 i = i + 1;

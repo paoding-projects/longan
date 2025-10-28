@@ -53,36 +53,32 @@ public class ApiServiceHandler extends AbstractServiceHandler {
         HttpRequest httpRequest = new HttpRequestImpl(fullHttpRequest, methodInvocation.getPath());
 
         try {
-            ScopedResult scopedResult = handlerInterceptor.preHandle(httpRequest);
-            if (scopedResult.isPermitted()) {
-                scopedResult.run(() -> {
-                    String query = array.length == 2 ? array[1] : null;
-                    Result result = httpServiceInvoker.invokeService(methodInvocation, path, query, fullHttpRequest);
-                    Object content = result.getValue();
-                    if (content == null) {
-                        writeNoContent(ctx, fullHttpRequest);
-                    } else if (content instanceof HttpCookie httpCookie) {
-                        writeCookie(ctx, fullHttpRequest, httpCookie);
-                    } else {
-                        AsciiString contentType = result.getType();
-                        if (contentType.equals(APPLICATION_JSON)) {
-                            if (content instanceof String) {
-                                writeJson(ctx, fullHttpRequest, content.toString());
-                            } else {
-                                writeJson(ctx, fullHttpRequest, GsonUtils.toJson(content));
-                            }
+            ScopedContext scopedContext = handlerInterceptor.preHandle(httpRequest);
+            scopedContext.run(() -> {
+                String query = array.length == 2 ? array[1] : null;
+                Result result = httpServiceInvoker.invokeService(methodInvocation, path, query, fullHttpRequest);
+                Object content = result.getValue();
+                if (content == null) {
+                    writeNoContent(ctx, fullHttpRequest);
+                } else if (content instanceof HttpCookie httpCookie) {
+                    writeCookie(ctx, fullHttpRequest, httpCookie);
+                } else {
+                    AsciiString contentType = result.getType();
+                    if (contentType.equals(APPLICATION_JSON)) {
+                        if (content instanceof String) {
+                            writeJson(ctx, fullHttpRequest, content.toString());
                         } else {
-                            if (content instanceof VirtualFile virtualFile) {
-                                write(ctx, fullHttpRequest, virtualFile, contentType);
-                            } else {
-                                write(ctx, fullHttpRequest, HttpResponseStatus.OK, content.toString(), contentType);
-                            }
+                            writeJson(ctx, fullHttpRequest, GsonUtils.toJson(content));
+                        }
+                    } else {
+                        if (content instanceof VirtualFile virtualFile) {
+                            write(ctx, fullHttpRequest, virtualFile, contentType);
+                        } else {
+                            write(ctx, fullHttpRequest, HttpResponseStatus.OK, content.toString(), contentType);
                         }
                     }
-                });
-            } else {
-                writeText(ctx, fullHttpRequest, HttpResponseStatus.FORBIDDEN, "Forbidden " + fullHttpRequest.uri() + " is denied");
-            }
+                }
+            });
         } catch (Exception e) {
             handleError(ctx, fullHttpRequest, methodInvocation, e);
         } finally {
