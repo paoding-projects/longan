@@ -94,6 +94,12 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
             }
             if (returnType.isAssignableFrom(List.class)) {
                 return EntityUtils.wrap(metaTable, jdbcSession.query(sql, paramMap, metaTable.getRowMapper()));
+            } else if (Optional.class.isAssignableFrom(returnType)) {
+                try {
+                    return EntityUtils.wrap(metaTable, jdbcSession.queryForObject(sql, paramMap, metaTable.getRowMapper()));
+                } catch (EmptyResultDataAccessException e) {
+                    return Optional.empty();
+                }
             } else if (returnType.isPrimitive()) {
                 return jdbcSession.queryForObject(sql, paramMap, returnType);
             } else {
@@ -179,11 +185,11 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
                 return Optional.empty();
             }
         } else {
-            try {
-                return EntityUtils.wrap(metaTable, jdbcSession.queryForObject(sql, methodParser.getParamMap(), metaTable.getRowMapper()));
-            } catch (EmptyResultDataAccessException e) {
-                return null;
-            }
+//            try {
+            return EntityUtils.wrap(metaTable, jdbcSession.queryForObject(sql, methodParser.getParamMap(), metaTable.getRowMapper()));
+//            } catch (EmptyResultDataAccessException e) {
+//                return null;
+//            }
         }
     }
 
