@@ -96,7 +96,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
                 return EntityUtils.wrap(metaTable, jdbcSession.query(sql, paramMap, metaTable.getRowMapper()));
             } else if (Optional.class.isAssignableFrom(returnType)) {
                 try {
-                    return EntityUtils.wrap(metaTable, jdbcSession.queryForObject(sql, paramMap, metaTable.getRowMapper()));
+                    return Optional.ofNullable(EntityUtils.wrap(metaTable, jdbcSession.queryForObject(sql, paramMap, metaTable.getRowMapper())));
                 } catch (EmptyResultDataAccessException e) {
                     return Optional.empty();
                 }
