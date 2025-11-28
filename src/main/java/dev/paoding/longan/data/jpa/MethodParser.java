@@ -22,11 +22,11 @@ public class MethodParser {
     private String model;
     private final Map<String, Object> paramMap = new ParamMap();
 
-    public static MethodParser of(String action, Class<?> type, String statement, Map<String, Object> initialParamMap) {
-        return of(action, type, statement, initialParamMap, false);
+    public static MethodParser of(String databaseType,String action, Class<?> type, String statement, Map<String, Object> initialParamMap) {
+        return of(databaseType,action, type, statement, initialParamMap, false);
     }
 
-    public static MethodParser of(String action, Class<?> type, String statement, Map<String, Object> initialParamMap, boolean distinct) {
+    public static MethodParser of(String databaseType,String action, Class<?> type, String statement, Map<String, Object> initialParamMap, boolean distinct) {
         MethodParser methodParser = new MethodParser();
         methodParser.metaTable = MetaTableFactory.get(type);
         methodParser.entity = type;
@@ -40,7 +40,7 @@ public class MethodParser {
             }
             if (initialParamMap.containsKey("pageable")) {
                 Pageable pageable = (Pageable) initialParamMap.get("pageable");
-                methodParser.sql += pageable.toSql();
+                methodParser.sql += pageable.toSql(databaseType);
             }
         } else if (action.equals("count")) {
             methodParser.parse(statement, initialParamMap);

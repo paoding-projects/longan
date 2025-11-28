@@ -23,7 +23,7 @@ import java.util.*;
 public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaRepository<T, ID> {
     private final Method[] methods;
     private final MetaTable<T> metaTable;
-    private String database;
+    private String databaseType;
     private JdbcSession jdbcSession;
     private final Class<T> clazz;
     private final Snowflake snowflake = new Snowflake();
@@ -38,13 +38,10 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         this.clazz = clazz;
     }
 
-    public void setDatabase(String database) {
-        this.database = database;
-    }
-
 
     public void setJdbcSession(JdbcSession jdbcSession) {
         this.jdbcSession = jdbcSession;
+        this.databaseType = jdbcSession.getDatabaseType();
     }
 
     @Override
@@ -89,7 +86,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
             if (paramMap.containsKey("pageable")) {
                 Pageable pageable = (Pageable) paramMap.get("pageable");
                 if (pageable != null) {
-                    sql += pageable.toSql();
+                    sql += pageable.toSql(databaseType);
                 }
             }
             if (returnType.isAssignableFrom(List.class)) {
@@ -144,15 +141,15 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
             paramMap.remove("pageable");
             return select(methodName.substring(i + 2), paramMap, returnType, limit, false);
         } else if (methodName.startsWith("countBy")) {
-            MethodParser methodParser = MethodParser.of("count", clazz, methodName.substring(7), paramMap);
+            MethodParser methodParser = MethodParser.of(databaseType,"count", clazz, methodName.substring(7), paramMap);
             String sql = methodParser.getSql();
             return jdbcSession.queryForObject(sql, methodParser.getParamMap(), returnType);
         } else if (methodName.startsWith("existsBy")) {
-            MethodParser methodParser = MethodParser.of("count", clazz, methodName.substring(8), paramMap);
+            MethodParser methodParser = MethodParser.of(databaseType,"count", clazz, methodName.substring(8), paramMap);
             String sql = methodParser.getSql();
             return jdbcSession.queryForObject(sql, methodParser.getParamMap(), Long.class) > 0;
         } else if (methodName.startsWith("deleteBy")) {
-            MethodParser methodParser = MethodParser.of("delete", clazz, methodName.substring(8), paramMap);
+            MethodParser methodParser = MethodParser.of(databaseType,"delete", clazz, methodName.substring(8), paramMap);
             String sql = methodParser.getSql();
             return jdbcSession.update(sql, methodParser.getParamMap());
         }
@@ -171,7 +168,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     }
 
     private Object select(String methodName, Map<String, Object> paramMap, Class<?> returnType, int limit, boolean distinct) {
-        MethodParser methodParser = MethodParser.of("select", clazz, methodName, paramMap, distinct);
+        MethodParser methodParser = MethodParser.of(jdbcSession.getDatabaseType(),"select", clazz, methodName, paramMap, distinct);
         String sql = methodParser.getSql();
         if (limit > 0) {
             sql += " LIMIT " + limit;
@@ -238,7 +235,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     public List<T> find(Pageable pageable) {
         String sql = "SELECT * FROM " + metaTable.getName();
         if (pageable != null) {
-            sql += pageable.toSql();
+            sql += pageable.toSql(databaseType);
             return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
         }
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, metaTable.getRowMapper()));
@@ -257,7 +254,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         String sql = "SELECT * FROM " + metaTable.getName() + (matchResult.getWhere().isEmpty() ? "" : " WHERE " + matchResult.getWhere());
         Map<String, Object> params = matchResult.getParamMap();
         if (pageable != null) {
-            sql += pageable.toSql();
+            sql += pageable.toSql(databaseType);
         }
         return EntityUtils.wrap(metaTable, jdbcSession.query(sql, params, metaTable.getRowMapper()));
     }
@@ -302,11 +299,11 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         MetaColumn primaryKey = metaTable.getPrimaryKey();
         if (primaryKey.getGenerator().equals(Generator.SNOWFLAKE)) {
             EntityUtils.setId(entity, snowflake.nextId(), primaryKey.getType());
-            String sql = metaTable.insert(database);
+            String sql = metaTable.insert(databaseType);
             jdbcSession.update(sql, new BeanPropertySqlParameterSource(entity));
         } else if (primaryKey.getGenerator().equals(Generator.AUTO)) {
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            String sql = metaTable.insert(database);
+            String sql = metaTable.insert(databaseType);
             jdbcSession.update(sql, new BeanPropertySqlParameterSource(entity), keyHolder);
             Number key = keyHolder.getKey();
             String keyName = primaryKey.getAlias();
@@ -319,7 +316,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
                 BeanMap.create(entity).put(keyName, key.shortValue());
             }
         } else {
-            String sql = metaTable.insert(database);
+            String sql = metaTable.insert(databaseType);
             jdbcSession.update(sql, new BeanPropertySqlParameterSource(entity));
         }
 
@@ -334,7 +331,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
             serialize(entity);
         }
-        String sql = metaTable.saveOrUpdate(database);
+        String sql = metaTable.saveOrUpdate(databaseType);
         jdbcSession.update(sql, new BeanPropertySqlParameterSource(entity));
         return 0;
     }
@@ -408,9 +405,9 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
             if (Enum.class.isAssignableFrom(type)) {
                 return value.toString();
             }
-            if (type.isArray()) {
-                return Database.createArrayOf(value);
-            }
+//            if (type.isArray()) {
+//                return Database.createArrayOf(value);
+//            }
         }
         return value;
     }
@@ -644,7 +641,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         Map<String, Object> paraMap = Map.of(startName + "_id", startId, endName + "_id", endId);
         String sql;
         if (join) {
-            sql = SqlParser.toJoinSql(database, startName, endName, role);
+            sql = SqlParser.toJoinSql(databaseType, startName, endName, role);
         } else {
             sql = SqlParser.toSplitSql(startName, endName, role);
         }

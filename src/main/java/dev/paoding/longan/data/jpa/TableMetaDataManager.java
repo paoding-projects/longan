@@ -21,9 +21,9 @@ public abstract class TableMetaDataManager {
     private Connection connection;
 
     public static TableMetaDataManager create(JdbcSession jdbcSession) {
-        if (Database.isMySQL()) {
+        if (jdbcSession.isMySQL()) {
             return new MysqlTableMetaDataManager(jdbcSession);
-        } else if (Database.isPostgresql()) {
+        } else if (jdbcSession.isPostgresql()) {
             return new PostgresqlTableMetaDataManager(jdbcSession);
         }
         return null;
@@ -33,18 +33,18 @@ public abstract class TableMetaDataManager {
         this.jdbcSession = jdbcSession;
     }
 
-    public void populate() {
+    public void populate(List<Class<?>> entityList) {
         try (Connection connection = jdbcSession.getConnection()) {
             this.connection = connection;
             DatabaseMetaData databaseMetaData = connection.getMetaData();
-            populate(databaseMetaData);
+            populate(entityList, databaseMetaData);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void populate(DatabaseMetaData databaseMetaData) {
-        List<Class<?>> entityList = ClassPathBeanScanner.getProjectEntityClasses();
+    private void populate(List<Class<?>> entityList, DatabaseMetaData databaseMetaData) {
+//        List<Class<?>> entityList = ClassPathBeanScanner.getProjectEntityClasses();
         for (Class<?> classType : entityList) {
             Entity entity = classType.getAnnotation(Entity.class);
             if (entity.virtual()) {
@@ -64,6 +64,7 @@ public abstract class TableMetaDataManager {
                 }
             }
             MetaTable<?> metaTable = MetaTableFactory.get(classType);
+            metaTable.setDatabaseType(jdbcSession.getDatabaseType());
             String tableName = metaTable.getName();
 
             Map<String, MetaIndex> indexMap = getIndexMap(databaseMetaData, tableName);
@@ -101,7 +102,7 @@ public abstract class TableMetaDataManager {
                             }
                         }
                     } else {
-                        execute("ALTER TABLE " + tableName + " ADD " + metaColumn.generateColumnStatement());
+                        execute("ALTER TABLE " + tableName + " ADD " + metaColumn.generateColumnStatement(jdbcSession.getDatabaseType()));
                         if (metaColumn.isUnique()) {
                             String indexName = decorateIndexName("uk", tableName, columnName);
                             createIndex(indexName, tableName, columnName, true);
@@ -156,7 +157,7 @@ public abstract class TableMetaDataManager {
         execute("CREATE" + (unique ? " UNIQUE" : "") + " INDEX " + indexName + " ON " + tableName + " (" + Joiner.on(",").join(columnNameList) + ")");
     }
 
-    private void createMappingTable(java.sql.DatabaseMetaData databaseMetaData, String source, String target, String role) {
+    private void createMappingTable(DatabaseMetaData databaseMetaData, String source, String target, String role) {
         if (!role.isEmpty()) {
             role = "_" + role;
         }
@@ -176,10 +177,10 @@ public abstract class TableMetaDataManager {
         Map<String, MetaColumn> columnMap = getColumnMap(databaseMetaData, table);
         if (columnMap.isEmpty()) {
             String createTableSql = "\nCREATE TABLE " + table + " (\n\t" +
-                    sourceId + " BIGINT,\n\t" +
-                    targetId + " BIGINT,\n\t" +
-                    "CONSTRAINT pk_" + table +
-                    "\n\t\tPRIMARY KEY (" + sourceId + ", " + targetId + ")\n)";
+                                    sourceId + " BIGINT,\n\t" +
+                                    targetId + " BIGINT,\n\t" +
+                                    "CONSTRAINT pk_" + table +
+                                    "\n\t\tPRIMARY KEY (" + sourceId + ", " + targetId + ")\n)";
             execute(createTableSql);
 
             execute("CREATE INDEX idx_" + table + "_" + sourceId + " ON " + table + " (" + sourceId + ")");
@@ -206,7 +207,7 @@ public abstract class TableMetaDataManager {
 //                int columnSize = resultSet.getInt("COLUMN_SIZE");
                 MetaColumn metaColumn = new MetaColumn();
                 metaColumn.setName(resultSet.getString("COLUMN_NAME"));
-                if (Database.isPostgresql()) {
+                if (jdbcSession.isPostgresql()) {
                     metaColumn.setNullable(resultSet.getBoolean("IS_NULLABLE"));
                 } else {
                     metaColumn.setNullable(resultSet.getString("IS_NULLABLE").equals("YES"));
@@ -221,7 +222,7 @@ public abstract class TableMetaDataManager {
         return columnMap;
     }
 
-    private Map<String, MetaIndex> getIndexMap(java.sql.DatabaseMetaData databaseMetaData, String table) {
+    private Map<String, MetaIndex> getIndexMap(DatabaseMetaData databaseMetaData, String table) {
         Map<String, MetaIndex> indexMap = new HashMap<>();
         try {
             ResultSet resultSet = databaseMetaData.getIndexInfo(null, "public", table, false, false);

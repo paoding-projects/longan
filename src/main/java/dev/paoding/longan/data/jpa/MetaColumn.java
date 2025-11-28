@@ -157,17 +157,17 @@ public class MetaColumn {
     }
 
 
-    public String generateColumnStatement() {
-        if (Database.isPostgresql()) {
+    public String generateColumnStatement(String databaseType) {
+        if (Database.POSTGRESQL.equals(databaseType)) {
             return generatePostgresqlText();
-        } else if (Database.isMySQL()) {
+        } else if (Database.MYSQL.equals(databaseType)) {
             return generateMySqlText();
         }
-        throw new RuntimeException("not support database " + Database.getType());
+        throw new RuntimeException("not support database " + databaseType);
     }
 
-    public String generateColumnCommentStatement() {
-        if (Database.isPostgresql()) {
+    public String generateColumnCommentStatement(String databaseType) {
+        if (Database.POSTGRESQL.equals(databaseType)) {
             if (comment != null && !comment.isBlank()) {
                 return "COMMENT ON COLUMN " + tableName + "." + name + " IS '" + comment + "'";
             }

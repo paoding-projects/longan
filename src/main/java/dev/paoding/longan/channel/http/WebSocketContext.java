@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class WebSocketContext {
-    private static final Pattern pattern = Pattern.compile("^/ws/([^/?]+)");
+    private static final Pattern pattern = Pattern.compile("^/([^/]+)");
     private final Map<CharSequence, Object> map = new ConcurrentHashMap<>();
     private final Channel channel;
     private String anchor;

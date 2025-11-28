@@ -23,6 +23,7 @@ public class MetaTable<T> {
      * Entity class name, for example: alias of GoodsOrder.class is goods_order.
      */
     private String alias;
+    private String databaseType;
     private boolean internationalized;
     private MetaColumn primaryKey;
     private final List<MetaColumn> metaColumnList = new ArrayList<>();
@@ -43,6 +44,9 @@ public class MetaTable<T> {
         init(clazz);
     }
 
+    public void setDatabaseType(String databaseType){
+        this.databaseType = databaseType;
+    }
 //    public void addOneToMany(String joinField,Class master,Class slaver){
 //        OneToManyPoint oneToManyPoint = new OneToManyPoint(master, slaver);
 //        oneToManyPoint.setJoinField(joinField);
@@ -457,18 +461,18 @@ public class MetaTable<T> {
         StringBuilder sb = new StringBuilder();
         sb.append("\nCREATE TABLE ").append(this.name).append(" (\n\t");
         if (primaryKey != null) {
-            sb.append(primaryKey.generateColumnStatement());
+            sb.append(primaryKey.generateColumnStatement(databaseType));
         }
 
         for (MetaColumn metaColumn : metaColumnList) {
             sb.append(",\n\t");
-            sb.append(metaColumn.generateColumnStatement());
+            sb.append(metaColumn.generateColumnStatement(databaseType));
         }
         sb.append("\n)");
         sqlList.add(sb.toString());
 
         for (MetaColumn metaColumn : metaColumnList) {
-            String statement = metaColumn.generateColumnCommentStatement();
+            String statement = metaColumn.generateColumnCommentStatement(databaseType);
             if (statement != null) {
                 sqlList.add(statement);
             }

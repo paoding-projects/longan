@@ -34,7 +34,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object event) {
         if (event instanceof WebSocketServerProtocolHandler.HandshakeComplete handshake) {
             ctx.channel().config().setWriteBufferWaterMark(new WriteBufferWaterMark(128 * 1024, 256 * 1024));
-            webSocketHandler.open(ctx, handshake.requestUri(), handshake.requestHeaders());
+            webSocketHandler.open(ctx, handshake.requestUri().substring(3), handshake.requestHeaders());
         } else {
             ctx.fireUserEventTriggered(event);
         }

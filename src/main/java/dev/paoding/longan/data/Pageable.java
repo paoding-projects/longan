@@ -90,7 +90,7 @@ public class Pageable {
         this.size = size;
     }
 
-    public String toSql() {
+    public String toSql(String databaseType) {
         StringBuilder sb = new StringBuilder();
         if (sort != null && !sort.isBlank()) {
             if (!PATTERN.matcher(sort).matches()) {
@@ -101,9 +101,9 @@ public class Pageable {
             sb.append(desc ? " DESC" : " ASC");
         }
 
-        if (Database.isPostgresql()) {
+        if (Database.POSTGRESQL.equals(databaseType)) {
             sb.append(" OFFSET ").append(offset()).append(" LIMIT ").append(limit());
-        } else if (Database.isMySQL()) {
+        } else if (Database.MYSQL.equals(databaseType)) {
             sb.append(" LIMIT ").append(offset()).append(", ").append(limit());
         }
         return sb.toString();

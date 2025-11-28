@@ -48,14 +48,13 @@
         <guava.version>33.5.0-jre</guava.version>
         <gson.version>2.13.2</gson.version>
         <HikariCP.version>7.0.2</HikariCP.version>
-        <lettuce.version>6.8.1.RELEASE</lettuce.version>
         <commons-codec.version>1.19.0</commons-codec.version>
         <commons-pool2.version>2.12.1</commons-pool2.version>
         <jakarta.annotation>3.0.0</jakarta.annotation>
         <zookeeper.version>3.9.4</zookeeper.version>
         <postgresql.version>42.7.8</postgresql.version>
         <lombok.version>1.18.42</lombok.version>
-        <dubbo.version>3.3.5</dubbo.version>
+        <dubbo.version>3.3.6</dubbo.version>
         <dubbo-dependencies-zookeeper.version>3.2.18</dubbo-dependencies-zookeeper.version>
         <junit-jupiter.version>6.0.0</junit-jupiter.version>
     </properties>
@@ -146,12 +145,6 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${HikariCP.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>${lettuce.version}</version>
         </dependency>
 
         <dependency>

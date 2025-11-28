@@ -48,13 +48,13 @@ public class ListMethodInterceptor<T> implements MethodInterceptor {
         if (role == null) {
             Map<String, Object> map = ImmutableMap.of(joinFile, bean);
 //            MethodParser methodParser = MethodParser.of("select", many, StringUtils.upperFirst(joinFile), map, role);
-            MethodParser methodParser = MethodParser.of("select", many, StringUtils.upperFirst(joinFile), map);
+            MethodParser methodParser = MethodParser.of(jdbcSession.getDatabaseType(),"select", many, StringUtils.upperFirst(joinFile), map);
             String sql = methodParser.getSql();
             this.list = jdbcSession.query(sql, methodParser.getParamMap(), metaTable.getRowMapper());
         } else {
             Map<String, Object> map = ImmutableMap.of(role.getName(), bean);
 //            MethodParser methodParser = MethodParser.of("select", many, StringUtils.upperFirst(role.getName()), map, role);
-            MethodParser methodParser = MethodParser.of("select", many, StringUtils.upperFirst(role.getName()), map);
+            MethodParser methodParser = MethodParser.of(jdbcSession.getDatabaseType(),"select", many, StringUtils.upperFirst(role.getName()), map);
             String sql = methodParser.getSql();
             this.list = jdbcSession.query(sql, methodParser.getParamMap(), metaTable.getRowMapper());
         }

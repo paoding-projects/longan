@@ -74,13 +74,13 @@ public class ExampleMatcher {
                     break;
                 }
                 case "Containing": {
-                    if (type.isArray()) {
-                        conditionList.add(tablePrefix + columnName + " && :" + paramName);
-                        paramMap.put(paramName, Database.createArrayOf(value));
-                    } else {
+//                    if (type.isArray()) {
+//                        conditionList.add(tablePrefix + columnName + " && :" + paramName);
+//                        paramMap.put(paramName, Database.createArrayOf(value));
+//                    } else {
                         conditionList.add(tablePrefix + columnName + " like :" + paramName);
                         paramMap.put(paramName, "%" + value + "%");
-                    }
+//                    }
                     break;
                 }
                 case "LessThan":

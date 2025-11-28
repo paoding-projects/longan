@@ -1,7 +1,6 @@
 package dev.paoding.longan.channel.http;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -17,6 +16,7 @@ public class WebSocketRequestImpl implements HttpRequest {
     private final HttpHeaders httpHeaders;
     private final String requestUri;
     private Map<String, String> cookieMap;
+    private final static String METHOD_GET = "GET";
 
     public WebSocketRequestImpl(String requestUri, HttpHeaders httpHeaders) {
         this.requestUri = requestUri;
@@ -73,7 +73,7 @@ public class WebSocketRequestImpl implements HttpRequest {
 
     @Override
     public String getMethod() {
-        throw new UnsupportedOperationException("getMethod() not implemented");
+        return METHOD_GET;
     }
 
     @Override
@@ -83,7 +83,12 @@ public class WebSocketRequestImpl implements HttpRequest {
 
     @Override
     public String getPath() {
-        throw new UnsupportedOperationException("getPath() not implemented");
+        int i = requestUri.indexOf("?");
+        if (i < 0) {
+            return requestUri;
+        } else {
+            return requestUri.substring(0, i);
+        }
     }
 
     @Override

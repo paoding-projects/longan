@@ -17,10 +17,28 @@ import java.util.Objects;
 public class JdbcSession {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcOperations jdbcOperations;
+    private final String databaseType;
 
-    public JdbcSession(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public JdbcSession(String databaseType, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        this.databaseType = databaseType;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.jdbcOperations = namedParameterJdbcTemplate.getJdbcOperations();
+    }
+
+    public String getDatabaseType(){
+        return databaseType;
+    }
+
+    public  boolean isPostgresql() {
+        return databaseType.equals(Database.POSTGRESQL);
+    }
+
+    public  boolean isMySQL() {
+        return databaseType.equals(Database.MYSQL);
+    }
+
+    public  boolean isOracle() {
+        return databaseType.endsWith(Database.ORACLE);
     }
 
     public void execute(String sql) {
