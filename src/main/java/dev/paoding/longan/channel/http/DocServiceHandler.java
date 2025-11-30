@@ -33,17 +33,17 @@ public class DocServiceHandler extends AbstractServiceHandler {
             String methodName = uri.substring(11);
             String json = DocumentService.getMethod(methodName);
             writeJson(ctx, request, HttpResponseStatus.OK, json);
-        }
-
-        ClassPathResource classPathResource = new ClassPathResource(uri.substring(1));
-        if (!classPathResource.exists()) {
-            classPathResource = new ClassPathResource("doc/404.html");
-            String text = new String(copyToByteArray(classPathResource), StandardCharsets.UTF_8);
-            writeHtml(ctx, request, HttpResponseStatus.NOT_FOUND, text);
-        } else {
-            byte[] bytes = copyToByteArray(classPathResource);
-            AsciiString contentType = getContentType(uri);
-            write(ctx, request, HttpResponseStatus.OK, bytes, AsciiString.of(contentType));
+        }else {
+            ClassPathResource classPathResource = new ClassPathResource(uri.substring(1));
+            if (!classPathResource.exists()) {
+                classPathResource = new ClassPathResource("doc/404.html");
+                String text = new String(copyToByteArray(classPathResource), StandardCharsets.UTF_8);
+                writeHtml(ctx, request, HttpResponseStatus.NOT_FOUND, text);
+            } else {
+                byte[] bytes = copyToByteArray(classPathResource);
+                AsciiString contentType = getContentType(uri);
+                write(ctx, request, HttpResponseStatus.OK, bytes, AsciiString.of(contentType));
+            }
         }
     }
 

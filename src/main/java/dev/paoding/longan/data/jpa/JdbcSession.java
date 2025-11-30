@@ -18,26 +18,28 @@ public class JdbcSession {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final JdbcOperations jdbcOperations;
     private final String databaseType;
+    private final String databaseName;
 
-    public JdbcSession(String databaseType, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+    public JdbcSession(String databaseName, String databaseType, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
+        this.databaseName = databaseName;
         this.databaseType = databaseType;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
         this.jdbcOperations = namedParameterJdbcTemplate.getJdbcOperations();
     }
 
-    public String getDatabaseType(){
+    public String getDatabaseType() {
         return databaseType;
     }
 
-    public  boolean isPostgresql() {
+    public boolean isPostgresql() {
         return databaseType.equals(Database.POSTGRESQL);
     }
 
-    public  boolean isMySQL() {
+    public boolean isMySQL() {
         return databaseType.equals(Database.MYSQL);
     }
 
-    public  boolean isOracle() {
+    public boolean isOracle() {
         return databaseType.endsWith(Database.ORACLE);
     }
 
@@ -150,8 +152,12 @@ public class JdbcSession {
         }
     }
 
+    public String getDatabaseName() {
+        return this.databaseName;
+    }
+
     private void log(String sql) {
-        SqlLogger.log(sql);
+        SqlLogger.log(databaseName, sql);
     }
 
     private void log(Map<String, ?> paramMap) {

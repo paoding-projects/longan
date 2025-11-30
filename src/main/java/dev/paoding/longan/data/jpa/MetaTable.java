@@ -23,6 +23,7 @@ public class MetaTable<T> {
      * Entity class name, for example: alias of GoodsOrder.class is goods_order.
      */
     private String alias;
+    private String database;
     private String databaseType;
     private boolean internationalized;
     private MetaColumn primaryKey;
@@ -47,6 +48,10 @@ public class MetaTable<T> {
     public void setDatabaseType(String databaseType){
         this.databaseType = databaseType;
     }
+
+    public String getDatabase(){
+        return this.database;
+    }
 //    public void addOneToMany(String joinField,Class master,Class slaver){
 //        OneToManyPoint oneToManyPoint = new OneToManyPoint(master, slaver);
 //        oneToManyPoint.setJoinField(joinField);
@@ -65,12 +70,15 @@ public class MetaTable<T> {
         this.type = clazz;
         this.rowMapper = BeanPropertyRowMapper.newInstance(clazz);
         if (clazz.isAnnotationPresent(Table.class)) {
+            Table table = clazz.getAnnotation(Table.class);
+            database = table.database();
             String tableName = clazz.getAnnotation(Table.class).name();
             if (tableName.isEmpty()) {
                 tableName = clazz.getSimpleName();
             }
             this.setName(tableName);
         } else {
+            database = "default";
             this.setName(clazz.getSimpleName());
         }
         this.alias = SqlParser.toDatabaseName(clazz.getSimpleName());

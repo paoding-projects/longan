@@ -43,11 +43,11 @@ public class JpaAutoRegistrar implements ImportBeanDefinitionRegistrar {
                         if (modelClass.isAnnotationPresent(Table.class)) {
                             database = modelClass.getAnnotation(Table.class).database();
                         }
-                        System.out.println(modelClass + "\t" + database);
                         if (!map.containsKey(database)) {
                             map.put(database, new ArrayList<>());
                         }
                         map.get(database).add(modelClass);
+
 
                         JdbcSession jdbcSession = defaultListableBeanFactory.getBean(database + "JdbcSession", JdbcSession.class);
 

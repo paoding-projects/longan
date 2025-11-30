@@ -1,6 +1,6 @@
 package dev.paoding.longan.data.jpa;
 
-import dev.paoding.longan.util.GsonUtils;
+import dev.paoding.longan.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -22,9 +22,15 @@ public class SqlLogger {
         }
     }
 
+    public static void log(String databaseName, String sql) {
+        if (enable) {
+            logger.info("{} - {}", databaseName, sql);
+        }
+    }
+
     public static void log(Map<String, ?> paramMap) {
         if (enable) {
-            logger.info("parameter\n{}", GsonUtils.toJson(paramMap));
+            logger.info("parameter {}", JsonUtils.toJson(paramMap));
         }
     }
 

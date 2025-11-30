@@ -1,6 +1,6 @@
 package dev.paoding.longan.doc;
 
-import dev.paoding.longan.annotation.Json;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.paoding.longan.channel.http.MultipartFile;
 import dev.paoding.longan.data.jpa.Data;
 import dev.paoding.longan.data.Entity;
@@ -18,7 +18,7 @@ public class MetaField {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private String id;
     private String name;
-    @Json(serialize = false)
+    @JsonIgnore
     private Class<?> type;
 //    @Json(serialize = false)
     private String javaType;
@@ -26,7 +26,7 @@ public class MetaField {
     private String dartType;
 //    @Json(serialize = false)
     private String jsType;
-    @Json(serialize = false)
+    @JsonIgnore
     private Class<?> actualType;
 //    @Json(serialize = false)
     private String actualJavaType;
@@ -45,7 +45,7 @@ public class MetaField {
      * 传参是否不允许为 Null
      */
     private boolean notNull;
-    @Json(serialize = false)
+    @JsonIgnore
     private List<MetaField> children;
 
     public String getId() {

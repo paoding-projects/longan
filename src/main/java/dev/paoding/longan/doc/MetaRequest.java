@@ -1,8 +1,11 @@
 package dev.paoding.longan.doc;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class MetaRequest {
     private List<MetaParam> params = new ArrayList<>();
     private Object sample;
@@ -10,22 +13,6 @@ public class MetaRequest {
 
     public void addMetaValidator(MetaValidator metaValidator){
         validators.add(metaValidator);
-    }
-
-    public Object getSample() {
-        return sample;
-    }
-
-    public void setSample(Object sample) {
-        this.sample = sample;
-    }
-
-    public List<MetaParam> getParams() {
-        return params;
-    }
-
-    public void setParams(List<MetaParam> params) {
-        this.params = params;
     }
 
     public void addMetaParam(MetaParam metaParam){

@@ -1,6 +1,6 @@
 package dev.paoding.longan.doc;
 
-import dev.paoding.longan.annotation.Json;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 public class MetaFilter {
     private String type;
     private List<MetaField> fields = new ArrayList<>();
-    @Json(serialize = false)
+    @JsonIgnore
     private List<String> includes = new ArrayList<>();
 
     public String getType() {

@@ -2,7 +2,6 @@ package dev.paoding.longan.util;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import dev.paoding.longan.annotation.Json;
 import dev.paoding.longan.service.UnexpectedJsonException;
 import dev.paoding.longan.service.I18nSyntaxException;
 import dev.paoding.longan.service.TypeFormatException;
@@ -40,24 +39,24 @@ public class GsonUtils {
         formatterMap.put("default", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault()));
 
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.addSerializationExclusionStrategy(new ExclusionStrategy() {
-
-            @Override
-            public boolean shouldSkipField(FieldAttributes fieldAttributes) {
-                Json json = fieldAttributes.getAnnotation(Json.class);
-                return json != null && !json.serialize();
-            }
-
-            @Override
-            public boolean shouldSkipClass(Class<?> clazz) {
-                return false;
-            }
-        });
-        gsonBuilder.registerTypeAdapter(Double.class,
-                (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
-                    BigDecimal value = BigDecimal.valueOf(src);
-                    return new JsonPrimitive(value);
-                });
+//        gsonBuilder.addSerializationExclusionStrategy(new ExclusionStrategy() {
+//
+//            @Override
+//            public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+//                Json json = fieldAttributes.getAnnotation(Json.class);
+//                return json != null && !json.serialize();
+//            }
+//
+//            @Override
+//            public boolean shouldSkipClass(Class<?> clazz) {
+//                return false;
+//            }
+//        });
+//        gsonBuilder.registerTypeAdapter(Double.class,
+//                (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
+//                    BigDecimal value = BigDecimal.valueOf(src);
+//                    return new JsonPrimitive(value);
+//                });
         gsonBuilder.registerTypeAdapter(Class.class, new JsonSerializer<Class>() {
             @Override
             public JsonElement serialize(Class clazz, Type type, JsonSerializationContext jsonSerializationContext) {
@@ -127,9 +126,6 @@ public class GsonUtils {
             }
         });
         gsonBuilder.registerTypeAdapter(Instant.class, (JsonDeserializer<Instant>) (json, type, jsonDeserializationContext) -> {
-//            String timeZone = TimeZoneThreadLocal.get();
-//            String datetime = json.getAsJsonPrimitive().getAsString();
-//            return LocalDateTime.parse(datetime, formatterMap.get(timeZone)).atZone(zoneIdMap.get(timeZone)).toInstant();
             long datetime = json.getAsJsonPrimitive().getAsLong();
             return Instant.ofEpochMilli(datetime);
         });

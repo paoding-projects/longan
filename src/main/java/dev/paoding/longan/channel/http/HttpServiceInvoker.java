@@ -1,6 +1,5 @@
 package dev.paoding.longan.channel.http;
 
-import com.google.gson.JsonElement;
 import dev.paoding.longan.annotation.RequestBody;
 import dev.paoding.longan.core.MethodInvocation;
 import dev.paoding.longan.core.Result;
@@ -10,7 +9,7 @@ import dev.paoding.longan.service.DuplicateParameterException;
 import dev.paoding.longan.service.MethodNotAllowedException;
 import dev.paoding.longan.service.SystemException;
 import dev.paoding.longan.service.UnsupportedMediaTypeException;
-import dev.paoding.longan.util.GsonUtils;
+import dev.paoding.longan.util.JsonUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -20,6 +19,7 @@ import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.CharsetUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import tools.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.lang.reflect.Parameter;
@@ -51,8 +51,9 @@ public class HttpServiceInvoker extends ServiceInvoker {
                     arguments = parseArguments(methodInvocation, httpDataEntity, true, httpRequest.content());
                 } else {
                     String body = httpRequest.content().toString(CharsetUtil.UTF_8);
-                    Map<String, JsonElement> jsonElementMap = GsonUtils.toMap(body);
-                    arguments = parseArguments(methodInvocation, httpDataEntity, jsonElementMap);
+//                    Map<String, JsonElement> jsonElementMap = GsonUtils.toMap(body);
+                    Map<String, JsonNode> jsonNodeMap = JsonUtils.toMap(body);
+                    arguments = parseArguments(methodInvocation, httpDataEntity, jsonNodeMap);
                 }
                 return invoke(methodInvocation, arguments);
             } else if (HttpPostRequestDecoder.isMultipart(httpRequest)) {
@@ -83,10 +84,10 @@ public class HttpServiceInvoker extends ServiceInvoker {
         return contentType != null && contentType.startsWith(HttpHeaderValues.APPLICATION_JSON.toString());
     }
 
-    private Object[] parseArguments(MethodInvocation methodInvocation, HttpDataEntity httpDataEntity, Map<String, JsonElement> jsonElementMap) {
+    private Object[] parseArguments(MethodInvocation methodInvocation, HttpDataEntity httpDataEntity, Map<String, JsonNode> jsonNodeMap) {
         Set<String> textParameterNames = httpDataEntity.getTextParameterNames();
         for (String textParameterName : textParameterNames) {
-            if (jsonElementMap.containsKey(textParameterName)) {
+            if (jsonNodeMap.containsKey(textParameterName)) {
                 throw new DuplicateParameterException(methodInvocation.getResponseType(), textParameterName);
             }
         }
@@ -98,10 +99,10 @@ public class HttpServiceInvoker extends ServiceInvoker {
             if (httpDataEntity.containsParameterName(parameter.getName())) {
                 arguments[i] = methodInvocation.getParameter(httpDataEntity, parameter);
             } else {
-                JsonElement jsonElement = jsonElementMap.get(parameter.getName());
+                JsonNode jsonNode = jsonNodeMap.get(parameter.getName());
                 Object argument = null;
-                if (jsonElement != null) {
-                    argument = GsonUtils.fromJson(jsonElement, parameter.getParameterizedType());
+                if (jsonNode != null) {
+                    argument = JsonUtils.fromJson(jsonNode, parameter.getParameterizedType());
                     if (Between.class.isAssignableFrom(parameter.getType())) {
                         Between<?> between = (Between<?>) argument;
                         between.setField(parameter.getName());

@@ -236,8 +236,6 @@ public class MetaColumn {
             sb.append(" TIME");
         } else if (Instant.class.isAssignableFrom(getType())) {
             sb.append(" TIMESTAMP");
-        } else if (Timestamp.class.isAssignableFrom(getType())) {
-            sb.append(" TIMESTAMP");
         } else if (Enum.class.isAssignableFrom(getType())) {
             sb.append(" NVARCHAR(" + length + ")");
         } else {
@@ -303,8 +301,6 @@ public class MetaColumn {
         } else if (LocalTime.class.isAssignableFrom(getType())) {
             sb.append(" TIME WITH TIME ZONE");
         } else if (Instant.class.isAssignableFrom(getType())) {
-            sb.append(" TIMESTAMP");
-        } else if (Timestamp.class.isAssignableFrom(getType())) {
             sb.append(" TIMESTAMP");
         } else if (Enum.class.isAssignableFrom(getType())) {
             sb.append(" TEXT");

@@ -6,6 +6,7 @@ import dev.paoding.longan.core.ClassPathBeanScanner;
 import dev.paoding.longan.core.ServiceDescriptor;
 import dev.paoding.longan.data.Snowflake;
 import dev.paoding.longan.util.GsonUtils;
+import dev.paoding.longan.util.JsonUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -72,20 +73,20 @@ public class DocumentService {
 
         map.put("codes", codeMap);
 
-        json = GsonUtils.toJson(map);
+        json = JsonUtils.toJson(map);
         return json;
     }
 
     public static String getModels() {
-        return GsonUtils.toJson(map.get("models"));
+        return JsonUtils.toJson(map.get("models"));
     }
 
     public static String getMethods() {
-        return GsonUtils.toJson(map.get("methods"));
+        return JsonUtils.toJson(map.get("methods"));
     }
 
     public static String getMethod(String methodName) {
-        return GsonUtils.toJson(metaMethodMap.get(methodName));
+        return JsonUtils.toJson(metaMethodMap.get(methodName));
     }
 
     private static Map<String, Object> map = new HashMap<>();

@@ -1,6 +1,6 @@
 package dev.paoding.longan.channel.http;
 
-import dev.paoding.longan.util.GsonUtils;
+import dev.paoding.longan.util.JsonUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
@@ -42,7 +42,7 @@ public abstract class AbstractServiceHandler {
     }
 
     protected void writeJson(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus httpResponseStatus, ExceptionResult exceptionResult) {
-        String content = GsonUtils.toJson(exceptionResult);
+        String content = JsonUtils.toJson(exceptionResult);
         writeJson(ctx, fullHttpRequest, httpResponseStatus, content);
     }
 

@@ -1,14 +1,10 @@
 package dev.paoding.longan.data.jpa;
 
-import com.google.gson.JsonSyntaxException;
-import dev.paoding.longan.annotation.I18n;
-import dev.paoding.longan.core.Internationalization;
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.data.Snowflake;
 import dev.paoding.longan.service.SystemException;
 import dev.paoding.longan.util.EntityUtils;
-import dev.paoding.longan.util.GsonUtils;
 import org.springframework.cglib.beans.BeanMap;
 import org.springframework.cglib.proxy.InvocationHandler;
 import org.springframework.dao.DataAccessException;
@@ -17,7 +13,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaRepository<T, ID> {
@@ -293,9 +291,9 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         if (entity == null) {
             throw new RuntimeException("object must not be null");
         }
-        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
-            serialize(entity);
-        }
+//        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
+//            serialize(entity);
+//        }
         MetaColumn primaryKey = metaTable.getPrimaryKey();
         if (primaryKey.getGenerator().equals(Generator.SNOWFLAKE)) {
             EntityUtils.setId(entity, snowflake.nextId(), primaryKey.getType());
@@ -328,31 +326,31 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         if (entity == null) {
             throw new RuntimeException("object must not be null");
         }
-        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
-            serialize(entity);
-        }
+//        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
+//            serialize(entity);
+//        }
         String sql = metaTable.saveOrUpdate(databaseType);
         jdbcSession.update(sql, new BeanPropertySqlParameterSource(entity));
         return 0;
     }
 
-    private <T> void serialize(T entity) {
-        Field[] fieldArray = entity.getClass().getDeclaredFields();
-        try {
-            for (Field field : fieldArray) {
-                if (field.isAnnotationPresent(I18n.class)) {
-                    field.setAccessible(true);
-                    Object value = field.get(entity);
-                    if (value != null) {
-                        Map<String, String> map = Map.of(Internationalization.getLanguage(), value.toString());
-                        field.set(entity, GsonUtils.toJson(map));
-                    }
-                }
-            }
-        } catch (IllegalAccessException | JsonSyntaxException e) {
-            throw new SystemException(e);
-        }
-    }
+//    private <T> void serialize(T entity) {
+//        Field[] fieldArray = entity.getClass().getDeclaredFields();
+//        try {
+//            for (Field field : fieldArray) {
+//                if (field.isAnnotationPresent(I18n.class)) {
+//                    field.setAccessible(true);
+//                    Object value = field.get(entity);
+//                    if (value != null) {
+//                        Map<String, String> map = Map.of(Internationalization.getLanguage(), value.toString());
+//                        field.set(entity, GsonUtils.toJson(map));
+//                    }
+//                }
+//            }
+//        } catch (IllegalAccessException | JsonSyntaxException e) {
+//            throw new SystemException(e);
+//        }
+//    }
 
     @Override
     public List<T> save(List<T> entityList) {
@@ -422,9 +420,9 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         if (entity == null) {
             throw new RuntimeException("object must not be null");
         }
-        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
-            merge(entity);
-        }
+//        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
+//            merge(entity);
+//        }
         Map<String, Object> paramMap = new ParamMap();
         paramMap.put("id", metaTable.getPrimaryKey().getValue(entity));
         metaTable.getMetaColumnList().forEach(metaColumn -> {
@@ -511,30 +509,30 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         return jdbcSession.update(sql, paramMap);
     }
 
-    private void merge(T entity) {
-        T old = BeanFactory.attach(entity);
-        Field[] fieldArray = entity.getClass().getDeclaredFields();
-        try {
-            for (Field field : fieldArray) {
-                if (field.isAnnotationPresent(I18n.class)) {
-                    field.setAccessible(true);
-                    Object newValue = field.get(entity);
-                    if (newValue != null) {
-                        Object oldValue = field.get(old);
-                        if (oldValue == null) {
-                            field.set(entity, Map.of(Internationalization.getLanguage(), newValue.toString()));
-                        } else {
-                            Map<String, String> map = GsonUtils.toLocaleMap(oldValue.toString());
-                            map.put(Internationalization.getLanguage(), newValue.toString());
-                            field.set(entity, GsonUtils.toJson(map));
-                        }
-                    }
-                }
-            }
-        } catch (IllegalAccessException | JsonSyntaxException e) {
-            throw new SystemException(e);
-        }
-    }
+//    private void merge(T entity) {
+//        T old = BeanFactory.attach(entity);
+//        Field[] fieldArray = entity.getClass().getDeclaredFields();
+//        try {
+//            for (Field field : fieldArray) {
+//                if (field.isAnnotationPresent(I18n.class)) {
+//                    field.setAccessible(true);
+//                    Object newValue = field.get(entity);
+//                    if (newValue != null) {
+//                        Object oldValue = field.get(old);
+//                        if (oldValue == null) {
+//                            field.set(entity, Map.of(Internationalization.getLanguage(), newValue.toString()));
+//                        } else {
+//                            Map<String, String> map = GsonUtils.toLocaleMap(oldValue.toString());
+//                            map.put(Internationalization.getLanguage(), newValue.toString());
+//                            field.set(entity, GsonUtils.toJson(map));
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (IllegalAccessException | JsonSyntaxException e) {
+//            throw new SystemException(e);
+//        }
+//    }
 
 
     @Override

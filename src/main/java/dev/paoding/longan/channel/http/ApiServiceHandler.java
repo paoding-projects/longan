@@ -6,7 +6,7 @@ import dev.paoding.longan.service.InternalServerException;
 import dev.paoding.longan.service.MethodNotAllowedException;
 import dev.paoding.longan.service.MethodNotFoundException;
 import dev.paoding.longan.service.ServiceException;
-import dev.paoding.longan.util.GsonUtils;
+import dev.paoding.longan.util.JsonUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
@@ -68,7 +68,7 @@ public class ApiServiceHandler extends AbstractServiceHandler {
                         if (content instanceof String) {
                             writeJson(ctx, fullHttpRequest, content.toString());
                         } else {
-                            writeJson(ctx, fullHttpRequest, GsonUtils.toJson(content));
+                            writeJson(ctx, fullHttpRequest, JsonUtils.toJson(content));
                         }
                     } else {
                         if (content instanceof VirtualFile virtualFile) {

@@ -6,7 +6,7 @@ import dev.paoding.longan.service.UnexpectedJsonDataException;
 import dev.paoding.longan.service.UnsupportedParameterTypeException;
 import dev.paoding.longan.channel.http.HttpDataEntity;
 import dev.paoding.longan.channel.http.RequestParameterException;
-import dev.paoding.longan.util.GsonUtils;
+import dev.paoding.longan.util.JsonUtils;
 import dev.paoding.longan.validation.BeanCleaner;
 import dev.paoding.longan.validation.ParameterValidator;
 import io.netty.buffer.ByteBuf;
@@ -87,7 +87,7 @@ public class MethodInvocation extends ParameterValidator {
                 object = bytes;
             } else if (isApplicationJson) {
                 try {
-                    object = GsonUtils.fromJson(body.toString(StandardCharsets.UTF_8), parameter.getParameterizedType());
+                    object = JsonUtils.fromJson(body.toString(StandardCharsets.UTF_8), parameter.getParameterizedType());
                     cleanParameter(parameter, object, paramMap.get(parameter.getName()), validatorMap);
                 } catch (Exception e) {
                     throw new UnexpectedJsonDataException(parameter.getName());

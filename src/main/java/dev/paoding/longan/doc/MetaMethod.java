@@ -1,6 +1,6 @@
 package dev.paoding.longan.doc;
 
-import dev.paoding.longan.annotation.Json;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ public class MetaMethod {
     private String alias;
     private String type;
     private String description;
-//    private boolean anonymous;
-    @Json(serialize = false)
+    //    private boolean anonymous;
+    @JsonIgnore
 //    private Class<?>[] role;
     private String[] clients;
     private MetaRequest request;

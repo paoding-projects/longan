@@ -1,6 +1,6 @@
 package dev.paoding.longan.doc;
 
-import dev.paoding.longan.util.GsonUtils;
+import dev.paoding.longan.util.JsonUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -40,7 +40,7 @@ public class CodeFactory {
         }
         System.out.println("下载接口文档数据...");
         String json = doGet(url);
-        Document document = GsonUtils.fromJson(json, Document.class);
+        Document document = JsonUtils.fromJson(json, Document.class);
         System.out.println("生成 model 类...");
         writeModel(document);
         System.out.println("生成 service 类...");

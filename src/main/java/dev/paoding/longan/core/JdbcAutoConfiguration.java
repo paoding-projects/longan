@@ -3,6 +3,7 @@ package dev.paoding.longan.core;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariDataSource;
 import dev.paoding.longan.data.jpa.*;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
@@ -14,7 +15,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.lang.NonNull;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -32,7 +32,7 @@ public class JdbcAutoConfiguration implements ImportBeanDefinitionRegistrar, Env
             DataSource dataSource = create(config);
             String databaseType = getDatabaseType(config.get("url"));
             defaultListableBeanFactory.registerSingleton(name + "DataSource", dataSource);
-            defaultListableBeanFactory.registerSingleton(name + "JdbcSession", jdbcSession(databaseType, dataSource));
+            defaultListableBeanFactory.registerSingleton(name + "JdbcSession", jdbcSession(name, databaseType, dataSource));
 
             GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
             beanDefinition.setBeanClass(DataSourceTransactionManager.class);
@@ -59,26 +59,19 @@ public class JdbcAutoConfiguration implements ImportBeanDefinitionRegistrar, Env
         } else if (url.contains(Database.ORACLE)) {
             return Database.ORACLE;
         }
-        throw new RuntimeException("unsupport database type");
+        throw new RuntimeException("unsupported database type: " + url);
     }
 
     private PlatformTransactionManager txManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
-    private JdbcSession jdbcSession(String databaseType, DataSource dataSource) {
+    private JdbcSession jdbcSession(String databaseName, String databaseType, DataSource dataSource) {
         NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-        JdbcSession jdbcSession = new JdbcSession(databaseType, namedParameterJdbcTemplate);
+        JdbcSession jdbcSession = new JdbcSession(databaseName, databaseType, namedParameterJdbcTemplate);
         BeanFactory.register(jdbcSession);
         return jdbcSession;
     }
-
-//    private DataSource dataSource() {
-//        boolean showSql = environment.getProperty("longan.datasource.show-sql", Boolean.class, false);
-//        SqlLogger.init(showSql);
-//        Database.init(environment.getProperty("longan.datasource.url"), environment.getProperty("longan.datasource.username"), environment.getProperty("longan.datasource.password"));
-//        return  null;
-//    }
 
     private HashMap<String, Map<String, String>> getStringMapHashMap() {
         String prefix = "longan.datasource.";
