@@ -13,10 +13,6 @@ public class LocalDateTimeSerializer extends ValueSerializer<LocalDateTime> {
 
     @Override
     public void serialize(LocalDateTime value, JsonGenerator gen, SerializationContext ctx) throws JacksonException {
-        if (value == null) {
-            gen.writeNull();
-        } else {
-            gen.writeString(value.format(FORMATTER));
-        }
+        gen.writeString(value.format(FORMATTER));
     }
 }

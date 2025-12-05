@@ -1,6 +1,8 @@
 package dev.paoding.longan.doc;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.paoding.longan.channel.http.MultipartFile;
 import dev.paoding.longan.data.jpa.Data;
 import dev.paoding.longan.data.Entity;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MetaField {
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private String id;
     private String name;
     @JsonIgnore
@@ -178,9 +180,9 @@ public class MetaField {
                 }
             } else if (Instant.class.isAssignableFrom(type)) {
                 if (text.isEmpty()) {
-                    this.sample = LocalDate.now();
+                    this.sample = Instant.now();
                 } else {
-                    this.sample = LocalDate.parse(sample.toString());
+                    this.sample = Instant.ofEpochMilli(Long.parseLong(sample.toString()));
                 }
             } else if (Timestamp.class.isAssignableFrom(type)) {
                 if (text.isEmpty()) {
@@ -218,6 +220,7 @@ public class MetaField {
         this.description = description;
     }
 
+    @JsonProperty("isTypeModel")
     public boolean isTypeModel() {
         return isTypeModel;
     }
@@ -226,6 +229,7 @@ public class MetaField {
         this.isTypeModel = typeIsModel;
     }
 
+    @JsonProperty("isActualTypeModel")
     public boolean isActualTypeModel() {
         return isActualTypeModel;
     }

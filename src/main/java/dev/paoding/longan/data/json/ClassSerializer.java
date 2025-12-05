@@ -12,10 +12,6 @@ public class ClassSerializer extends ValueSerializer<Class<?>> {
 
     @Override
     public void serialize(Class<?> value, JsonGenerator gen, SerializationContext ctx) throws JacksonException {
-        if (value == null) {
-            gen.writeNull();
-        } else {
-            gen.writeString(value.getName());
-        }
+        gen.writeString(value.getName());
     }
 }

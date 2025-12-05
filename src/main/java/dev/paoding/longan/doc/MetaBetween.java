@@ -30,18 +30,17 @@ public class MetaBetween extends MetaParam {
         return sample;
     }
 
-    public MetaBetween(Type type, String name,String alias) {
+    public MetaBetween(Type type, String name, String alias) {
         this.setName(name);
         this.setAlias(alias);
         this.setType(Between.class);
         this.setJsType("Object");
         this.setDartType("Object");
 
-
         ParameterizedType parameterizedType = (ParameterizedType) type;
         Class<?> actualType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
 
-//        this.setActualType(actualType);
+        this.setActualType(actualType);
         this.setTypeIsModel(true);
 
         if (Instant.class.isAssignableFrom(actualType)) {
@@ -63,7 +62,7 @@ public class MetaBetween extends MetaParam {
 
             this.addChild(startMetaAttribute);
             this.addChild(endMetaAttribute);
-        }else if (LocalDate.class.isAssignableFrom(actualType)) {
+        } else if (LocalDate.class.isAssignableFrom(actualType)) {
             MetaAttribute startMetaAttribute = new MetaAttribute();
             startMetaAttribute.setName("start");
             startMetaAttribute.setType(LocalDate.class);

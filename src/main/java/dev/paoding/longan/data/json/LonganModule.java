@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import dev.paoding.longan.data.jpa.BeanProxy;
 import tools.jackson.core.Version;
 import tools.jackson.databind.*;
-import tools.jackson.databind.deser.Deserializers;
 import tools.jackson.databind.module.SimpleDeserializers;
 import tools.jackson.databind.ser.Serializers;
 
@@ -16,7 +15,7 @@ public class LonganModule extends JacksonModule {
 
     @Override
     public String getModuleName() {
-        return "BeanProxyModule";
+        return "LonganModule";
     }
 
     @Override

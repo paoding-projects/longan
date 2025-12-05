@@ -9,15 +9,10 @@ import tools.jackson.databind.ValueSerializer;
 public class BeanProxySerializer extends ValueSerializer<BeanProxy> {
 
     @Override
-    public void serialize(BeanProxy value, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
-        if (value == null) {
-            gen.writeNull();
-            return;
-        }
-
+    public void serialize(BeanProxy value, JsonGenerator gen, SerializationContext cxt) throws JacksonException {
         Object original = value.getOriginal();
         Class<?> baseType = original.getClass();
-        ValueSerializer<Object> delegate = ctxt.findValueSerializer(baseType);
-        delegate.serialize(original, gen, ctxt);
+        ValueSerializer<Object> delegate = cxt.findValueSerializer(baseType);
+        delegate.serialize(original, gen, cxt);
     }
 }

@@ -1,5 +1,6 @@
 package dev.paoding.longan.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import dev.paoding.longan.data.json.LonganModule;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JavaType;
@@ -12,6 +13,8 @@ import java.util.Map;
 public class JsonUtils {
     private final static JsonMapper mapper = JsonMapper.builder()
             .addModule(new LonganModule())
+            .changeDefaultPropertyInclusion(incl ->
+                    incl.withValueInclusion(JsonInclude.Include.NON_NULL))
             .build();
 
     public static String toJson(Object object) {
