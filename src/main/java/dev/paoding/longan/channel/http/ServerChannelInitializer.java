@@ -6,9 +6,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +23,8 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     private HttpServerHandler httpServerHandler;
     @Resource
     private Environment env;
+    @Value("${longan.http.log:false}")
+    private boolean showLog;
 
     @PostConstruct
     private void init() {
@@ -34,7 +39,9 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
     protected void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
 //        pipeline.addLast(new LongByteToMessageDecoder());
-//        pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+        if(showLog) {
+            pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+        }
 //        pipeline.addLast(httpServerHandler);
 //        pipeline.addLast(loggingHandler);
 //        pipeline.addLast(new LoggingHandler(LogLevel.INFO));
@@ -47,7 +54,7 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
 //        pipeline.addLast(new HttpContentCompressor());
         pipeline.addLast(new ChunkedWriteHandler());
 //        pipeline.addLast(new WebSocketServerProtocolHandler("/ws",true));
-        pipeline.addLast(new WebSocketServerProtocolHandler("/ws",true));
+        pipeline.addLast(new WebSocketServerProtocolHandler("/ws", true));
         pipeline.addLast(httpServerHandler);
 //        pipeline.addLast(new WebSocketServerHandler());
 //        pipeline.addLast(new HttpServerHandler(httpFilter));

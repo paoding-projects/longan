@@ -37,11 +37,11 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <skipTests>true</skipTests>
+        <skipTests>false</skipTests>
         <netty.version>4.2.7.Final</netty.version>
-        <spring.version>7.0.1</spring.version>
+        <spring.version>7.0.2</spring.version>
         <spring-boot.version>4.0.0</spring-boot.version>
-        <spring-data-commons.version>4.0.0</spring-data-commons.version>
+        <spring-data-commons.version>4.0.1</spring-data-commons.version>
         <slf4j.version>2.0.17</slf4j.version>
         <log4j.version>2.25.2</log4j.version>
         <snakeyaml.version>2.5</snakeyaml.version>
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>com.github.jsqlparser</groupId>
             <artifactId>jsqlparser</artifactId>
-            <version>5.3</version>
+            <version>5.2</version>
         </dependency>
 
         <dependency>
@@ -258,7 +258,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
     </dependencies>
 
     <build>
