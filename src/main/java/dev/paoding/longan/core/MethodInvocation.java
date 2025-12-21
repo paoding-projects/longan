@@ -24,7 +24,7 @@ public class MethodInvocation extends ParameterValidator {
     private final Map<String, Validator> validatorMap = new HashMap<>();
     private final Map<String, Param> paramMap = new HashMap<>();
     private Class<?> serviceInterface;
-    private Class<?> serviceClass;
+    private final Class<?> serviceClass;
     private Object service;
     private Method method;
     private String path;
@@ -32,7 +32,7 @@ public class MethodInvocation extends ParameterValidator {
     private String responseType;
     private boolean hasRequestBody;
     private Parameter[] parameters;
-    private static Validator pageableValidator;
+    private static final Validator pageableValidator;
 
     static {
         long[] size = {1L, 50};
