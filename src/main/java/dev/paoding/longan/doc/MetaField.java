@@ -1,10 +1,8 @@
 package dev.paoding.longan.doc;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.paoding.longan.channel.http.MultipartFile;
-import dev.paoding.longan.data.jpa.Data;
 import dev.paoding.longan.data.Entity;
 
 import java.sql.Timestamp;
@@ -22,26 +20,26 @@ public class MetaField {
     private String name;
     @JsonIgnore
     private Class<?> type;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private String javaType;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private String dartType;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private String jsType;
     @JsonIgnore
     private Class<?> actualType;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private String actualJavaType;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private String actualDartType;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private String actualJsType;
     private String alias;
     private Object sample;
     private String description;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private boolean isTypeModel;
-//    @Json(serialize = false)
+    //    @Json(serialize = false)
     private boolean isActualTypeModel;
     /**
      * 传参是否不允许为 Null
@@ -278,7 +276,7 @@ public class MetaField {
             actualDartType = "String";
             actualJsType = "String";
         } else if (Long.class.isAssignableFrom(actualType) || Integer.class.isAssignableFrom(actualType) || Short.class.isAssignableFrom(actualType) ||
-                long.class.isAssignableFrom(actualType) || int.class.isAssignableFrom(actualType) || short.class.isAssignableFrom(actualType)) {
+                   long.class.isAssignableFrom(actualType) || int.class.isAssignableFrom(actualType) || short.class.isAssignableFrom(actualType)) {
             actualDartType = "int";
             actualJsType = "Number";
         } else if (Double.class.isAssignableFrom(actualType) || Float.class.isAssignableFrom(actualType) || double.class.isAssignableFrom(actualType) || float.class.isAssignableFrom(actualType)) {
@@ -308,7 +306,7 @@ public class MetaField {
         } else if (LocalTime.class.isAssignableFrom(actualType)) {
             actualDartType = "DateTime";
             actualJsType = "String";
-        } else if (actualType.isAnnotationPresent(Entity.class) || actualType.isAnnotationPresent(Data.class)) {
+        } else if (actualType.isAnnotationPresent(Entity.class)) {
             actualDartType = "Object";
             actualJsType = "Object";
             isActualTypeModel = true;
@@ -325,11 +323,11 @@ public class MetaField {
             dartType = "String";
             jsType = "String";
         } else if (Long.class.isAssignableFrom(type) || Integer.class.isAssignableFrom(type) || Short.class.isAssignableFrom(type)
-                || long.class.isAssignableFrom(type) || int.class.isAssignableFrom(type) || short.class.isAssignableFrom(type)) {
+                   || long.class.isAssignableFrom(type) || int.class.isAssignableFrom(type) || short.class.isAssignableFrom(type)) {
             dartType = "int";
             jsType = "Number";
         } else if (Double.class.isAssignableFrom(type) || Float.class.isAssignableFrom(type) || double.class.isAssignableFrom(type) ||
-                float.class.isAssignableFrom(type)) {
+                   float.class.isAssignableFrom(type)) {
             this.dartType = "double";
             this.jsType = "Number";
         } else if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
@@ -356,14 +354,14 @@ public class MetaField {
         } else if (LocalTime.class.isAssignableFrom(type)) {
             dartType = "DateTime";
             jsType = "String";
-        } else if (type.isAnnotationPresent(Entity.class) || type.isAnnotationPresent(Data.class)) {
+        } else if (type.isAnnotationPresent(Entity.class)) {
             dartType = "Object";
             jsType = "Object";
             isTypeModel = true;
 //            if (children == null) {
 //                children = new ArrayList<>();
 //            }
-        } else if (Void.class.isAssignableFrom(type) || void.class.isAssignableFrom(type)) {
+        } else if (Void.class.isAssignableFrom(type)) {
             dartType = "void";
             jsType = "void";
         } else if (MultipartFile.class.isAssignableFrom(type)) {
@@ -375,23 +373,23 @@ public class MetaField {
     @Override
     public String toString() {
         return "MetaField{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", type=" + type +
-                ", javaType='" + javaType + '\'' +
-                ", dartType='" + dartType + '\'' +
-                ", jsType='" + jsType + '\'' +
-                ", actualType=" + actualType +
-                ", actualJavaType='" + actualJavaType + '\'' +
-                ", actualDartType='" + actualDartType + '\'' +
-                ", actualJsType='" + actualJsType + '\'' +
-                ", alias='" + alias + '\'' +
-                ", sample=" + sample +
-                ", description='" + description + '\'' +
-                ", isTypeModel=" + isTypeModel +
-                ", isActualTypeModel=" + isActualTypeModel +
-                ", notNull=" + notNull +
-                ", children=" + children +
-                '}';
+               "id='" + id + '\'' +
+               ", name='" + name + '\'' +
+               ", type=" + type +
+               ", javaType='" + javaType + '\'' +
+               ", dartType='" + dartType + '\'' +
+               ", jsType='" + jsType + '\'' +
+               ", actualType=" + actualType +
+               ", actualJavaType='" + actualJavaType + '\'' +
+               ", actualDartType='" + actualDartType + '\'' +
+               ", actualJsType='" + actualJsType + '\'' +
+               ", alias='" + alias + '\'' +
+               ", sample=" + sample +
+               ", description='" + description + '\'' +
+               ", isTypeModel=" + isTypeModel +
+               ", isActualTypeModel=" + isActualTypeModel +
+               ", notNull=" + notNull +
+               ", children=" + children +
+               '}';
     }
 }

@@ -10,6 +10,7 @@ import dev.paoding.longan.util.TypeUtils;
 import org.springframework.cglib.beans.BeanMap;
 
 import java.lang.reflect.*;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -211,16 +212,42 @@ public class ParameterValidator {
 
     public boolean validateSize(Class<?> type, Object object, long min, long max) {
         if (Number.class.isAssignableFrom(type)) {
-            if (Double.class.isAssignableFrom(type) || double.class.isAssignableFrom(type)) {
-                double size = (double) object;
-                return size >= min && size <= max;
-            } else if (Long.class.isAssignableFrom(type) || long.class.isAssignableFrom(type)) {
+            if (Long.class.isAssignableFrom(type)) {
                 long size = (long) object;
                 return size >= min && size <= max;
-            } else if (Integer.class.isAssignableFrom(type) || int.class.isAssignableFrom(type)) {
+            } else if (Integer.class.isAssignableFrom(type)) {
                 int size = (int) object;
                 return size >= min && size <= max;
-            } else if (Short.class.isAssignableFrom(type) || short.class.isAssignableFrom(type)) {
+            } else if (Double.class.isAssignableFrom(type)) {
+                double size = (double) object;
+                return size >= min && size <= max;
+            } else if (Float.class.isAssignableFrom(type)) {
+                double size = (float) object;
+                return size >= min && size <= max;
+            } else if (BigDecimal.class.isAssignableFrom(type)) {
+                BigDecimal size = (BigDecimal) object;
+                BigDecimal minValue = BigDecimal.valueOf(min);
+                BigDecimal maxValue = BigDecimal.valueOf(max);
+                return size.compareTo(minValue) >= 0
+                       && size.compareTo(maxValue) <= 0;
+            } else if (Short.class.isAssignableFrom(type)) {
+                short size = (short) object;
+                return size >= min && size <= max;
+            }
+        } else if (type.isPrimitive()) {
+            if (long.class.isAssignableFrom(type)) {
+                long size = (long) object;
+                return size >= min && size <= max;
+            } else if (int.class.isAssignableFrom(type)) {
+                int size = (int) object;
+                return size >= min && size <= max;
+            } else if (double.class.isAssignableFrom(type)) {
+                double size = (double) object;
+                return size >= min && size <= max;
+            } else if (float.class.isAssignableFrom(type)) {
+                double size = (float) object;
+                return size >= min && size <= max;
+            } else if (short.class.isAssignableFrom(type)) {
                 short size = (short) object;
                 return size >= min && size <= max;
             }
@@ -278,7 +305,7 @@ public class ParameterValidator {
                             if (boolean.class == fieldType) {
                                 field.set(object, false);
                             } else if (int.class == fieldType || long.class == fieldType || double.class == fieldType ||
-                                    float.class == fieldType || short.class == fieldType) {
+                                       float.class == fieldType || short.class == fieldType) {
                                 field.set(object, 0);
                             }
                         } else {

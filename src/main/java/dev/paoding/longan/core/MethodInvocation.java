@@ -1,6 +1,7 @@
 package dev.paoding.longan.core;
 
 import dev.paoding.longan.annotation.*;
+import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.service.ConstraintViolationException;
 import dev.paoding.longan.service.UnexpectedJsonDataException;
 import dev.paoding.longan.service.UnsupportedParameterTypeException;
@@ -10,6 +11,7 @@ import dev.paoding.longan.util.JsonUtils;
 import dev.paoding.longan.validation.BeanCleaner;
 import dev.paoding.longan.validation.ParameterValidator;
 import io.netty.buffer.ByteBuf;
+import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -26,10 +28,31 @@ public class MethodInvocation extends ParameterValidator {
     private Object service;
     private Method method;
     private String path;
-//    private int lineNumber;
+    //    private int lineNumber;
     private String responseType;
     private boolean hasRequestBody;
     private Parameter[] parameters;
+    private static Validator pageableValidator;
+
+    static {
+        long[] size = {1L, 50};
+        Validate pageValidate = AnnotationUtils.synthesizeAnnotation(
+                Map.of("name", "page", "size", size),
+                Validate.class,
+                null
+        );
+        Validate sizeValidate = AnnotationUtils.synthesizeAnnotation(
+                Map.of("name", "size", "size", size),
+                Validate.class,
+                null
+        );
+        Validate[] validates = {pageValidate, sizeValidate};
+        pageableValidator = AnnotationUtils.synthesizeAnnotation(
+                Map.of("type", Pageable.class, "validates", validates),
+                Validator.class,
+                null
+        );
+    }
 
     public MethodInvocation(Class<?> serviceClass, MethodDescriptor methodDescriptor, String path) {
         this.path = path;
@@ -158,7 +181,15 @@ public class MethodInvocation extends ParameterValidator {
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(RequestBody.class)) {
                 hasRequestBody = true;
-                break;
+            } else if (Pageable.class.isAssignableFrom(parameter.getType())) {
+                Param param = AnnotationUtils.synthesizeAnnotation(
+                        Map.of("name", parameter.getName(), "notNull", true),
+                        Param.class,
+                        null
+                );
+
+                paramMap.put(param.name(), param);
+                validatorMap.put(pageableValidator.type().getName() + pageableValidator.id(), pageableValidator);
             }
         }
 

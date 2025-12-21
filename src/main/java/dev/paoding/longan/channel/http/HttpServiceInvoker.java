@@ -5,7 +5,6 @@ import dev.paoding.longan.core.MethodInvocation;
 import dev.paoding.longan.core.Result;
 import dev.paoding.longan.core.ServiceInvoker;
 import dev.paoding.longan.data.Between;
-import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.service.DuplicateParameterException;
 import dev.paoding.longan.service.MethodNotAllowedException;
 import dev.paoding.longan.service.SystemException;
@@ -18,7 +17,6 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.CharsetUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import tools.jackson.databind.JsonNode;
@@ -33,10 +31,6 @@ import java.util.Set;
 @Component
 public class HttpServiceInvoker extends ServiceInvoker {
     private final AntPathMatcher matcher = new AntPathMatcher();
-    @Value("${longan.http.max-page:50}")
-    private int maxPage;
-    @Value("${longan.http.max-page-size:100}")
-    private int maxPageSize;
 
     public Result invokeService(MethodInvocation methodInvocation, String path, String query, FullHttpRequest httpRequest) throws SystemException {
         HttpMethod httpMethod = httpRequest.method();
@@ -112,14 +106,6 @@ public class HttpServiceInvoker extends ServiceInvoker {
                     if (Between.class.isAssignableFrom(parameter.getType())) {
                         Between<?> between = (Between<?>) argument;
                         between.setField(parameter.getName());
-                    } else if (Pageable.class.isAssignableFrom(parameter.getType())) {
-                        Pageable pageable = (Pageable) argument;
-                        if (pageable.getPage() > maxPage) {
-                            pageable.setPage(maxPage);
-                        }
-                        if (pageable.getSize() > maxPageSize) {
-                            pageable.setSize(maxPageSize);
-                        }
                     }
                 }
                 arguments[i] = argument;

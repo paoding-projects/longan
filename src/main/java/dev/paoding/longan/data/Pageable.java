@@ -1,13 +1,12 @@
 package dev.paoding.longan.data;
 
-import dev.paoding.longan.data.jpa.Data;
 import dev.paoding.longan.data.jpa.Database;
 import dev.paoding.longan.data.jpa.SqlParser;
 import dev.paoding.longan.service.ConstraintViolationException;
 
 import java.util.regex.Pattern;
 
-@Data(alias = "分页对象")
+@Entity(alias = "分页对象", virtual = true)
 public class Pageable {
     private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.]+$");
 
@@ -28,7 +27,8 @@ public class Pageable {
      */
     private boolean desc;
 
-    public Pageable(){}
+    public Pageable() {
+    }
 
     public Pageable(int page) {
         this(page, 20, "id", true);
