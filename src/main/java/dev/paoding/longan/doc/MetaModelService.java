@@ -1,6 +1,7 @@
 package dev.paoding.longan.doc;
 
 import dev.paoding.longan.core.ClassPathBeanScanner;
+import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.data.jpa.Column;
 import dev.paoding.longan.data.Entity;
 
@@ -48,6 +49,8 @@ public class MetaModelService {
                 loadEntity(type);
             }
         }
+
+        loadPageable();
     }
 
 
@@ -148,5 +151,15 @@ public class MetaModelService {
         metaModelIndex.put(metaModel.getName(), metaModel);
     }
 
+    public static void loadPageable() {
+        Class<?> clazz = Pageable.class;
+        MetaModel metaModel = new MetaModel();
+        metaModel.setName(clazz.getName());
+        metaModel.setSimpleName(clazz.getSimpleName());
+        metaModel.setAlias("Pageable");
+        metaModel.setDescription("");
 
+        loadFields(metaModel, clazz);
+        metaModelIndex.put(metaModel.getName(), metaModel);
+    }
 }

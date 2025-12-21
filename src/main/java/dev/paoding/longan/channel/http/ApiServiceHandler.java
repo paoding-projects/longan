@@ -6,10 +6,9 @@ import dev.paoding.longan.service.InternalServerException;
 import dev.paoding.longan.service.MethodNotAllowedException;
 import dev.paoding.longan.service.MethodNotFoundException;
 import dev.paoding.longan.service.ServiceException;
-import dev.paoding.longan.util.JsonUtils;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
-import io.netty.util.AsciiString;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,33 +50,12 @@ public class ApiServiceHandler extends AbstractServiceHandler {
         }
 
         HttpRequest httpRequest = new HttpRequestImpl(fullHttpRequest, methodInvocation.getPath());
-
         try {
             ScopedContext scopedContext = handlerInterceptor.preHandle(httpRequest);
             scopedContext.run(() -> {
                 String query = array.length == 2 ? array[1] : null;
                 Result result = httpServiceInvoker.invokeService(methodInvocation, path, query, fullHttpRequest);
-                Object content = result.getValue();
-                if (content == null) {
-                    writeNoContent(ctx, fullHttpRequest);
-                } else if (content instanceof HttpCookie httpCookie) {
-                    writeCookie(ctx, fullHttpRequest, httpCookie);
-                } else {
-                    AsciiString contentType = result.getType();
-                    if (contentType.equals(APPLICATION_JSON)) {
-                        if (content instanceof String) {
-                            writeJson(ctx, fullHttpRequest, content.toString());
-                        } else {
-                            writeJson(ctx, fullHttpRequest, JsonUtils.toJson(content));
-                        }
-                    } else {
-                        if (content instanceof VirtualFile virtualFile) {
-                            write(ctx, fullHttpRequest, virtualFile, contentType);
-                        } else {
-                            write(ctx, fullHttpRequest, HttpResponseStatus.OK, content.toString(), contentType);
-                        }
-                    }
-                }
+                write(methodInvocation.getMethod(), ctx, fullHttpRequest, result);
             });
         } catch (Exception e) {
             handleError(ctx, fullHttpRequest, methodInvocation, e);

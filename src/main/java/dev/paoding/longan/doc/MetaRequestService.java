@@ -45,7 +45,6 @@ public class MetaRequestService {
                     metaValidatorMap.put(validator.type().getName() + validator.id(), metaValidator);
                 }
             } catch (NotFoundException e) {
-                e.printStackTrace();
                 throw new DocumentException(new DocumentProblem(e.getMessage(), method));
             }
 

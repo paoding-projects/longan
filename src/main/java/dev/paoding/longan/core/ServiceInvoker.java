@@ -2,7 +2,6 @@ package dev.paoding.longan.core;
 
 import com.google.common.base.Throwables;
 import dev.paoding.longan.channel.http.HttpRequestException;
-import dev.paoding.longan.channel.http.VirtualFile;
 import dev.paoding.longan.data.DataNotFoundException;
 import dev.paoding.longan.service.DuplicateException;
 import dev.paoding.longan.service.InternalServerException;
@@ -37,9 +36,8 @@ public abstract class ServiceInvoker extends ResponseFilter {
     }
 
     private Object invoke(Method method, Object object, Object[] arguments) {
-        Object value;
         try {
-            value = method.invoke(object, arguments);
+            return method.invoke(object, arguments);
         } catch (InvocationTargetException | IllegalAccessException e) {
             Throwable throwable = Throwables.getRootCause(e);
             Class<?> clazz = throwable.getClass();
@@ -55,13 +53,6 @@ public abstract class ServiceInvoker extends ResponseFilter {
                 throw new InternalServerException("The invocation of " + method.getDeclaringClass().getSimpleName() + "." + method.getName() + " failed.", e);
             }
         }
-        if (value == null) {
-            return null;
-        } else if (VirtualFile.class.isAssignableFrom(value.getClass())) {
-            return value;
-        }
-
-        return filter(method, value);
     }
 
 

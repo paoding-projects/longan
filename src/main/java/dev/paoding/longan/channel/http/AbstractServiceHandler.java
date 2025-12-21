@@ -1,5 +1,7 @@
 package dev.paoding.longan.channel.http;
 
+import dev.paoding.longan.core.ResponseFilter;
+import dev.paoding.longan.core.Result;
 import dev.paoding.longan.util.JsonUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -17,8 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static dev.paoding.longan.channel.http.Http.ContentType.APPLICATION_JAVASCRIPT;
 import static dev.paoding.longan.channel.http.Http.ContentType.IMAGE_PNG;
@@ -28,17 +32,10 @@ import static io.netty.handler.codec.http.HttpHeaderValues.*;
 public abstract class AbstractServiceHandler {
     private final Logger logger = LoggerFactory.getLogger(AbstractServiceHandler.class);
     private final boolean zeroCopyEnabled;
+    private final ResponseFilter responseFilter = new ResponseFilter();
 
     {
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            zeroCopyEnabled = false;
-        } else {
-            zeroCopyEnabled = true;
-        }
-    }
-
-    protected void writeCookie() {
-
+        zeroCopyEnabled = !System.getProperty("os.name").toLowerCase().contains("win");
     }
 
     protected void writeJson(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus httpResponseStatus, ExceptionResult exceptionResult) {
@@ -48,6 +45,10 @@ public abstract class AbstractServiceHandler {
 
     protected void writeJson(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, String json) {
         write(ctx, fullHttpRequest, HttpResponseStatus.OK, json.getBytes(StandardCharsets.UTF_8), APPLICATION_JSON);
+    }
+
+    protected void writeJson(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, String json, Collection<HttpCookie> httpCookies) {
+        write(ctx, fullHttpRequest, json.getBytes(StandardCharsets.UTF_8), APPLICATION_JSON, httpCookies);
     }
 
     protected void writeJson(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus httpResponseStatus, String json) {
@@ -66,31 +67,30 @@ public abstract class AbstractServiceHandler {
         write(ctx, fullHttpRequest, status, text.getBytes(StandardCharsets.UTF_8), TEXT_HTML);
     }
 
-    protected void writeCookie(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpCookie httpCookie) {
-        DefaultCookie cookie = new DefaultCookie(httpCookie.name(), httpCookie.value());
-        cookie.setPath(httpCookie.path());
-        cookie.setMaxAge(httpCookie.maxAge());
-        cookie.setDomain(httpCookie.domain());
-        cookie.setHttpOnly(httpCookie.isHttpOnly());
-        cookie.setSecure(httpCookie.isSecure());
-        cookie.setWrap(httpCookie.wrap());
-        if(httpCookie.sameSite() != null) {
-            cookie.setSameSite(CookieHeaderNames.SameSite.valueOf(httpCookie.sameSite().name()));
+    protected void write(Method method, ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, Result result) {
+        Object content = result.getValue();
+        if (content == null) {
+            writeNoContent(ctx, fullHttpRequest);
+        } else {
+            AsciiString contentType = result.getType();
+            if (contentType.equals(APPLICATION_JSON)) {
+                if (content instanceof String) {
+                    writeJson(ctx, fullHttpRequest, content.toString());
+                } else if (content instanceof HttpCookieProvider httpCookieProvider) {
+                    String json = JsonUtils.toJson(responseFilter.filter(method, content));
+                    writeJson(ctx, fullHttpRequest, json, httpCookieProvider.cookies());
+                } else {
+                    String json = JsonUtils.toJson(responseFilter.filter(method, content));
+                    writeJson(ctx, fullHttpRequest, json);
+                }
+            } else {
+                if (content instanceof VirtualFile virtualFile) {
+                    write(ctx, fullHttpRequest, virtualFile, contentType);
+                } else {
+                    write(ctx, fullHttpRequest, content.toString(), contentType);
+                }
+            }
         }
-        cookie.setPartitioned(httpCookie.isPartitioned());
-        ServerCookieEncoder encoder = ServerCookieEncoder.STRICT;
-
-
-        boolean keepAlive = HttpUtil.isKeepAlive(fullHttpRequest);
-        HttpVersion httpVersion = fullHttpRequest.protocolVersion();
-
-        DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(httpVersion, HttpResponseStatus.NO_CONTENT, Unpooled.wrappedBuffer(new byte[]{}));
-        HttpUtil.setContentLength(fullHttpResponse, 0);
-        fullHttpResponse.headers().add(HttpHeaderNames.SET_COOKIE, encoder.encode(cookie));
-
-        HttpResponse httpResponse = new HttpResponseImpl(fullHttpResponse);
-        postHandle(httpResponse);
-        writeAndFlush(ctx, keepAlive, httpResponse);
     }
 
     protected void writeNoContent(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) {
@@ -104,8 +104,8 @@ public abstract class AbstractServiceHandler {
         writeAndFlush(ctx, keepAlive, httpResponse);
     }
 
-    protected void write(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus status, String text, AsciiString contentType) {
-        write(ctx, fullHttpRequest, status, text.getBytes(StandardCharsets.UTF_8), contentType);
+    protected void write(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, String text, AsciiString contentType) {
+        write(ctx, fullHttpRequest, HttpResponseStatus.OK, text.getBytes(StandardCharsets.UTF_8), contentType);
     }
 
     protected void write(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus httpResponseStatus, byte[] bytes, AsciiString contentType) {
@@ -119,7 +119,36 @@ public abstract class AbstractServiceHandler {
         HttpResponse httpResponse = new HttpResponseImpl(fullHttpResponse);
         postHandle(httpResponse);
         writeAndFlush(ctx, keepAlive, httpResponse);
-//        return httpResponse;
+    }
+
+    protected void write(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, byte[] bytes, AsciiString contentType, Collection<HttpCookie> httpCookies) {
+        boolean keepAlive = HttpUtil.isKeepAlive(fullHttpRequest);
+        HttpVersion httpVersion = fullHttpRequest.protocolVersion();
+
+        DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(httpVersion,
+                HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes));
+        fullHttpResponse.headers().set(CONTENT_TYPE, contentType);
+        HttpUtil.setContentLength(fullHttpResponse, bytes.length);
+
+        for (HttpCookie httpCookie : httpCookies) {
+            DefaultCookie cookie = new DefaultCookie(httpCookie.name(), httpCookie.value());
+            cookie.setPath(httpCookie.path());
+            cookie.setMaxAge(httpCookie.maxAge());
+            cookie.setDomain(httpCookie.domain());
+            cookie.setHttpOnly(httpCookie.isHttpOnly());
+            cookie.setSecure(httpCookie.isSecure());
+            cookie.setWrap(httpCookie.wrap());
+            if (httpCookie.sameSite() != null) {
+                cookie.setSameSite(CookieHeaderNames.SameSite.valueOf(httpCookie.sameSite().name()));
+            }
+            cookie.setPartitioned(httpCookie.isPartitioned());
+            ServerCookieEncoder encoder = ServerCookieEncoder.STRICT;
+            fullHttpResponse.headers().add(HttpHeaderNames.SET_COOKIE, encoder.encode(cookie));
+        }
+
+        HttpResponse httpResponse = new HttpResponseImpl(fullHttpResponse);
+        postHandle(httpResponse);
+        writeAndFlush(ctx, keepAlive, httpResponse);
     }
 
     protected void write(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, VirtualFile virtualFile, AsciiString contentType) {
