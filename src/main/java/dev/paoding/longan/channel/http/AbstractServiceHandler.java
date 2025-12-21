@@ -78,7 +78,7 @@ public abstract class AbstractServiceHandler {
                     writeJson(ctx, fullHttpRequest, content.toString());
                 } else if (content instanceof HttpCookieProvider httpCookieProvider) {
                     String json = JsonUtils.toJson(responseFilter.filter(method, content));
-                    writeJson(ctx, fullHttpRequest, json, httpCookieProvider.cookies());
+                    writeJson(ctx, fullHttpRequest, json, httpCookieProvider.httpCookies());
                 } else {
                     String json = JsonUtils.toJson(responseFilter.filter(method, content));
                     writeJson(ctx, fullHttpRequest, json);

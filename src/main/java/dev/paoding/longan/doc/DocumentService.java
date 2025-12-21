@@ -5,7 +5,6 @@ import dev.paoding.longan.annotation.RpcService;
 import dev.paoding.longan.core.ClassPathBeanScanner;
 import dev.paoding.longan.core.ServiceDescriptor;
 import dev.paoding.longan.data.Snowflake;
-import dev.paoding.longan.util.GsonUtils;
 import dev.paoding.longan.util.JsonUtils;
 
 import java.lang.reflect.Method;
