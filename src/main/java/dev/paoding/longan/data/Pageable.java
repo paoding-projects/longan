@@ -3,9 +3,15 @@ package dev.paoding.longan.data;
 import dev.paoding.longan.data.jpa.Database;
 import dev.paoding.longan.data.jpa.SqlParser;
 import dev.paoding.longan.service.ConstraintViolationException;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.regex.Pattern;
 
+@Getter
+@Setter
+@FieldNameConstants
 @Entity(alias = "分页对象", virtual = true)
 public class Pageable {
     private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_\\-.]+$");
@@ -49,44 +55,12 @@ public class Pageable {
         this.desc = desc;
     }
 
-    public String getSort() {
-        return sort;
-    }
-
-    public void setSort(String sort) {
-        this.sort = sort;
-    }
-
-    public boolean isDesc() {
-        return desc;
-    }
-
-    public void setDesc(boolean desc) {
-        this.desc = desc;
-    }
-
     private int offset() {
         return (page - 1) * size;
     }
 
     private int limit() {
         return size;
-    }
-
-    public int getPage() {
-        return page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public void setSize(int size) {
-        this.size = size;
     }
 
     public String toSql(String databaseType) {

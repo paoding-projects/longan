@@ -46,7 +46,17 @@ public class MethodInvocation extends ParameterValidator {
                 Validate.class,
                 null
         );
-        Validate[] validates = {pageValidate, sizeValidate};
+        Validate sortValidate = AnnotationUtils.synthesizeAnnotation(
+                Map.of("name", "sort"),
+                Validate.class,
+                null
+        );
+        Validate descValidate = AnnotationUtils.synthesizeAnnotation(
+                Map.of("name", "desc"),
+                Validate.class,
+                null
+        );
+        Validate[] validates = {pageValidate, sizeValidate, sortValidate, descValidate};
         pageableValidator = AnnotationUtils.synthesizeAnnotation(
                 Map.of("type", Pageable.class, "validates", validates),
                 Validator.class,
