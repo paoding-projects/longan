@@ -3,11 +3,9 @@ package dev.paoding.longan.core;
 import dev.paoding.longan.annotation.*;
 import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.service.ConstraintViolationException;
-import dev.paoding.longan.service.UnexpectedJsonDataException;
 import dev.paoding.longan.service.UnsupportedParameterTypeException;
 import dev.paoding.longan.channel.http.HttpDataEntity;
 import dev.paoding.longan.channel.http.RequestParameterException;
-import dev.paoding.longan.util.JsonUtils;
 import dev.paoding.longan.validation.BeanCleaner;
 import dev.paoding.longan.validation.ParameterValidator;
 import io.netty.buffer.ByteBuf;
@@ -31,6 +29,7 @@ public class MethodInvocation extends ParameterValidator {
     //    private int lineNumber;
     private String responseType;
     private boolean hasRequestBody;
+    private boolean isAnnotationPresent;
     private Parameter[] parameters;
     private static final Validator pageableValidator;
 
@@ -93,22 +92,24 @@ public class MethodInvocation extends ParameterValidator {
     }
 
     public Object getParameter(HttpDataEntity httpDataEntity, Parameter parameter) {
-        RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
-        String name;
-        if (requestParam != null) {
-            name = requestParam.value();
-        } else {
-            name = parameter.getName();
-        }
         try {
-            return httpDataEntity.getValue(parameter, name);
+            return httpDataEntity.getValue(parameter, parameter.getName());
+        } catch (NumberFormatException e) {
+            throw new RequestParameterException(e.getMessage());
+        }
+    }
+
+    public Object getRequestParamParameter(HttpDataEntity httpDataEntity, Parameter parameter) {
+        RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+        try {
+            return httpDataEntity.getValue(parameter, requestParam.value());
         } catch (NumberFormatException e) {
             throw new RequestParameterException(e.getMessage());
         }
     }
 
 
-    public Object getParameter(boolean isApplicationJson, ByteBuf body, Parameter parameter) {
+    public Object getRequestBodyParameter(ByteBuf body, Parameter parameter) {
         Object object = null;
         if (body.readableBytes() > 0) {
             Class<?> parameterType = parameter.getType();
@@ -118,13 +119,6 @@ public class MethodInvocation extends ParameterValidator {
                 byte[] bytes = new byte[body.readableBytes()];
                 body.readBytes(bytes);
                 object = bytes;
-            } else if (isApplicationJson) {
-                try {
-                    object = JsonUtils.fromJson(body.toString(StandardCharsets.UTF_8), parameter.getParameterizedType());
-                    cleanParameter(parameter, object, paramMap.get(parameter.getName()), validatorMap);
-                } catch (Exception e) {
-                    throw new UnexpectedJsonDataException(parameter.getName());
-                }
             } else {
                 throw new UnsupportedParameterTypeException(parameter.getName());
             }
@@ -185,12 +179,19 @@ public class MethodInvocation extends ParameterValidator {
         return this.hasRequestBody;
     }
 
+    public boolean isAnnotationPresent() {
+        return isAnnotationPresent;
+    }
+
     private void setMethod(Method method) {
         this.method = method;
         this.parameters = method.getParameters();
         for (Parameter parameter : parameters) {
             if (parameter.isAnnotationPresent(RequestBody.class)) {
                 hasRequestBody = true;
+                isAnnotationPresent = true;
+            } else if (parameter.isAnnotationPresent(RequestParam.class) || parameter.isAnnotationPresent(RequestHeader.class)) {
+                isAnnotationPresent = true;
             } else if (Pageable.class.isAssignableFrom(parameter.getType())) {
                 Param param = AnnotationUtils.synthesizeAnnotation(
                         Map.of("name", parameter.getName(), "notNull", true),

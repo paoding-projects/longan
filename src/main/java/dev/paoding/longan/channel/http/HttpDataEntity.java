@@ -10,21 +10,10 @@ public class HttpDataEntity {
     private final Map<String, List<String>> textMap = new HashMap<>();
     private final Map<String, List<MultipartFile>> fileMap = new HashMap<>();
 
-    public HttpDataEntity() {
-    }
-
     public HttpDataEntity(String query) {
         if (query != null) {
             parse(query);
         }
-    }
-
-    public Set<String> getTextParameterNames() {
-        return textMap.keySet();
-    }
-
-    public boolean containsParameterName(String parameterName) {
-        return textMap.containsKey(parameterName) || fileMap.containsKey(parameterName);
     }
 
     public Object getValue(Parameter parameter, String name) {
@@ -526,11 +515,7 @@ public class HttpDataEntity {
     }
 
     private List<MultipartFile> getMultipartFileList(String name) {
-        List<MultipartFile> list = fileMap.get(name);
-        if (list != null) {
-            return list;
-        }
-        return null;
+        return fileMap.get(name);
     }
 
     public void put(String name, String value) {
