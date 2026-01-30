@@ -94,7 +94,8 @@ public class HttpServiceInvoker extends ServiceInvoker {
                     } else if (parameter.isAnnotationPresent(RequestHeader.class)) {
                         arguments[i] = getHeader(headers, parameter);
                     } else if (parameter.isAnnotationPresent(RequestBody.class)) {
-                        arguments[i] = JsonUtils.fromJson(json, parameter.getParameterizedType());
+//                        arguments[i] = JsonUtils.fromJson(json, parameter.getParameterizedType());
+                        arguments[i] = json;
                     }
                     methodInvocation.validateParameter(i, arguments[i]);
                 }

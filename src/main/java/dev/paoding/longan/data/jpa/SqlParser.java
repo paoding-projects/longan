@@ -2,6 +2,7 @@ package dev.paoding.longan.data.jpa;
 
 
 import dev.paoding.longan.data.Entity;
+import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.service.ServiceException;
 import dev.paoding.longan.util.StringUtils;
 
@@ -19,7 +20,9 @@ public class SqlParser {
                 Object arg = args[i];
                 if (arg != null) {
                     Class<?> type = arg.getClass();
-                    if (type.isAnnotationPresent(Entity.class)) {
+                    if(type == Pageable.class){
+                        paramMap.put(parameters[i].getName(), arg);
+                    }else if (type.isAnnotationPresent(Entity.class)) {
                         Field[] declaredFields = arg.getClass().getDeclaredFields();
                         for (Field field : declaredFields) {
                             if (field.getModifiers() == Modifier.PRIVATE) {

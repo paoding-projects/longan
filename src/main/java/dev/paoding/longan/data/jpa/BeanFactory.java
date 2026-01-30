@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BeanFactory {
 //    private static JdbcSession jdbcSession;
-    private static Map<String,JdbcSession> jdbcSessionMap = new ConcurrentHashMap<>();
+    private static final Map<String,JdbcSession> jdbcSessionMap = new ConcurrentHashMap<>();
 
     public static void register(JdbcSession jdbcSession) {
 //        BeanFactory.jdbcSession = jdbcSession;

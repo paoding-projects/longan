@@ -2,8 +2,12 @@ package dev.paoding.longan.core;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.zaxxer.hikari.HikariDataSource;
-import dev.paoding.longan.data.jpa.*;
+import dev.paoding.longan.data.jpa.BeanFactory;
+import dev.paoding.longan.data.jpa.Database;
+import dev.paoding.longan.data.jpa.JdbcSession;
+import dev.paoding.longan.data.jpa.SqlLogger;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
@@ -16,6 +20,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -31,17 +36,51 @@ public class JdbcAutoConfiguration implements ImportBeanDefinitionRegistrar, Env
         datasourceConfig.forEach((name, config) -> {
             DataSource dataSource = create(config);
             String databaseType = getDatabaseType(config.get("url"));
-            defaultListableBeanFactory.registerSingleton(name + "DataSource", dataSource);
-            defaultListableBeanFactory.registerSingleton(name + "JdbcSession", jdbcSession(name, databaseType, dataSource));
-
-            GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
-            beanDefinition.setBeanClass(DataSourceTransactionManager.class);
-            beanDefinition.getConstructorArgumentValues().addGenericArgumentValue(dataSource);
-            if (name.equals("default")) {
-                beanDefinition.setPrimary(true);
-            }
-            defaultListableBeanFactory.registerBeanDefinition(name + "TxManager", beanDefinition);
+            registerDatasource(defaultListableBeanFactory, name, dataSource);
+            registerJdbcSession(defaultListableBeanFactory, name, jdbcSession(name, databaseType, dataSource));
+            registerTransactionManager(defaultListableBeanFactory, name, dataSource);
+            registerTransactionTemplate(defaultListableBeanFactory, name);
         });
+    }
+
+    private void registerDatasource(DefaultListableBeanFactory defaultListableBeanFactory, String name, DataSource dataSource) {
+        GenericBeanDefinition definition = new GenericBeanDefinition();
+        definition.setBeanClass(DataSource.class);
+        definition.setInstanceSupplier(() -> dataSource);
+        if ("default".equals(name)) {
+            definition.setPrimary(true);
+        }
+        defaultListableBeanFactory.registerBeanDefinition(name + "DataSource", definition);
+    }
+
+    private void registerJdbcSession(DefaultListableBeanFactory defaultListableBeanFactory, String name, JdbcSession jdbcSession) {
+        GenericBeanDefinition definition = new GenericBeanDefinition();
+        definition.setBeanClass(JdbcSession.class);
+        definition.setInstanceSupplier(() -> jdbcSession);
+        if ("default".equals(name)) {
+            definition.setPrimary(true);
+        }
+        defaultListableBeanFactory.registerBeanDefinition(name + "JdbcSession", definition);
+    }
+
+    private void registerTransactionManager(DefaultListableBeanFactory defaultListableBeanFactory, String name, DataSource dataSource) {
+        GenericBeanDefinition definition = new GenericBeanDefinition();
+        definition.setBeanClass(DataSourceTransactionManager.class);
+        definition.getConstructorArgumentValues().addGenericArgumentValue(dataSource);
+        if (name.equals("default")) {
+            definition.setPrimary(true);
+        }
+        defaultListableBeanFactory.registerBeanDefinition(name + "TransactionManager", definition);
+    }
+
+    private void registerTransactionTemplate(DefaultListableBeanFactory defaultListableBeanFactory, String name) {
+        GenericBeanDefinition definition = new GenericBeanDefinition();
+        definition.setBeanClass(TransactionTemplate.class);
+        definition.getConstructorArgumentValues().addGenericArgumentValue(new RuntimeBeanReference(name + "TransactionManager"));
+        if (name.equals("default")) {
+            definition.setPrimary(true);
+        }
+        defaultListableBeanFactory.registerBeanDefinition(name + "TransactionTemplate", definition);
     }
 
     @Override
