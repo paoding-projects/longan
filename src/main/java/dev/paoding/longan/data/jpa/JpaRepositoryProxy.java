@@ -6,6 +6,7 @@ import dev.paoding.longan.data.Snowflake;
 import dev.paoding.longan.service.SystemException;
 import dev.paoding.longan.util.EntityUtils;
 import org.springframework.cglib.beans.BeanMap;
+import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.InvocationHandler;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -397,6 +398,9 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
     protected Object convert(Object value) {
         if (value != null) {
             Class<?> type = value.getClass();
+            if(Enhancer.isEnhanced(type)){
+                type = type.getSuperclass();
+            }
             if (type.isAnnotationPresent(Entity.class)) {
                 return EntityUtils.getId(value);
             }
