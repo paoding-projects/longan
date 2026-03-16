@@ -39,7 +39,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>false</skipTests>
         <netty.version>4.2.10.Final</netty.version>
-        <spring.version>7.0.5</spring.version>
+        <spring.version>7.0.6</spring.version>
         <spring-boot.version>4.0.3</spring-boot.version>
         <spring-data-commons.version>4.0.3</spring-data-commons.version>
         <slf4j.version>2.0.17</slf4j.version>
