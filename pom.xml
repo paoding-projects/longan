@@ -51,7 +51,7 @@
         <commons-codec.version>1.19.0</commons-codec.version>
         <commons-pool2.version>2.12.1</commons-pool2.version>
         <jakarta.annotation>3.0.0</jakarta.annotation>
-        <zookeeper.version>3.9.4</zookeeper.version>
+        <zookeeper.version>3.9.5</zookeeper.version>
         <postgresql.version>42.7.8</postgresql.version>
         <lombok.version>1.18.42</lombok.version>
         <dubbo.version>3.3.6</dubbo.version>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>3.0.3</version>
+            <version>3.1.1</version>
         </dependency>
 
         <dependency>
