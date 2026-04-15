@@ -43,7 +43,7 @@
         <spring-boot.version>4.0.5</spring-boot.version>
         <spring-data-commons.version>4.0.4</spring-data-commons.version>
         <slf4j.version>2.0.17</slf4j.version>
-        <log4j.version>2.25.3</log4j.version>
+        <log4j.version>2.25.4</log4j.version>
         <snakeyaml.version>2.6</snakeyaml.version>
         <guava.version>33.5.0-jre</guava.version>
         <HikariCP.version>7.0.2</HikariCP.version>
