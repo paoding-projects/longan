@@ -11,6 +11,6 @@ public class InstantSerializer extends ValueSerializer<Instant> {
 
     @Override
     public void serialize(Instant value, JsonGenerator gen, SerializationContext ctx) throws JacksonException {
-        gen.writeNumber(value.toEpochMilli());
+        gen.writeString(value.toString());
     }
 }
