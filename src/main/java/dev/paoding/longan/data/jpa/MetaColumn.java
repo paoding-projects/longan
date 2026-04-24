@@ -295,11 +295,11 @@ public class MetaColumn {
         } else if (Boolean.class.isAssignableFrom(type) || boolean.class.isAssignableFrom(type)) {
             sb.append(" BOOLEAN");
         } else if (LocalDateTime.class.isAssignableFrom(getType())) {
-            sb.append(" TIMESTAMP WITH TIME ZONE");
+            sb.append(" TIMESTAMP WITHOUT TIME ZONE");
         } else if (LocalDate.class.isAssignableFrom(getType())) {
             sb.append(" DATE");
         } else if (LocalTime.class.isAssignableFrom(getType())) {
-            sb.append(" TIME WITH TIME ZONE");
+            sb.append(" TIME WITHOUT TIME ZONE");
         } else if (Instant.class.isAssignableFrom(getType())) {
             sb.append(" TIMESTAMP WITH TIME ZONE");
         } else if (Enum.class.isAssignableFrom(getType())) {
