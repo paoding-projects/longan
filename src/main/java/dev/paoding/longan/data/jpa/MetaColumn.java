@@ -1,5 +1,6 @@
 package dev.paoding.longan.data.jpa;
 
+import dev.paoding.longan.data.ShortValueEnum;
 import dev.paoding.longan.service.SystemException;
 
 import java.lang.reflect.Field;
@@ -236,7 +237,11 @@ public class MetaColumn {
         } else if (Instant.class.isAssignableFrom(getType())) {
             sb.append(" DATETIME");
         } else if (Enum.class.isAssignableFrom(getType())) {
-            sb.append(" NVARCHAR(" + length + ")");
+            if(ShortValueEnum.class.isAssignableFrom(getType())){
+                sb.append(" SMALLINT");
+            }else {
+                sb.append(" NVARCHAR(" + length + ")");
+            }
         } else {
             throw new RuntimeException("not support" + getType());
         }
@@ -302,7 +307,11 @@ public class MetaColumn {
         } else if (Instant.class.isAssignableFrom(getType())) {
             sb.append(" TIMESTAMP WITH TIME ZONE");
         } else if (Enum.class.isAssignableFrom(getType())) {
-            sb.append(" TEXT");
+            if(ShortValueEnum.class.isAssignableFrom(getType())){
+                sb.append(" SMALLINT");
+            }else {
+                sb.append(" TEXT");
+            }
         } else if (type.isArray()) {
             if (String.class.isAssignableFrom(type.getComponentType())) {
                 sb.append(" TEXT[]");
