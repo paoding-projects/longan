@@ -4,6 +4,7 @@ package dev.paoding.longan.data.jpa;
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.service.ServiceException;
+import dev.paoding.longan.util.EntityUtils;
 import dev.paoding.longan.util.StringUtils;
 
 import java.lang.reflect.*;
@@ -20,15 +21,13 @@ public class SqlParser {
                 Object arg = args[i];
                 if (arg != null) {
                     Class<?> type = arg.getClass();
-                    if(type == Pageable.class){
-                        paramMap.put(parameters[i].getName(), arg);
-                    }else if (type.isAnnotationPresent(Entity.class)) {
+//                    if (type == Pageable.class) {
+//                        paramMap.put(parameters[i].getName(), arg);
+//                    } else
+                    if (type.isAnnotationPresent(Entity.class)) {
                         Field[] declaredFields = arg.getClass().getDeclaredFields();
                         for (Field field : declaredFields) {
                             if (field.getModifiers() == Modifier.PRIVATE) {
-                                if (field.getType().isAnnotationPresent(Entity.class)) {
-                                    break;
-                                }
                                 if (Collection.class.isAssignableFrom(field.getType())) {
                                     Type fieldType = field.getGenericType();
                                     if (fieldType instanceof ParameterizedType) {
@@ -41,8 +40,14 @@ public class SqlParser {
                                 field.setAccessible(true);
                                 Object value = field.get(arg);
                                 if (value != null) {
-//                                    paramMap.put(SqlParser.toDatabaseName(parameters[i].getName() + "_" + field.getName()), value);
-                                    paramMap.put(parameters[i].getName() + "." + field.getName(), value);
+                                    if (field.getType().isAnnotationPresent(Entity.class)) {
+                                        Object id = EntityUtils.getId(value);
+                                        if (id != null) {
+                                            paramMap.put(parameters[i].getName() + "." + field.getName() + ".id", id);
+                                        }
+                                    } else {
+                                        paramMap.put(parameters[i].getName() + "." + field.getName(), value);
+                                    }
                                 }
                             }
                         }
