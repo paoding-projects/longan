@@ -20,6 +20,7 @@ public class MetaPageable extends MetaParam {
         this.setName(name);
         this.setAlias("分页对象");
         this.setType(Pageable.class);
+        this.setNotNull(false);
 
         MetaAttribute pageMetaAttribute = new MetaAttribute();
         pageMetaAttribute.setName("page");

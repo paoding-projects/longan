@@ -3,6 +3,7 @@ package dev.paoding.longan.data.jpa;
 import com.google.common.base.Joiner;
 import dev.paoding.longan.data.Between;
 import dev.paoding.longan.data.Entity;
+import dev.paoding.longan.data.ShortValueEnum;
 import dev.paoding.longan.util.EntityUtils;
 import org.springframework.cglib.beans.BeanMap;
 
@@ -64,8 +65,10 @@ public class ExampleMatcher {
                 continue;
             }
             Class<?> type = value.getClass();
-            if (!type.isPrimitive() && type.isAnnotationPresent(Entity.class)) {
+            if (type.isAnnotationPresent(Entity.class)) {
                 value = EntityUtils.getId(value);
+            }else if(ShortValueEnum.class.isAssignableFrom(type)){
+                value = ((ShortValueEnum)value).value();
             }
             switch (comparer) {
                 case "Is": {
