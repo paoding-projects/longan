@@ -61,11 +61,12 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
     @Nullable
     public Object getValue(String paramName) throws IllegalArgumentException {
         try {
-            Class<?> type = beanWrapper.getPropertyDescriptor(paramName).getPropertyType();
             Object value = beanWrapper.getPropertyValue(paramName);
             if (value == null) {
                 return null;
             }
+
+            Class<?> type = beanWrapper.getPropertyDescriptor(paramName).getPropertyType();
             if (type.isAnnotationPresent(Entity.class)) {
                 return EntityUtils.getId(value);
             } else if (Enum.class.isAssignableFrom(type)) {
