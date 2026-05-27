@@ -2,6 +2,7 @@ package dev.paoding.longan.data.jpa;
 
 
 import dev.paoding.longan.data.Entity;
+import dev.paoding.longan.data.ShortValueEnum;
 import dev.paoding.longan.util.EntityUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.NotReadablePropertyException;
@@ -68,6 +69,9 @@ public class BeanPropertySqlParameterSource extends AbstractSqlParameterSource {
             if (type.isAnnotationPresent(Entity.class)) {
                 return EntityUtils.getId(value);
             } else if (Enum.class.isAssignableFrom(type)) {
+                if (ShortValueEnum.class.isAssignableFrom(type)) {
+                    return ((ShortValueEnum) value).value();
+                }
                 return value.toString();
             } else if (Instant.class.isAssignableFrom(type)) {
                 return Timestamp.from((Instant) value);
