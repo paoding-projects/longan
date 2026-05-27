@@ -2,6 +2,7 @@ package dev.paoding.longan.data.jpa;
 
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.Pageable;
+import dev.paoding.longan.data.ShortValueEnum;
 import dev.paoding.longan.data.Snowflake;
 import dev.paoding.longan.service.SystemException;
 import dev.paoding.longan.util.EntityUtils;
@@ -405,6 +406,9 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
                 return EntityUtils.getId(value);
             }
             if (Enum.class.isAssignableFrom(type)) {
+                if(ShortValueEnum.class.isAssignableFrom(type)){
+                    return ((ShortValueEnum)value).value();
+                }
                 return value.toString();
             }
 //            if (type.isArray()) {
@@ -424,9 +428,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
         if (entity == null) {
             throw new RuntimeException("object must not be null");
         }
-//        if (Internationalization.isEnabled() && metaTable.isInternationalized()) {
-//            merge(entity);
-//        }
+
         Map<String, Object> paramMap = new ParamMap();
         paramMap.put("id", metaTable.getPrimaryKey().getValue(entity));
         metaTable.getMetaColumnList().forEach(metaColumn -> {

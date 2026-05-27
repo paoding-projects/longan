@@ -1,8 +1,10 @@
 package dev.paoding.longan.data.jpa;
 
 import dev.paoding.longan.data.Entity;
+import dev.paoding.longan.data.ShortValueEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.dubbo.common.logger.FluentLogger;
 import org.springframework.beans.*;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -138,7 +140,7 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
         } else {
             if (this.mappedClass != mappedClass) {
                 throw new InvalidDataAccessApiUsageException("The mapped class can not be reassigned to map to " +
-                        mappedClass + " since it is already providing mapping for " + this.mappedClass);
+                                                             mappedClass + " since it is already providing mapping for " + this.mappedClass);
             }
         }
     }
@@ -302,33 +304,39 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
             if (pd != null) {
                 try {
 
+                    Class<?> type = pd.getPropertyType();
                     Object value = getColumnValue(rs, index, pd);
                     if (rowNumber == 0 && logger.isDebugEnabled()) {
                         logger.debug("Mapping column '" + column + "' to property '" + pd.getName() +
-                                "' of type '" + ClassUtils.getQualifiedName(pd.getPropertyType()) + "'");
+                                     "' of type '" + ClassUtils.getQualifiedName(type) + "'");
                     }
                     try {
-                        if (value != null && pd.getPropertyType().isAnnotationPresent(Entity.class)) {
-//                            Object object = BeanUtils.instantiateClass(pd.getPropertyType());
-//                            setProperty(object, "id", value);
-                            Object object = BeanFactory.create(pd.getPropertyType(),value);
-                            bw.setPropertyValue(pd.getName(), object);
-                        } else if(value != null){
-                            if(Array.class.isAssignableFrom(value.getClass())){
-                                Array array = (Array)value;
-                                bw.setPropertyValue(pd.getName(), array.getArray());
-                            }else {
-                                bw.setPropertyValue(pd.getName(), value);
+                        if (value != null) {
+                            if (type.isAnnotationPresent(Entity.class)) {
+                                Object object = BeanFactory.create(type, value);
+                                bw.setPropertyValue(pd.getName(), object);
+                            } else {
+                                if (ShortValueEnum.class.isAssignableFrom(type)) {
+                                    ShortValueEnum[] shortValueEnums = (ShortValueEnum[]) type.getEnumConstants();
+                                    for (ShortValueEnum shortValueEnum : shortValueEnums) {
+                                        if (shortValueEnum.value() == Short.parseShort(value.toString())) {
+                                            bw.setPropertyValue(pd.getName(), shortValueEnum);
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    bw.setPropertyValue(pd.getName(), value);
+                                }
                             }
                         }
                     } catch (TypeMismatchException ex) {
                         if (value == null && this.primitivesDefaultedForNullValue) {
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Intercepted TypeMismatchException for row " + rowNumber +
-                                        " and column '" + column + "' with null value when setting property '" +
-                                        pd.getName() + "' of type '" +
-                                        ClassUtils.getQualifiedName(pd.getPropertyType()) +
-                                        "' on object: " + mappedObject, ex);
+                                             " and column '" + column + "' with null value when setting property '" +
+                                             pd.getName() + "' of type '" +
+                                             ClassUtils.getQualifiedName(pd.getPropertyType()) +
+                                             "' on object: " + mappedObject, ex);
                             }
                         } else {
                             throw ex;
@@ -351,8 +359,8 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
 
         if (populatedProperties != null && !populatedProperties.equals(this.mappedProperties)) {
             throw new InvalidDataAccessApiUsageException("Given ResultSet does not contain all fields " +
-                    "necessary to populate object of class [" + this.mappedClass.getName() + "]: " +
-                    this.mappedProperties);
+                                                         "necessary to populate object of class [" + this.mappedClass.getName() + "]: " +
+                                                         this.mappedProperties);
         }
 
         return mappedObject;
