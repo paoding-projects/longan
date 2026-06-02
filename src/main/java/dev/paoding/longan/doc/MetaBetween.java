@@ -4,6 +4,7 @@ import dev.paoding.longan.data.Between;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -185,7 +186,24 @@ public class MetaBetween extends MetaParam {
 
             this.addChild(startMetaAttribute);
             this.addChild(endMetaAttribute);
-        }
+        } else if (BigDecimal.class.isAssignableFrom(actualType)) {
+        MetaAttribute startMetaAttribute = new MetaAttribute();
+        startMetaAttribute.setName("start");
+        startMetaAttribute.setType(BigDecimal.class);
+        startMetaAttribute.setAlias("起始数值");
+        startMetaAttribute.setSample(13.21);
+        startMetaAttribute.setNotNull(true);
+
+        MetaAttribute endMetaAttribute = new MetaAttribute();
+        endMetaAttribute.setName("end");
+        endMetaAttribute.setType(BigDecimal.class);
+        endMetaAttribute.setAlias("截止数值");
+        endMetaAttribute.setSample(18.18);
+        endMetaAttribute.setNotNull(true);
+
+        this.addChild(startMetaAttribute);
+        this.addChild(endMetaAttribute);
+    }
 
     }
 }
