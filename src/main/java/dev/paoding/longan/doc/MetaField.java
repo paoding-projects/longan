@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.paoding.longan.channel.http.MultipartFile;
 import dev.paoding.longan.data.Entity;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -306,6 +307,9 @@ public class MetaField {
         } else if (LocalTime.class.isAssignableFrom(actualType)) {
             actualDartType = "DateTime";
             actualJsType = "String";
+        }else if(BigDecimal.class.isAssignableFrom(actualType)) {
+            actualDartType = "double";
+            actualJsType = "Number";
         } else if (actualType.isAnnotationPresent(Entity.class)) {
             actualDartType = "Object";
             actualJsType = "Object";
@@ -354,6 +358,9 @@ public class MetaField {
         } else if (LocalTime.class.isAssignableFrom(type)) {
             dartType = "DateTime";
             jsType = "String";
+        }else if(BigDecimal.class.isAssignableFrom(type)) {
+            dartType = "double";
+            jsType = "Number";
         } else if (type.isAnnotationPresent(Entity.class)) {
             dartType = "Object";
             jsType = "Object";
@@ -365,8 +372,8 @@ public class MetaField {
             dartType = "void";
             jsType = "void";
         } else if (MultipartFile.class.isAssignableFrom(type)) {
-            dartType = "MultipartFile";
-            jsType = "MultipartFile";
+            dartType = "File";
+            jsType = "File";
         }
     }
 
