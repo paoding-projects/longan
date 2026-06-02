@@ -3,6 +3,7 @@ package dev.paoding.longan.validation;
 import dev.paoding.longan.annotation.Param;
 import dev.paoding.longan.annotation.Validate;
 import dev.paoding.longan.annotation.Validator;
+import dev.paoding.longan.data.Between;
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.service.ConstraintViolationException;
 import dev.paoding.longan.service.SystemException;
@@ -11,6 +12,10 @@ import org.springframework.cglib.beans.BeanMap;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +56,88 @@ public class ParameterValidator {
             validateEntity(type, object, param.name(), param.validator(), validatorMap);
         } else if (Collection.class.isAssignableFrom(type) && parameter.getParameterizedType() instanceof ParameterizedType parameterizedType) {
             validateCollection(parameterizedType, param.name(), object, param.validator(), validatorMap);
+        } else if (Between.class.isAssignableFrom(type) && parameter.getParameterizedType() instanceof ParameterizedType parameterizedType) {
+            Class<?> clazz = (Class<?>) ((ParameterizedType) parameter.getParameterizedType()).getActualTypeArguments()[0];
+            validateBetween(param, clazz, (Between<?>) object);
         }
+    }
+
+    private void validateBetween(Param param, Class<?> type, Between<?> between) {
+        String paramName = param.name();
+        if (between.getField().isBlank()) {
+            String message = "The '" + paramName + ".field' parameter must contain at least one non-whitespace character";
+            throw new ConstraintViolationException(paramName + ".field.not.blank", message);
+        }
+        if (between.getStart() == null) {
+            String message = "The '" + paramName + ".start' parameter must be not null";
+            throw new ConstraintViolationException(paramName + ".start.not.null", message);
+        }
+        if (between.getEnd() == null) {
+            String message = "The '" + paramName + ".end' parameter must be not null";
+            throw new ConstraintViolationException(paramName + ".end.not.null", message);
+        }
+        if (Integer.class.isAssignableFrom(type)) {
+            int start = (int) between.getStart();
+            int end = (int) between.getEnd();
+            if (start < end) return;
+        }
+
+        if (Long.class.isAssignableFrom(type)) {
+            long start = (long) between.getStart();
+            long end = (long) between.getEnd();
+            if (start < end) return;
+        }
+
+        if (Double.class.isAssignableFrom(type)) {
+            double start = (double) between.getStart();
+            double end = (double) between.getEnd();
+            if (start < end) return;
+        }
+
+        if (BigDecimal.class.isAssignableFrom(type)) {
+            BigDecimal start = (BigDecimal) between.getStart();
+            BigDecimal end = (BigDecimal) between.getEnd();
+            if (start.compareTo(end) < 0) return;
+        }
+
+        if (Float.class.isAssignableFrom(type)) {
+            float start = (float) between.getStart();
+            float end = (float) between.getEnd();
+            if (start < end) return;
+        }
+
+        if (Short.class.isAssignableFrom(type)) {
+            short start = (short) between.getStart();
+            short end = (short) between.getEnd();
+            if (start < end) return;
+        }
+
+        if (Instant.class.isAssignableFrom(type)) {
+            Instant start = (Instant) between.getStart();
+            Instant end = (Instant) between.getEnd();
+            if (start.isBefore(end)) return;
+        }
+
+        if (LocalDateTime.class.isAssignableFrom(type)) {
+            LocalDateTime start = (LocalDateTime) between.getStart();
+            LocalDateTime end = (LocalDateTime) between.getEnd();
+            if (start.isBefore(end)) return;
+        }
+
+        if (LocalDate.class.isAssignableFrom(type)) {
+            LocalDate start = (LocalDate) between.getStart();
+            LocalDate end = (LocalDate) between.getEnd();
+            if (start.isBefore(end)) return;
+        }
+
+        if (LocalTime.class.isAssignableFrom(type)) {
+            LocalTime start = (LocalTime) between.getStart();
+            LocalTime end = (LocalTime) between.getEnd();
+            if (start.isBefore(end)) return;
+        }
+
+        String message = " The 'end' must be greater than 'start'";
+        throw new ConstraintViolationException(paramName + ".invalid", message);
     }
 
     private void validateFiled(Field field, Object object, String qualifiedName, Validate validate, Map<String, Validator> validatorMap) {

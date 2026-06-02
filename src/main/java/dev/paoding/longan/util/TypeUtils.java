@@ -23,6 +23,15 @@ public class TypeUtils {
         return StringUtils.underline(type.getSimpleName()).toUpperCase();
     }
 
+    public static Class<?> getGenericClass(Class<?> clazz) {
+        Type superclass = clazz.getGenericSuperclass();
+        if (superclass instanceof ParameterizedType parameterizedType) {
+            Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+            return (Class<?>) actualTypeArguments[0];
+        }
+        return null;
+    }
+
     public static List<Field> getDeclaredFields(Class<?> type) {
         if (typeFieldMapCache.containsKey(type)) {
             return typeFieldMapCache.get(type);
