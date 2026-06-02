@@ -1,6 +1,7 @@
 package dev.paoding.longan.data.jpa;
 
 
+import dev.paoding.longan.data.Between;
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.Pageable;
 import dev.paoding.longan.service.ServiceException;
@@ -51,10 +52,10 @@ public class SqlParser {
                                 }
                             }
                         }
-//                    } else if (Between.class.isAssignableFrom(arg.getClass())) {
-//                        Between<?> between = (Between<?>) arg;
-//                        paramMap.put(SqlParser.toDatabaseName(parameters[i].getName() + "_start"), between.getStart());
-//                        paramMap.put(SqlParser.toDatabaseName(parameters[i].getName() + "_end"), between.getEnd());
+                    } else if (Between.class.isAssignableFrom(arg.getClass())) {
+                        Between<?> between = (Between<?>) arg;
+                        paramMap.put(parameters[i].getName() + ".start", between.getStart());
+                        paramMap.put(parameters[i].getName() + ".end", between.getEnd());
 //                    } else if (type.isArray()) {
 //                        paramMap.put(SqlParser.toDatabaseName(parameters[i].getName()), Database.createArrayOf(arg));
                     } else {

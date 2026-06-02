@@ -64,10 +64,6 @@ public class ParameterValidator {
 
     private void validateBetween(Param param, Class<?> type, Between<?> between) {
         String paramName = param.name();
-        if (between.getField().isBlank()) {
-            String message = "The '" + paramName + ".field' parameter must contain at least one non-whitespace character";
-            throw new ConstraintViolationException(paramName + ".field.not.blank", message);
-        }
         if (between.getStart() == null) {
             String message = "The '" + paramName + ".start' parameter must be not null";
             throw new ConstraintViolationException(paramName + ".start.not.null", message);
