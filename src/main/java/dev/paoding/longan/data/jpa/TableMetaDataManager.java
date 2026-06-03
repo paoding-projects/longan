@@ -130,15 +130,19 @@ public abstract class TableMetaDataManager {
                         if (index.name().isEmpty()) {
                             indexName = Joiner.on("_").join(columnNameList);
                         }
+                        String where = index.where();
+                        if(!where.isBlank()) {
+                            where = " WHERE " + where;
+                        }
                         if (index.unique()) {
                             indexName = decorateIndexName("uk", tableName, indexName);
                             if (!indexMap.containsKey(indexName)) {
-                                createIndex(indexName, tableName, columnNameList, true);
+                                createIndex(indexName, tableName, columnNameList, true, where);
                             }
                         } else {
                             indexName = decorateIndexName("idx", tableName, indexName);
                             if (!indexMap.containsKey(indexName)) {
-                                createIndex(indexName, tableName, columnNameList, false);
+                                createIndex(indexName, tableName, columnNameList, false, where);
                             }
                         }
                     }
@@ -153,8 +157,8 @@ public abstract class TableMetaDataManager {
         execute("CREATE " + (unique ? " UNIQUE" : "") + " INDEX " + indexName + " ON " + tableName + " (" + columnName + ")");
     }
 
-    private void createIndex(String indexName, String tableName, List<String> columnNameList, boolean unique) {
-        execute("CREATE" + (unique ? " UNIQUE" : "") + " INDEX " + indexName + " ON " + tableName + " (" + Joiner.on(",").join(columnNameList) + ")");
+    private void createIndex(String indexName, String tableName, List<String> columnNameList, boolean unique, String where) {
+        execute("CREATE" + (unique ? " UNIQUE" : "") + " INDEX " + indexName + " ON " + tableName + " (" + Joiner.on(",").join(columnNameList) + ")" + where);
     }
 
     private void createMappingTable(DatabaseMetaData databaseMetaData, String source, String target, String role) {

@@ -23,4 +23,6 @@ public @interface Index {
      * (Optional) Whether the index is unique.
      */
     boolean unique() default false;
+
+    String where() default "";
 }
