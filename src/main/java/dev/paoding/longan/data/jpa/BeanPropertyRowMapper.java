@@ -315,18 +315,18 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
                             if (type.isAnnotationPresent(Entity.class)) {
                                 Object object = BeanFactory.create(type, value);
                                 bw.setPropertyValue(pd.getName(), object);
-                            } else {
-                                if (ShortValueEnum.class.isAssignableFrom(type)) {
-                                    ShortValueEnum[] shortValueEnums = (ShortValueEnum[]) type.getEnumConstants();
-                                    for (ShortValueEnum shortValueEnum : shortValueEnums) {
-                                        if (shortValueEnum.value() == Short.parseShort(value.toString())) {
-                                            bw.setPropertyValue(pd.getName(), shortValueEnum);
-                                            break;
-                                        }
+                            } else if (ShortValueEnum.class.isAssignableFrom(type)) {
+                                ShortValueEnum[] shortValueEnums = (ShortValueEnum[]) type.getEnumConstants();
+                                for (ShortValueEnum shortValueEnum : shortValueEnums) {
+                                    if (shortValueEnum.value() == Short.parseShort(value.toString())) {
+                                        bw.setPropertyValue(pd.getName(), shortValueEnum);
+                                        break;
                                     }
-                                } else {
-                                    bw.setPropertyValue(pd.getName(), value);
                                 }
+                            } else if (type.isArray()) {
+                                bw.setPropertyValue(pd.getName(), ((Array) value).getArray());
+                            } else {
+                                bw.setPropertyValue(pd.getName(), value);
                             }
                         }
                     } catch (TypeMismatchException ex) {

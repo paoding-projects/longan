@@ -237,9 +237,9 @@ public class MetaColumn {
         } else if (Instant.class.isAssignableFrom(getType())) {
             sb.append(" DATETIME");
         } else if (Enum.class.isAssignableFrom(getType())) {
-            if(ShortValueEnum.class.isAssignableFrom(getType())){
+            if (ShortValueEnum.class.isAssignableFrom(getType())) {
                 sb.append(" SMALLINT");
-            }else {
+            } else {
                 sb.append(" NVARCHAR(" + length + ")");
             }
         } else {
@@ -307,14 +307,21 @@ public class MetaColumn {
         } else if (Instant.class.isAssignableFrom(getType())) {
             sb.append(" TIMESTAMP WITH TIME ZONE");
         } else if (Enum.class.isAssignableFrom(getType())) {
-            if(ShortValueEnum.class.isAssignableFrom(getType())){
+            if (ShortValueEnum.class.isAssignableFrom(getType())) {
                 sb.append(" SMALLINT");
-            }else {
+            } else {
                 sb.append(" TEXT");
             }
         } else if (type.isArray()) {
-            if (String.class.isAssignableFrom(type.getComponentType())) {
+            Class<?> componentType = type.getComponentType();
+            if (String.class.isAssignableFrom(componentType)) {
                 sb.append(" TEXT[]");
+            } else if (Long.class.isAssignableFrom(componentType)||long.class.isAssignableFrom(componentType)) {
+                sb.append(" BIGINT[]");
+            } else if (Integer.class.isAssignableFrom(componentType)||int.class.isAssignableFrom(componentType)) {
+                sb.append(" INT[]");
+            } else if (Short.class.isAssignableFrom(componentType)||short.class.isAssignableFrom(componentType)) {
+                sb.append(" SMALLINT[]");
             }
         } else {
             throw new RuntimeException("not support" + getType());
