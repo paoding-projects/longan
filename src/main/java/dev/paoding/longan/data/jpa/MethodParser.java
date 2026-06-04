@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.paoding.longan.data.Between;
 import dev.paoding.longan.data.Entity;
 import dev.paoding.longan.data.Pageable;
+import dev.paoding.longan.data.ShortValueEnum;
 import dev.paoding.longan.util.EntityUtils;
 import dev.paoding.longan.util.StringUtils;
 import org.springframework.cglib.beans.BeanMap;
@@ -22,11 +23,11 @@ public class MethodParser {
     private String model;
     private final Map<String, Object> paramMap = new ParamMap();
 
-    public static MethodParser of(String databaseType,String action, Class<?> type, String statement, Map<String, Object> initialParamMap) {
-        return of(databaseType,action, type, statement, initialParamMap, false);
+    public static MethodParser of(String databaseType, String action, Class<?> type, String statement, Map<String, Object> initialParamMap) {
+        return of(databaseType, action, type, statement, initialParamMap, false);
     }
 
-    public static MethodParser of(String databaseType,String action, Class<?> type, String statement, Map<String, Object> initialParamMap, boolean distinct) {
+    public static MethodParser of(String databaseType, String action, Class<?> type, String statement, Map<String, Object> initialParamMap, boolean distinct) {
         MethodParser methodParser = new MethodParser();
         methodParser.metaTable = MetaTableFactory.get(type);
         methodParser.entity = type;
@@ -61,6 +62,7 @@ public class MethodParser {
         String condition = "";
         for (SearchField searchField : searchFieldList) {
             if (!searchField.isManyToMany()) {
+                Class<?> filedType = searchField.getType();
                 String fieldName = searchField.getFieldName();
                 String columnName = searchField.getColumnName();
                 Object value = initialParamMap.get(searchField.getFieldName());
@@ -68,7 +70,7 @@ public class MethodParser {
                     condition += " " + searchField.toSql("", "", enableConnector);
                 } else {
                     if (value.getClass().isAnnotationPresent(Entity.class)) {
-                        condition +=  searchField.getConnector(enableConnector) + " " + columnName + "_id = :" + columnName + "_id";
+                        condition += searchField.getConnector(enableConnector) + " " + columnName + "_id = :" + columnName + "_id";
                         paramMap.put(columnName + "_id", BeanMap.create(initialParamMap.get(fieldName)).get("id"));
 //                    } else if (Example.class.isAssignableFrom(value.getClass())) {
 //                        Example<?> example = (Example<?>) value;
@@ -77,6 +79,13 @@ public class MethodParser {
 //                        paramMap.putAll(matchResult.getParamMap());
 //                        continue;
                     } else {
+                        if (filedType.isEnum()) {
+                            if (ShortValueEnum.class.isAssignableFrom(filedType)) {
+                                value = ((ShortValueEnum) value).value();
+                            } else {
+                                value = value.toString();
+                            }
+                        }
                         paramMap.put(columnName, value);
                         condition += " " + searchField.toSql("", "", enableConnector);
                     }
@@ -124,6 +133,7 @@ public class MethodParser {
         String condition = "";
         int i = 0;
         for (SearchField searchField : searchFieldList) {
+            Class<?> fieldType = searchField.getType();
             String fieldName = searchField.getFieldName();
             String fileDbName = searchField.getFileDbName();
             String columnName = searchField.getColumnName();
@@ -266,10 +276,15 @@ public class MethodParser {
                         paramMap.put(model + "_" + fileDbName + "_start", between.getStart());
                         paramMap.put(model + "_" + fileDbName + "_end", between.getEnd());
                         enableConnector = true;
-                    }else if(Enum.class.isAssignableFrom(searchField.getType())){
+                    } else if (fieldType.isEnum()) {
                         condition += " " + searchField.toSql("t0.", model + "_", enableConnector);
-                        paramMap.put(model + "_" + fileDbName, value.toString());
+
                         enableConnector = true;
+                        if (ShortValueEnum.class.isAssignableFrom(fieldType)) {
+                            paramMap.put(model + "_" + fileDbName, ((ShortValueEnum) value).value());
+                        } else {
+                            paramMap.put(model + "_" + fileDbName, value.toString());
+                        }
                     } else {
                         condition += " " + searchField.toSql("t0.", model + "_", enableConnector);
                         paramMap.put(model + "_" + fileDbName, value);
@@ -323,7 +338,7 @@ public class MethodParser {
                     searchField.setOperator(operator);
 
                     if (operator.equals("IsNull") || operator.equals("Null") || operator.equals("IsNotNull") || operator.equals("NotNull") ||
-                            operator.equals("IsTrue") || operator.equals("True") || operator.equals("IsFalse") || operator.equals("False")) {
+                        operator.equals("IsTrue") || operator.equals("True") || operator.equals("IsFalse") || operator.equals("False")) {
                         searchField.setNoParam(true);
                     } else if (operator.equals("StartingWith")) {
                         String value = (String) initialParamMap.get(fieldName);
