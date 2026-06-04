@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.paoding.longan.channel.http.MultipartFile;
 import dev.paoding.longan.data.Entity;
+import dev.paoding.longan.data.ShortValueEnum;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -207,6 +209,33 @@ public class MetaField {
                 } else {
                     this.sample = LocalTime.parse(sample.toString());
                 }
+            }else if(Array.class.isAssignableFrom(type)) {
+                if (String.class.isAssignableFrom(actualType)) {
+                    this.sample = List.of("a", "b", "c");
+                } else if (Long.class.isAssignableFrom(actualType) || Integer.class.isAssignableFrom(actualType)
+                           || Short.class.isAssignableFrom(actualType) || long.class.isAssignableFrom(actualType) || int.class.isAssignableFrom(actualType) || short.class.isAssignableFrom(actualType)) {
+                    this.sample = List.of(1, 2, 3);
+                } else {
+                    this.sample = new ArrayList<>();
+                }
+            }else if(type.isEnum()){
+                List<String> descriptionList = new ArrayList<>();
+                if(ShortValueEnum.class.isAssignableFrom(type)){
+                    ShortValueEnum[] enumConstants = (ShortValueEnum[])type.getEnumConstants();
+                    for (ShortValueEnum shortValueEnum : enumConstants) {
+                        this.sample = shortValueEnum;
+                        descriptionList.add(String.format("%s(%s)",shortValueEnum.toString(),shortValueEnum.description()));
+                    }
+
+                }else {
+                    Object[] enumConstants = type.getEnumConstants();
+                    for (Object enumConstant : enumConstants) {
+                        this.sample = enumConstant;
+                        descriptionList.add(enumConstant.toString());
+                    }
+
+                }
+                this.description = String.join(", ",descriptionList);
             }
         }
     }
@@ -374,6 +403,9 @@ public class MetaField {
         } else if (MultipartFile.class.isAssignableFrom(type)) {
             dartType = "File";
             jsType = "File";
+        }else if(Array.class.isAssignableFrom(type)){
+            dartType = "List";
+            jsType = "Array";
         }
     }
 

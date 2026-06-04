@@ -63,8 +63,6 @@ public class MetaAttributeService {
             metaAttribute.setValidator(validate.validator());
         }
         metaAttribute.setAlias(metaField.getAlias());
-        metaAttribute.setSample(metaField.getSample());
-        metaAttribute.setDescription(metaField.getDescription());
         metaAttribute.setJavaType(metaField.getJavaType());
         metaAttribute.setDartType(metaField.getDartType());
         metaAttribute.setJsType(metaField.getJsType());
@@ -77,6 +75,8 @@ public class MetaAttributeService {
             }
             metaAttribute.setActualType(metaField.getActualType());
         }
+        metaAttribute.setSample(metaField.getSample());
+        metaAttribute.setDescription(metaField.getDescription());
         return metaAttribute;
     }
 }

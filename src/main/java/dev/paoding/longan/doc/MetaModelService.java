@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.sql.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -74,9 +75,9 @@ public class MetaModelService {
                 MetaField metaField = new MetaField();
                 metaField.setName(field.getName());
 
-                Type type = field.getGenericType();
-                if (type instanceof ParameterizedType) {
-                    ParameterizedType parameterizedType = (ParameterizedType) type;
+                Class<?> type = field.getType();
+                Type genericType = field.getGenericType();
+                if (genericType instanceof ParameterizedType parameterizedType) {
                     metaField.setType((Class<?>) parameterizedType.getRawType());
                     Class<?> actualType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                     metaField.setActualType(actualType);
@@ -85,16 +86,19 @@ public class MetaModelService {
                         metaField.setActualJavaType(actualType.getName());
                         metaField.setAlias(getAlias(actualType));
                     }
+                }else if(type.isArray()){
+                    metaField.setType(java.sql.Array.class);
+                    metaField.setActualType(type.getComponentType());
                 } else {
-                    metaField.setType(field.getType());
+                    metaField.setType(type);
                     if (field.getType().isAnnotationPresent(Entity.class)) {
                         metaField.setTypeIsModel(true);
-                        metaField.setAlias(getAlias((Class<?>) type));
+                        metaField.setAlias(getAlias((Class<?>) genericType));
                     }
 
-                    if (LocalDate.class.isAssignableFrom(field.getType())) {
+                    if (LocalDate.class.isAssignableFrom(type)) {
                         metaField.setDescription("yyyy-MM-dd");
-                    } else if (LocalDateTime.class.isAssignableFrom(field.getType())) {
+                    } else if (LocalDateTime.class.isAssignableFrom(type)) {
                         metaField.setDescription("yyyy-MM-dd HH:mm:ss");
                     }
                 }
@@ -102,13 +106,14 @@ public class MetaModelService {
                 if (field.isAnnotationPresent(Column.class)) {
                     Column column = field.getAnnotation(Column.class);
                     metaField.setAlias(column.alias());
-//                    metaField.setNullable(column.nullable());
-                    try{
-                    metaField.setSample(column.example());
-                    }catch (NumberFormatException e){
-                        throw new DocumentException(new DocumentProblem("Expected "+field.getType()+" format, '"+column.example()+"' could not be parsed. ",field));
+                    try {
+                        metaField.setSample(column.example());
+                    } catch (NumberFormatException e) {
+                        throw new DocumentException(new DocumentProblem("Expected " + type + " format, '" + column.example() + "' could not be parsed. ", field));
                     }
-                    metaField.setDescription(column.description());
+                    if(!column.description().isBlank()) {
+                        metaField.setDescription(column.description());
+                    }
                 } else {
                     if (metaField.getAlias() == null) {
                         metaField.setAlias("");
@@ -118,11 +123,9 @@ public class MetaModelService {
 
                 if (metaField.getName().equals("id")) {
                     metaField.setAlias("id");
-//                    metaField.setNullable(false);
-
-                    if (Number.class.isAssignableFrom(field.getType())) {
+                    if (Number.class.isAssignableFrom(type)) {
                         metaField.setSample(1);
-                    } else if (CharSequence.class.isAssignableFrom(field.getType())) {
+                    } else if (CharSequence.class.isAssignableFrom(type)) {
                         metaField.setSample("A10001");
                     }
                 }
@@ -147,7 +150,7 @@ public class MetaModelService {
             loadSuperEntity(metaModel, clazz.getSuperclass());
         }
 
-            loadFields(metaModel, clazz);
+        loadFields(metaModel, clazz);
         metaModelIndex.put(metaModel.getName(), metaModel);
     }
 
