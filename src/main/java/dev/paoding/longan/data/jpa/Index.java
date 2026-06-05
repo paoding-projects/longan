@@ -25,4 +25,6 @@ public @interface Index {
     boolean unique() default false;
 
     String where() default "";
+
+    String value() default "";
 }

@@ -115,6 +115,10 @@ public abstract class TableMetaDataManager {
                 Table table = classType.getAnnotation(Table.class);
                 Index[] indexes = table.indexes();
                 for (Index index : indexes) {
+                    if(!index.value().isBlank()){
+                        execute(index.value());
+                        continue;
+                    }
                     String[] fieldNames = index.columnNames();
                     List<String> columnNameList = new ArrayList<>();
                     if (fieldNames.length > 0) {
@@ -194,7 +198,7 @@ public abstract class TableMetaDataManager {
 
 
     protected void execute(String sql) {
-        SqlLogger.log(sql);
+//        SqlLogger.log(sql);
         try {
             connection.createStatement().execute(sql);
         } catch (SQLException e) {
