@@ -115,7 +115,7 @@ public abstract class TableMetaDataManager {
                 Table table = classType.getAnnotation(Table.class);
                 Index[] indexes = table.indexes();
                 for (Index index : indexes) {
-                    if(!index.value().isBlank()){
+                    if (!index.value().isBlank()) {
                         execute(index.value());
                         continue;
                     }
@@ -135,7 +135,7 @@ public abstract class TableMetaDataManager {
                             indexName = Joiner.on("_").join(columnNameList);
                         }
                         String where = index.where();
-                        if(!where.isBlank()) {
+                        if (!where.isBlank()) {
                             where = " WHERE " + where;
                         }
                         if (index.unique()) {
@@ -198,10 +198,10 @@ public abstract class TableMetaDataManager {
 
 
     protected void execute(String sql) {
-//        SqlLogger.log(sql);
         try {
             connection.createStatement().execute(sql);
         } catch (SQLException e) {
+            SqlLogger.log(sql);
             logger.error(e.getMessage());
         }
     }

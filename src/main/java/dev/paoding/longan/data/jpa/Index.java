@@ -27,4 +27,6 @@ public @interface Index {
     String where() default "";
 
     String value() default "";
+
+    String description() default "";
 }
