@@ -191,8 +191,8 @@ public abstract class TableMetaDataManager {
                                     "\n\t\tPRIMARY KEY (" + sourceId + ", " + targetId + ")\n)";
             execute(createTableSql);
 
-            execute("CREATE INDEX idx_" + table + "_" + sourceId + " ON " + table + " (" + sourceId + ")");
-            execute("CREATE INDEX idx_" + table + "_" + targetId + " ON " + table + " (" + targetId + ")");
+//            execute("CREATE INDEX idx_" + table + "_" + sourceId + " ON " + table + " (" + sourceId + ")");
+            execute("CREATE INDEX idx_" + table + "_" + targetId + "_" + sourceId + " ON " + table + " (" + targetId + ", " + sourceId + ")");
         }
     }
 

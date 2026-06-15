@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -36,6 +37,16 @@ public abstract class AbstractServiceHandler {
 
     {
         zeroCopyEnabled = !System.getProperty("os.name").toLowerCase().contains("win");
+    }
+
+    protected String[] parseURI(String uri) {
+        int i = uri.indexOf("?");
+        if (i < 0) {
+            return new String[]{uri};
+        } else {
+            uri = URLDecoder.decode(uri, StandardCharsets.UTF_8);
+            return new String[]{uri.substring(0, i), uri.substring(i + 1)};
+        }
     }
 
     protected void writeJson(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, HttpResponseStatus httpResponseStatus, ExceptionResult exceptionResult) {

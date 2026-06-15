@@ -1,27 +1,23 @@
 package dev.paoding.longan.channel.http;
 
 import dev.paoding.longan.core.MethodInvocation;
-import dev.paoding.longan.core.Result;
 import dev.paoding.longan.service.InternalServerException;
 import dev.paoding.longan.service.MethodNotAllowedException;
 import dev.paoding.longan.service.MethodNotFoundException;
 import dev.paoding.longan.service.ServiceException;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpResponse;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 
 @Component
-public class ApiServiceHandler extends AbstractServiceHandler {
-    private final Logger logger = LoggerFactory.getLogger(ApiServiceHandler.class);
+public class SseServiceHandler extends AbstractServiceHandler {
+    private final Logger logger = LoggerFactory.getLogger(SseServiceHandler.class);
     @Resource
     private HandlerInterceptor handlerInterceptor;
     @Resource
@@ -30,6 +26,17 @@ public class ApiServiceHandler extends AbstractServiceHandler {
     private MethodInvocationProvider methodInvocationProvider;
 
     public void channelRead(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest, String uri) {
+        // 2. 建立 SSE 响应头
+        HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+        response.headers()
+                .set(HttpHeaderNames.CONTENT_TYPE, "text/event-stream")
+                .set(HttpHeaderNames.CACHE_CONTROL,HttpHeaderValues.NO_CACHE)
+                .set(HttpHeaderNames.CONNECTION,  HttpHeaderValues.KEEP_ALIVE)
+                .set("X-Accel-Buffering", "no");   // 禁用 Nginx 缓冲
+
+        HttpUtil.setTransferEncodingChunked(response, true);
+        ctx.writeAndFlush(response);
+
         String[] array = parseURI(uri);
         String path = array[0];
 
@@ -44,8 +51,7 @@ public class ApiServiceHandler extends AbstractServiceHandler {
             ScopedContext scopedContext = handlerInterceptor.preHandle(httpRequest);
             scopedContext.run(() -> {
                 String query = array.length == 2 ? array[1] : null;
-                Result result = httpServiceInvoker.invokeService(methodInvocation, path, query, fullHttpRequest);
-                write(methodInvocation.getMethod(), ctx, fullHttpRequest, result);
+                httpServiceInvoker.invokeService(methodInvocation, path, query, fullHttpRequest);
             });
         } catch (Exception e) {
             handleError(ctx, fullHttpRequest, methodInvocation, e);
@@ -133,7 +139,7 @@ public class ApiServiceHandler extends AbstractServiceHandler {
     }
 
     @Override
-    protected void postHandle(HttpResponse httpResponse) {
+    protected void postHandle(dev.paoding.longan.channel.http.HttpResponse httpResponse) {
         handlerInterceptor.postHandle(httpResponse);
     }
 

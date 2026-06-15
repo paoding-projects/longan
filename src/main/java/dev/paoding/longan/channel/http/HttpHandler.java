@@ -19,12 +19,15 @@ public class HttpHandler {
     @Resource
     private ApiServiceHandler apiServiceHandler;
     @Resource
+    private SseServiceHandler sseServiceHandler;
+    @Resource
     private DocServiceHandler docServiceHandler;
     @Resource
     private OptionsServiceHandler optionsServiceHandler;
     @Resource
     private NotFoundServiceHandler notFoundServiceHandler;
     private static final String API_PREFIX = "/api/";
+    private static final String SSE_PREFIX = "/sse/";
     private static final String DOC_PREFIX = "/doc/";
     private final ExecutorService executorService;
 
@@ -47,6 +50,8 @@ public class HttpHandler {
                     String uri = request.uri();
                     if (uri.startsWith(API_PREFIX)) {
                         apiServiceHandler.channelRead(ctx, request, uri.substring(4));
+                    }else if (uri.startsWith(SSE_PREFIX)) {
+                        sseServiceHandler.channelRead(ctx, request, uri.substring(4));
                     } else if (uri.startsWith(DOC_PREFIX)) {
                         docServiceHandler.channelRead(ctx, request, uri);
                     } else {
