@@ -171,12 +171,19 @@ public abstract class AbstractServiceHandler {
         boolean keepAlive = HttpUtil.isKeepAlive(fullHttpRequest);
         HttpVersion httpVersion = fullHttpRequest.protocolVersion();
 
-        DefaultHttpResponse defaultHttpResponse = new DefaultHttpResponse(httpVersion, HttpResponseStatus.OK);
+        DefaultHttpResponse defaultHttpResponse;
+        HttpResponse httpResponse;
+        if (virtualFile instanceof ByteFile byteFile) {
+            defaultHttpResponse = new DefaultFullHttpResponse(httpVersion, HttpResponseStatus.OK, Unpooled.wrappedBuffer(byteFile.getBytes()));
+            httpResponse = new HttpResponseImpl(defaultHttpResponse);
+        } else {
+            defaultHttpResponse = new DefaultHttpResponse(httpVersion, HttpResponseStatus.OK);
+            httpResponse = new HttpResponseImpl(defaultHttpResponse, virtualFile);
+        }
         String filename = URLEncoder.encode(virtualFile.getName(), StandardCharsets.UTF_8);
         defaultHttpResponse.headers().set(CONTENT_DISPOSITION, "attachment;filename*=UTF-8''" + filename);
         defaultHttpResponse.headers().set(CONTENT_TYPE, contentType);
         defaultHttpResponse.headers().set(CONTENT_LENGTH, virtualFile.length());
-        HttpResponse httpResponse = new HttpResponseImpl(defaultHttpResponse, virtualFile);
         postHandle(httpResponse);
         writeAndFlush(ctx, keepAlive, httpResponse);
     }
@@ -216,31 +223,19 @@ public abstract class AbstractServiceHandler {
                 try {
                     DownloadListener downloadListener = binaryFile.getDownloadListener();
                     RandomAccessFile randomAccessFile = new RandomAccessFile(binaryFile.getFile(), "r");
+                    FileReadWriteFutureListener fileReadWriteFutureListener = new FileReadWriteFutureListener(randomAccessFile, downloadListener);
+                    ChannelProgressivePromise promise = ctx.newProgressivePromise().addListener(fileReadWriteFutureListener);
                     try {
                         ChannelFuture sendFileFuture;
                         if (zeroCopyEnabled) {
-                            sendFileFuture = ctx.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, file.length()), ctx.newProgressivePromise());
+                            ctx.write(new DefaultFileRegion(randomAccessFile.getChannel(), 0, file.length()), promise);
+                            sendFileFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
                         } else {
-                            sendFileFuture = ctx.write(new HttpChunkedInput(new ChunkedFile(randomAccessFile, 0, file.length(), 8192)), ctx.newProgressivePromise());
+                            sendFileFuture = ctx.writeAndFlush(new HttpChunkedInput(new ChunkedFile(randomAccessFile, 0, file.length(), 8192)), promise);
                         }
-                        sendFileFuture.addListener(new ChannelProgressiveFutureListener() {
-                            @Override
-                            public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
-
-                            }
-
-                            @Override
-                            public void operationComplete(ChannelProgressiveFuture future) {
-                                try {
-                                    randomAccessFile.close();
-                                } catch (IOException e) {
-                                    logger.info(e.getMessage());
-                                }
-                                if (downloadListener != null) {
-                                    downloadListener.onSuccess();
-                                }
-                            }
-                        });
+                        if (!keepAlive) {
+                            sendFileFuture.addListener(ChannelFutureListener.CLOSE);
+                        }
                     } catch (Exception e) {
                         randomAccessFile.close();
                         if (downloadListener != null) {
@@ -250,16 +245,6 @@ public abstract class AbstractServiceHandler {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            } else {
-                ByteFile byteFile = (ByteFile) file;
-                ByteBuf byteBuf = Unpooled.wrappedBuffer(byteFile.getBytes());
-                ByteBufInputStream contentStream = new ByteBufInputStream(byteBuf);
-                ctx.writeAndFlush(new HttpChunkedInput(new ChunkedStream(contentStream)));
-            }
-
-            ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-            if (!keepAlive) {
-                lastContentFuture.addListener(ChannelFutureListener.CLOSE);
             }
         }
     }

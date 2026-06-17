@@ -84,12 +84,6 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
                     if (uri.startsWith(API_PREFIX)) {
                         apiServiceHandler.channelRead(ctx, request, uri.substring(4));
                     } else if (uri.startsWith(SSE_PREFIX)) {
-//                        ctx.pipeline().addFirst(new IdleStateHandler(
-//                                0,
-//                                180,
-//                                0,
-//                                TimeUnit.SECONDS
-//                        ));
                         sseServiceHandler.channelRead(ctx, request, uri.substring(4));
                     } else if (uri.startsWith(DOC_PREFIX)) {
                         docServiceHandler.channelRead(ctx, request, uri);
@@ -125,11 +119,7 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object event) {
-        if (event instanceof IdleStateEvent idleStateEvent) {
-            if (idleStateEvent.state().equals(IdleState.WRITER_IDLE)) {
-                ctx.writeAndFlush(Unpooled.wrappedBuffer(": ping\n\n".getBytes(StandardCharsets.UTF_8)));
-            }
-        } else if (event instanceof WebSocketServerProtocolHandler.HandshakeComplete handshake) {
+        if (event instanceof WebSocketServerProtocolHandler.HandshakeComplete handshake) {
             ctx.channel().config().setWriteBufferWaterMark(new WriteBufferWaterMark(128 * 1024, 256 * 1024));
             webSocketHandler.open(ctx, handshake.requestUri().substring(3), handshake.requestHeaders());
             ctx.channel().closeFuture().addListener(future -> webSocketHandler.close(ctx));
