@@ -14,7 +14,7 @@ import java.util.Set;
 public class HttpRequestImpl implements HttpRequest {
     public static final AsciiString COOKIE_NAME = AsciiString.cached("Cookie");
     private final FullHttpRequest request;
-    private String path;
+    private final String path;
     private Map<String, String> cookieMap;
 
     public HttpRequestImpl(FullHttpRequest request, String path) {

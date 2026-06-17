@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import jakarta.annotation.Resource;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,43 +24,23 @@ public class WebSocketHandler {
     private WebSocketListenerHandler webSocketListenerHandler;
     @Resource
     private HandlerInterceptor handlerInterceptor;
-    private final ExecutorService executorService;
-
-    {
-        ThreadFactory threadFactory = Thread.ofVirtual().name("websocket-thread-", 0).uncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable throwable) {
-                logger.error(throwable.getMessage());
-            }
-        }).factory();
-        executorService = Executors.newThreadPerTaskExecutor(threadFactory);
-    }
+    @Setter
+    private ExecutorService executorService;
 
     public void channelRead(ChannelHandlerContext ctx, TextWebSocketFrame frame) {
-        executorService.execute(() -> {
-            try {
-                WebSocketContext webSocketContext = ctx.channel().attr(WEB_SOCKET_SESSION_ATTRIBUTE_KEY).get();
-                webSocketListenerHandler.onMessage(webSocketContext, frame.text());
-            } finally {
-                ReferenceCountUtil.release(frame);
-            }
-        });
+        WebSocketContext webSocketContext = ctx.channel().attr(WEB_SOCKET_SESSION_ATTRIBUTE_KEY).get();
+        webSocketListenerHandler.onMessage(webSocketContext, frame.text());
     }
 
     public void channelRead(ChannelHandlerContext ctx, BinaryWebSocketFrame frame) {
-        executorService.execute(() -> {
-            try {
-                WebSocketContext webSocketContext = ctx.channel().attr(WEB_SOCKET_SESSION_ATTRIBUTE_KEY).get();
-                webSocketListenerHandler.onMessage(webSocketContext, frame.content().array());
-            } finally {
-                ReferenceCountUtil.release(frame);
-            }
-        });
+        WebSocketContext webSocketContext = ctx.channel().attr(WEB_SOCKET_SESSION_ATTRIBUTE_KEY).get();
+        webSocketListenerHandler.onMessage(webSocketContext, frame.content().array());
     }
 
     public void close(ChannelHandlerContext ctx) {
         executorService.execute(() -> {
             WebSocketContext webSocketContext = ctx.channel().attr(WEB_SOCKET_SESSION_ATTRIBUTE_KEY).get();
+            ctx.channel().attr(WEB_SOCKET_SESSION_ATTRIBUTE_KEY).set(null);
             if (webSocketContext != null) {
                 webSocketListenerHandler.onClose(webSocketContext);
             }

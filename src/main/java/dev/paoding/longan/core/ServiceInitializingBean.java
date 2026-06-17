@@ -1,10 +1,7 @@
 package dev.paoding.longan.core;
 
 import dev.paoding.longan.channel.dubbo.DubboFilter;
-import dev.paoding.longan.channel.http.HttpServer;
-import dev.paoding.longan.channel.http.MethodInvocationProvider;
-import dev.paoding.longan.channel.http.WebSocketListener;
-import dev.paoding.longan.channel.http.WebSocketListenerHandler;
+import dev.paoding.longan.channel.http.*;
 import dev.paoding.longan.doc.DocumentService;
 import dev.paoding.longan.util.StringUtils;
 import jakarta.annotation.Resource;
@@ -26,6 +23,8 @@ public class ServiceInitializingBean implements BeanFactoryAware, InitializingBe
     @Resource
     private WebSocketListenerHandler webSocketListenerHandler;
     @Resource
+    private SSEListenerHandler sseListenerHandler;
+    @Resource
     private MethodInvocationProvider methodInvocationProvider;
     @Resource
     private ApplicationContext context;
@@ -44,6 +43,7 @@ public class ServiceInitializingBean implements BeanFactoryAware, InitializingBe
     @Override
     public void afterPropertiesSet() {
         registerWebSocketListener();
+        registerSseListener();
         exportDubboService();
         exportHttpService();
         exportApiDocument();
@@ -67,7 +67,15 @@ public class ServiceInitializingBean implements BeanFactoryAware, InitializingBe
         String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors((ListableBeanFactory) beanFactory, WebSocketListener.class);
         for (String candidateName : candidateNames) {
             Class<?> modelClass = getModelClass(AopUtils.getTargetClass(beanFactory.getBean(candidateName)));
-            webSocketListenerHandler.addWebSocketListener(StringUtils.lowerFirst(modelClass.getSimpleName()),(WebSocketListener) beanFactory.getBean(candidateName));
+            webSocketListenerHandler.addWebSocketListener(StringUtils.lowerFirst(modelClass.getSimpleName()), (WebSocketListener) beanFactory.getBean(candidateName));
+        }
+    }
+
+    private void registerSseListener() {
+        String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors((ListableBeanFactory) beanFactory, SSEListener.class);
+        for (String candidateName : candidateNames) {
+            Class<?> modelClass = getModelClass(AopUtils.getTargetClass(beanFactory.getBean(candidateName)));
+            sseListenerHandler.addSSEListener(StringUtils.lowerFirst(modelClass.getSimpleName()), (SSEListener) beanFactory.getBean(candidateName));
         }
     }
 

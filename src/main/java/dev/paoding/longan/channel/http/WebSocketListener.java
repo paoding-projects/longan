@@ -2,7 +2,7 @@ package dev.paoding.longan.channel.http;
 
 public interface WebSocketListener {
 
-    default void onOpen(WebSocketContext context,HttpRequest httpRequest) {
+    default void onOpen(WebSocketContext context, HttpRequest httpRequest) {
     }
 
     default void onMessage(WebSocketContext context, String message) {

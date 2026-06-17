@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class WebSocketContext {
     private static final Pattern pattern = Pattern.compile("^/([^/]+)");
-    private final Map<CharSequence, Object> map = new ConcurrentHashMap<>();
+    private final Map<String, Object> map = new ConcurrentHashMap<>();
     private final Channel channel;
     private String anchor;
 
@@ -42,15 +42,15 @@ public class WebSocketContext {
         return null;
     }
 
-    public Object put(CharSequence key, Object value) {
+    public Object put(String key, Object value) {
         return map.put(key, value);
     }
 
-    public Object get(CharSequence key) {
+    public Object get(String key) {
         return map.get(key);
     }
 
-    public Object remove(CharSequence key) {
+    public Object remove(String key) {
         return map.remove(key);
     }
 
