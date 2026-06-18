@@ -60,8 +60,8 @@ public class SSEServiceHandler extends AbstractServiceHandler {
             SSEContext sseContext = ctx.channel().attr(SSE_SESSION_ATTRIBUTE_KEY).get();
             ctx.channel().attr(SSE_SESSION_ATTRIBUTE_KEY).set(null);
             if (sseContext != null) {
-                sseContext.destroy();
                 sseListenerHandler.onClose(sseContext);
+                sseContext.destroy();
             }
             handlerInterceptor.afterCompletion();
         });
