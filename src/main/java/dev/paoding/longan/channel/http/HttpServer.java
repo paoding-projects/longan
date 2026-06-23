@@ -7,9 +7,6 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.kqueue.KQueue;
-import io.netty.channel.kqueue.KQueueIoHandler;
-import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -80,13 +77,13 @@ public class HttpServer {
             this.bossGroup = new MultiThreadIoEventLoopGroup(bossThreads, EpollIoHandler.newFactory());
             this.workGroup = new MultiThreadIoEventLoopGroup(EpollIoHandler.newFactory());
             start(EpollServerSocketChannel.class, ChannelType.EPOLL);
-        } else if (KQueue.isAvailable()) {
-            logger.info("KQueue supported on {} {} system.", name, version);
-            this.bossGroup = new MultiThreadIoEventLoopGroup(bossThreads, KQueueIoHandler.newFactory());
-            this.workGroup = new MultiThreadIoEventLoopGroup(KQueueIoHandler.newFactory());
-            start(KQueueServerSocketChannel.class, ChannelType.KQUEUE);
+//        } else if (KQueue.isAvailable()) {
+//            logger.info("KQueue supported on {} {} system.", name, version);
+//            this.bossGroup = new MultiThreadIoEventLoopGroup(bossThreads, KQueueIoHandler.newFactory());
+//            this.workGroup = new MultiThreadIoEventLoopGroup(KQueueIoHandler.newFactory());
+//            start(KQueueServerSocketChannel.class, ChannelType.KQUEUE);
         } else {
-            logger.info("NIO supported on {} {} system.", name, version);
+            logger.info("Java NIO supported on {} {} system.", name, version);
             this.bossGroup = new MultiThreadIoEventLoopGroup(bossThreads, NioIoHandler.newFactory());
             this.workGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
             startNio();

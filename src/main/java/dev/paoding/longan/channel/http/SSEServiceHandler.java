@@ -29,7 +29,7 @@ public class SSEServiceHandler extends AbstractServiceHandler {
                 .set(HttpHeaderNames.CONTENT_TYPE, "text/event-stream")
                 .set(HttpHeaderNames.CACHE_CONTROL, HttpHeaderValues.NO_CACHE)
                 .set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE)
-                .set("Access-Control-Allow-Origin", "*")
+//                .set("Access-Control-Allow-Origin", "*")
                 .set("X-Accel-Buffering", "no");
 
         HttpUtil.setTransferEncodingChunked(response, true);
