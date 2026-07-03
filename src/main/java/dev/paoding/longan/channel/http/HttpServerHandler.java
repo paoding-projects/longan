@@ -1,6 +1,5 @@
 package dev.paoding.longan.channel.http;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -10,17 +9,14 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCountUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -29,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @ChannelHandler.Sharable
-public class HttpServerHandler extends ChannelInboundHandlerAdapter {
+public class HttpServerHandler extends ChannelInboundHandlerAdapter implements DisposableBean {
     private final Logger logger = LoggerFactory.getLogger(HttpServerHandler.class);
     @Resource
     private WebSocketHandler webSocketHandler;
@@ -56,6 +52,14 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
             }
         }).factory();
         executorService = Executors.newThreadPerTaskExecutor(threadFactory);
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        executorService.shutdown();
+        if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
     }
 
     @PostConstruct
