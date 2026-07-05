@@ -26,14 +26,14 @@ public class BeanMethodInterceptor<T> implements MethodInterceptor, BeanProxy {
 
     @Override
     public Object intercept(Object object, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        if (BeanProxyUtils.GET_ID_METHOD.equals(method.getName())) {
+            return id;
+        }
         if (BeanProxyUtils.GET_ORIGINAL_METHOD.equals(method)) {
             return getOriginal();
         }
         if (BeanProxyUtils.GET_TYPE_METHOD.equals(method)) {
             return getType();
-        }
-        if (BeanProxyUtils.GET_ID_METHOD.equals(method.getName())) {
-            return id;
         }
         if (bean == null) {
             load();
