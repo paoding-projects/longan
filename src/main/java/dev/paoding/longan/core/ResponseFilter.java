@@ -79,7 +79,7 @@ public class ResponseFilter {
         }
 
         if (object instanceof BeanProxy) {
-            type = ((BeanProxy) object).getOriginal().getClass();
+            type = ((BeanProxy) object).getType();
         }
 
         if (beanFilterMap.containsKey(type)) {
@@ -96,29 +96,6 @@ public class ResponseFilter {
                     }
                 }
             }
-
-
-//            Field[] fields = type.getDeclaredFields();
-//            BeanMap beanMap = BeanMap.create(object);
-//            for (Field field : fields) {
-//                String name = field.getName();
-//                if (includes.contains(name)) {
-//                    Object value = beanMap.get(name);
-//                    if (value != null) {
-//                        if (Internationalization.isEnabled() && field.isAnnotationPresent(I18n.class)) {
-//                            Map<String, String> map = GsonUtils.toLocaleMap(value.toString());
-//                            value = map.getOrDefault(Internationalization.getLanguage(), "");
-//                            resultMap.put(name, value);
-//                        } else {
-//                            if (Collection.class.isAssignableFrom(value.getClass())) {
-//                                resultMap.put(name, filterCollection((Collection<?>) value, beanFilterMap));
-//                            } else {
-//                                resultMap.put(name, filterObject(value, beanFilterMap));
-//                            }
-//                        }
-//                    }
-//                }
-//            }
             return resultMap;
         } else {
             return object;

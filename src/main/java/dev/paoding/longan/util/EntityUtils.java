@@ -76,7 +76,7 @@ public class EntityUtils {
                 try {
                     field.set(bean, BeanFactory.createList(master, slaver, null, joinFile, bean));
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         }
@@ -95,7 +95,7 @@ public class EntityUtils {
                 try {
                     field.set(bean, BeanFactory.createList(master, slaver, role, "", bean));
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         }
@@ -116,7 +116,7 @@ public class EntityUtils {
             try {
                 field.set(bean, BeanFactory.createList(master, slaver, null, joinFile, bean));
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
 
@@ -133,7 +133,7 @@ public class EntityUtils {
             try {
                 field.set(bean, BeanFactory.createList(master, slaver, role, "", bean));
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
         return bean;

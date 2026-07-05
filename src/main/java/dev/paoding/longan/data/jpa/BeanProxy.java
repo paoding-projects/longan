@@ -4,4 +4,5 @@ public interface BeanProxy {
 
     Object getOriginal();
 
+    Class<?> getType();
 }
