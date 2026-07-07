@@ -68,7 +68,7 @@ public class ResponseFilter {
         for (Object object : collection) {
             list.add(filterObject(object, beanFilterMap));
         }
-//        collection.clear();
+        collection.clear();
         return list;
     }
 
