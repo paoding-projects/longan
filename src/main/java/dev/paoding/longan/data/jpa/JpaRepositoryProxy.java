@@ -88,6 +88,7 @@ public class JpaRepositoryProxy<T, ID> implements InvocationHandler, JpaReposito
                 if (pageable != null) {
                     sql += pageable.toSql(databaseType);
                 }
+                paramMap.remove("pageable");
             }
             if (returnType.isAssignableFrom(List.class)) {
                 return EntityUtils.wrap(metaTable, jdbcSession.query(sql, paramMap, metaTable.getRowMapper()));

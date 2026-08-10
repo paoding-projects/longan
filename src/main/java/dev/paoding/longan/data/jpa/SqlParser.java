@@ -23,10 +23,9 @@ public class SqlParser {
                 Object arg = args[i];
                 if (arg != null) {
                     Class<?> type = arg.getClass();
-//                    if (type == Pageable.class) {
-//                        paramMap.put(parameters[i].getName(), arg);
-//                    } else
-                    if (type.isAnnotationPresent(Entity.class)) {
+                    if (type == Pageable.class) {
+                        paramMap.put(parameters[i].getName(), arg);
+                    } else if (type.isAnnotationPresent(Entity.class)) {
                         Field[] declaredFields = arg.getClass().getDeclaredFields();
                         for (Field field : declaredFields) {
                             if (field.getModifiers() == Modifier.PRIVATE) {

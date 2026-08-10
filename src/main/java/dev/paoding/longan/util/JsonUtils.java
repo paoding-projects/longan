@@ -40,6 +40,11 @@ public class JsonUtils {
         });
     }
 
+    public static Map<String, String> toSimpleMap(String json) {
+        return mapper.readValue(json, new TypeReference<>() {
+        });
+    }
+
     public static <T> T fromJson(JsonNode jsonNode, Type type) {
         JavaType javaType = mapper.constructType(type);
         return mapper.convertValue(jsonNode, javaType);
