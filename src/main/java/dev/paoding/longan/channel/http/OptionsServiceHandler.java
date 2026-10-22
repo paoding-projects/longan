@@ -2,25 +2,31 @@ package dev.paoding.longan.channel.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OptionsServiceHandler extends AbstractServiceHandler {
-    @Value("${longan.http.cross-origin:false}")
-    private Boolean enableCrossOrigin;
 
     public void channelRead(ChannelHandlerContext ctx, FullHttpRequest request) {
         boolean keepAlive = HttpUtil.isKeepAlive(request);
-        DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NO_CONTENT);
-        if (enableCrossOrigin) {
+
+        String origin = request.headers().get(HttpHeaderNames.ORIGIN);
+        if (origin == null || origin.isBlank()) {
+            DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.NO_CONTENT);
             HttpHeaders httpHeaders = fullHttpResponse.headers();
-            httpHeaders.set("Access-Control-Allow-Origin", "*");
-            httpHeaders.set("Access-Control-Allow-Methods", "*");
-            httpHeaders.set("Access-Control-Allow-Headers", "*");
-            httpHeaders.set("Access-Control-Allow-Credentials", "true");
+            httpHeaders.set(HttpHeaderNames.ALLOW, "GET, POST");
+            httpHeaders.set(HttpHeaderNames.CONTENT_LENGTH, 0);
+
+            HttpResponse httpResponse = new HttpResponseImpl(fullHttpResponse);
+            writeAndFlush(ctx, keepAlive, httpResponse);
+        } else {
+            DefaultFullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(request.protocolVersion(), HttpResponseStatus.FORBIDDEN);
+            HttpHeaders httpHeaders = fullHttpResponse.headers();
+            httpHeaders.set(HttpHeaderNames.CONTENT_LENGTH, 0);
+
+            HttpResponse httpResponse = new HttpResponseImpl(fullHttpResponse);
+            writeAndFlush(ctx, keepAlive, httpResponse);
         }
-        HttpResponse httpResponse = new HttpResponseImpl(fullHttpResponse);
-        writeAndFlush(ctx, keepAlive, httpResponse);
+
     }
 }
