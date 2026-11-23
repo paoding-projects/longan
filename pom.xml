@@ -38,22 +38,22 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>false</skipTests>
-        <netty.version>4.2.20.Final</netty.version>
+        <netty.version>4.2.21.Final</netty.version>
         <spring.version>7.0.9</spring.version>
-        <spring-boot.version>4.1.2</spring-boot.version>
+        <spring-boot.version>4.2.0</spring-boot.version>
         <spring-data-commons.version>4.1.2</spring-data-commons.version>
         <slf4j.version>2.0.18</slf4j.version>
-        <log4j.version>2.26.0</log4j.version>
+        <log4j.version>2.26.1</log4j.version>
         <snakeyaml.version>2.6</snakeyaml.version>
-        <guava.version>33.5.0-jre</guava.version>
-        <HikariCP.version>7.0.2</HikariCP.version>
-        <commons-codec.version>1.21.0</commons-codec.version>
+        <guava.version>33.8.0-jre</guava.version>
+        <HikariCP.version>7.1.0</HikariCP.version>
+        <commons-codec.version>1.23.0</commons-codec.version>
         <commons-pool2.version>2.13.1</commons-pool2.version>
         <jakarta.annotation>3.0.0</jakarta.annotation>
-        <zookeeper.version>3.9.5</zookeeper.version>
-        <postgresql.version>42.7.8</postgresql.version>
+        <zookeeper.version>3.9.7</zookeeper.version>
+        <postgresql.version>42.7.14</postgresql.version>
         <lombok.version>1.18.42</lombok.version>
-        <dubbo.version>3.3.6</dubbo.version>
+        <dubbo.version>3.3.7</dubbo.version>
         <dubbo-dependencies-zookeeper.version>3.2.18</dubbo-dependencies-zookeeper.version>
         <junit-jupiter.version>6.0.0</junit-jupiter.version>
     </properties>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>3.1.1</version>
+            <version>3.3.0</version>
         </dependency>
 
         <dependency>
